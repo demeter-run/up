@@ -1,0 +1,180 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+availabilityZones: [us-west-2b, us-west-2c]
+
+vpc:
+  cidr: 10.6.0.0/16
+
+metadata:
+  name: dmtr-cluster
+  region: us-west-2
+
+managedNodeGroups:
+  # Consistent
+  - name: co-gp-x86-az1
+    labels:
+      demeter.run/availability-sla: consistent
+      demeter.run/compute-profile: general-purpose
+      demeter.run/compute-arch: x86
+      demeter.run/availability-zone: az1
+    instanceType: m6a.2xlarge
+    minSize: 0
+    maxSize: 1
+    desiredCapacity: 0
+    taints:
+      - key: demeter.run/availability-sla
+        value: "consistent"
+        effect: NoSchedule
+      - key: demeter.run/compute-profile
+        value: "general-purpose"
+        effect: NoSchedule
+      - key: demeter.run/compute-arch
+        value: "x86"
+        effect: NoSchedule
+    availabilityZones:
+      - us-west-2b
+
+  - name: co-gp-x86-az2
+    labels:
+      demeter.run/availability-sla: consistent
+      demeter.run/compute-profile: general-purpose
+      demeter.run/compute-arch: x86
+      demeter.run/availability-zone: az1
+    instanceType: m6a.2xlarge
+    minSize: 0
+    maxSize: 1
+    desiredCapacity: 0
+    taints:
+      - key: demeter.run/availability-sla
+        value: "consistent"
+        effect: NoSchedule
+      - key: demeter.run/compute-profile
+        value: "general-purpose"
+        effect: NoSchedule
+      - key: demeter.run/compute-arch
+        value: "x86"
+        effect: NoSchedule
+    availabilityZones:
+      - us-west-2c
+
+  - name: co-gp-arm64-az1
+    labels:
+      demeter.run/availability-sla: consistent
+      demeter.run/compute-profile: general-purpose
+      demeter.run/compute-arch: arm64
+      demeter.run/availability-zone: az1
+    instanceType: m7g.2xlarge
+    minSize: 0
+    maxSize: 1
+    desiredCapacity: 0
+    taints:
+      - key: demeter.run/availability-sla
+        value: "consistent"
+        effect: NoSchedule
+      - key: demeter.run/compute-profile
+        value: "general-purpose"
+        effect: NoSchedule
+      - key: demeter.run/compute-arch
+        value: "arm64"
+        effect: NoSchedule
+    availabilityZones:
+      - us-west-2b
+
+  - name: co-mem-x86-az1
+    labels:
+      demeter.run/availability-sla: consistent
+      demeter.run/compute-profile: mem-intensive
+      demeter.run/compute-arch: x86
+      demeter.run/availability-zone: az1
+    instanceType: r6a.2xlarge
+    minSize: 0
+    maxSize: 1
+    desiredCapacity: 0
+    taints:
+      - key: demeter.run/availability-sla
+        value: "consistent"
+        effect: NoSchedule
+      - key: demeter.run/compute-profile
+        value: "mem-intensive"
+        effect: NoSchedule
+      - key: demeter.run/compute-arch
+        value: "x86"
+        effect: NoSchedule
+    availabilityZones:
+      - us-west-2b
+
+  - name: co-mem-arm64-az1
+    labels:
+      demeter.run/availability-sla: consistent
+      demeter.run/compute-profile: mem-intensive
+      demeter.run/compute-arch: arm64
+      demeter.run/availability-zone: az1
+    instanceType: r7g.2xlarge
+    minSize: 0
+    maxSize: 1
+    desiredCapacity: 0
+    taints:
+      - key: demeter.run/availability-sla
+        value: "consistent"
+        effect: NoSchedule
+      - key: demeter.run/compute-profile
+        value: "mem-intensive"
+        effect: NoSchedule
+      - key: demeter.run/compute-arch
+        value: "arm64"
+        effect: NoSchedule
+    availabilityZones:
+      - us-west-2b
+
+  # Best Effort
+  - name: be-gp-x86-az1
+    labels:
+      demeter.run/availability-sla: best-effort
+      demeter.run/compute-profile: general-purpose
+      demeter.run/compute-arch: x86
+      demeter.run/availability-zone: az1
+    instanceTypes:
+      ["m6a.2xlarge", "m6i.2xlarge", "t3.2xlarge", "m5.2xlarge", "m5a.2xlarge"]
+    minSize: 0
+    maxSize: 1
+    desiredCapacity: 1
+    spot: true
+    taints:
+      - key: demeter.run/availability-sla
+        value: "best-effort"
+        effect: NoSchedule
+      - key: demeter.run/compute-profile
+        value: "general-purpose"
+        effect: NoSchedule
+      - key: demeter.run/compute-arch
+        value: "x86"
+        effect: NoSchedule
+    availabilityZones:
+      - us-west-2b
+
+  - name: be-gp-arm64-az1
+    labels:
+      demeter.run/availability-sla: best-effort
+      demeter.run/compute-profile: general-purpose
+      demeter.run/compute-arch: arm64
+      demeter.run/availability-zone: az1
+    instanceTypes: ["m7g.2xlarge", "m6g.2xlarge", "t4g.2xlarge"]
+    minSize: 1
+    maxSize: 1
+    desiredCapacity: 1
+    spot: true
+    taints:
+      - key: demeter.run/availability-sla
+        value: "best-effort"
+        effect: NoSchedule
+      - key: demeter.run/compute-profile
+        value: "general-purpose"
+        effect: NoSchedule
+      - key: demeter.run/compute-arch
+        value: "arm64"
+        effect: NoSchedule
+    availabilityZones:
+      - us-west-2b
+
+
