@@ -1,7 +1,3 @@
-variable "namespace" {
-  default = "demeter-system"
-}
-
 resource "kubernetes_cluster_role" "cluster-role" {
   metadata {
     name = var.namespace

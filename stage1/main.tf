@@ -7,48 +7,45 @@ terraform {
   }
 }
 
-locals {
-  cluster_name = "dmtr-xxx"
-  k8s_config   = "~/.kube/config"
-  k8s_context  = "mycontext"
-}
-
 provider "kubernetes" {
-  config_path    = local.k8s_config
-  config_context = local.k8s_context
+  config_path    = var.k8s_config
+  config_context = var.k8s_context
 }
 
 provider "helm" {
   kubernetes {
-    config_path    = local.k8s_config
-    config_context = local.k8s_context
+    config_path    = var.k8s_config
+    config_context = var.k8s_context
   }
 }
 
 module "aws_elb_controller" {
   source = "../modules/aws/elb-controller/stage1"
+  count  = var.cloud_provider == "aws" ? 1 : 0
 }
 
 module "aws_external_snapshoter" {
   source = "../modules/aws/external-snapshoter/stage1"
+  count  = var.cloud_provider == "aws" ? 1 : 0
 }
 
 module "metrics_server" {
-  source = "../modules/metrics_server/stage1"
+  source = "../modules/common/metrics-server/stage1"
 }
 
 module "cert_manager" {
-  source = "../modules/cert-manager/stage1"
+  source = "../modules/common/cert-manager/stage1"
 }
 
 module "gateway" {
-  source = "../modules/gateway-api/stage1"
+  source = "../modules/common/gateway-api/stage1"
 }
 
 module "o11y" {
-  source = "../modules/o11y/stage1"
+  source = "../modules/common/o11y/stage1"
 }
 
 module "dmtrd" {
-  source = "../modules/dmtrd/stage1"
+  source    = "../modules/common/dmtrd/stage1"
+  namespace = var.dmtr_namespace
 }
