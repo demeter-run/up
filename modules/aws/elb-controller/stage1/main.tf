@@ -1,72 +1,76 @@
+variable "cluster_name" {
+  description = "name of the AWS EKS cluster"
+}
+
 resource "helm_release" "aws_load_balancer_controller" {
   name             = "aws-load-balancer-controller"
   repository       = "https://aws.github.io/eks-charts"
   chart            = "aws-load-balancer-controller"
   create_namespace = false
   namespace        = "kube-system"
-  
+
   set {
-    name = "clusterName"
-    value = local.cluster_name
+    name  = "clusterName"
+    value = var.cluster_name
   }
 
   set {
-    name = "serviceAccount.create"
+    name  = "serviceAccount.create"
     value = "false"
   }
 
   set {
-    name = "serviceAccount.name"
+    name  = "serviceAccount.name"
     value = "aws-load-balancer-controller"
   }
 
   set {
-    name = "tolerations[0].effect"
+    name  = "tolerations[0].effect"
     value = "NoSchedule"
   }
 
   set {
-    name = "tolerations[0].operator"
+    name  = "tolerations[0].operator"
     value = "Exists"
   }
 
   set {
-    name = "tolerations[0].key"
+    name  = "tolerations[0].key"
     value = "demeter.run/compute-profile"
   }
 
   set {
-    name = "tolerations[1].effect"
+    name  = "tolerations[1].effect"
     value = "NoSchedule"
   }
 
   set {
-    name = "tolerations[1].operator"
+    name  = "tolerations[1].operator"
     value = "Exists"
   }
 
   set {
-    name = "tolerations[1].key"
+    name  = "tolerations[1].key"
     value = "demeter.run/compute-arch"
   }
 
   set {
-    name = "tolerations[2].effect"
+    name  = "tolerations[2].effect"
     value = "NoSchedule"
   }
 
   set {
-    name = "tolerations[2].operator"
+    name  = "tolerations[2].operator"
     value = "Equal"
   }
 
   set {
-    name = "tolerations[2].key"
+    name  = "tolerations[2].key"
     value = "demeter.run/availability-sla"
   }
 
   set {
-    name = "tolerations[2].value"
+    name  = "tolerations[2].value"
     value = "consistent"
   }
 }
