@@ -20,8 +20,9 @@ provider "helm" {
 }
 
 module "aws_elb_controller" {
-  source = "../modules/aws/elb-controller/stage1"
-  count  = var.cloud_provider == "aws" ? 1 : 0
+  source       = "../modules/aws/elb-controller/stage1"
+  count        = var.cloud_provider == "aws" ? 1 : 0
+  cluster_name = var.aws_eks_cluster_name
 }
 
 module "aws_external_snapshoter" {
