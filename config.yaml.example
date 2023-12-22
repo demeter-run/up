@@ -1,0 +1,8 @@
+# This file is a global configuration and is shared between the various stages
+# in this repository.
+
+availabilityZones: [eu-central-1b, eu-central-1c]
+vpc:
+  cidr: 10.16.0.0/16
+metadata:
+  region: eu-central-1
