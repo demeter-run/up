@@ -11,7 +11,7 @@ If we need to update the manifests because there has been a change upstream, the
 Run the following command from the `/manifests` folder
 
 ```sh
-yq -s '.metadata.name' --no-doc 'del(.status)' < ../.preprocess/standard.yaml
-yq -s '.metadata.name' --no-doc 'del(.status)' < ../.preprocess/experimental.yaml
-yq -s '.metadata.name' --no-doc 'del(.status)' < ../.preprocess/kong.yaml
+yq -s '.metadata.name' --no-doc 'del(.status, .metadata.creationTimestamp)' < ../.preprocess/standard.yaml
+yq -s '.metadata.name' --no-doc 'del(.status, .metadata.creationTimestamp)' < ../.preprocess/experimental.yaml
+yq -s '.metadata.name' --no-doc 'del(.status, .metadata.creationTimestamp)' < ../.preprocess/kong.yaml
 ```
