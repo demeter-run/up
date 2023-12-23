@@ -8,7 +8,6 @@ metadata:
     api-approved.kubernetes.io: https://github.com/kubernetes-sigs/gateway-api/pull/2466
     gateway.networking.k8s.io/bundle-version: v1.0.0
     gateway.networking.k8s.io/channel: experimental
-  creationTimestamp: null
   name: grpcroutes.gateway.networking.k8s.io
 spec:
   group: gateway.networking.k8s.io
