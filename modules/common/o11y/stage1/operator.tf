@@ -1,6 +1,3 @@
-variable "namespace" {
-  default = "demeter-system"
-}
 
 resource "kubernetes_cluster_role_binding" "prometheus_operator" {
   metadata {
