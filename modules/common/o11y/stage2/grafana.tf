@@ -29,7 +29,7 @@ resource "kubernetes_stateful_set_v1" "grafana" {
   }
 
   spec {
-    replicas = 1
+    replicas     = 1
     service_name = "grafana"
     selector {
       match_labels = {
@@ -49,7 +49,7 @@ resource "kubernetes_stateful_set_v1" "grafana" {
             storage = "5Gi"
           }
         }
-        storage_class_name = "gp3"
+        storage_class_name = var.storage_class
       }
     }
 
@@ -178,51 +178,6 @@ resource "kubernetes_service" "grafana" {
     port {
       port     = 3000
       protocol = "TCP"
-    }
-  }
-}
-
-resource "kubernetes_ingress_v1" "grafana" {
-  metadata {
-    name      = "grafana"
-    namespace = var.namespace
-  }
-
-  spec {
-    ingress_class_name = var.ingress_class
-    rule {
-      host = "grafana.${var.cluster_name}.${var.dns_zone}"
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = "grafana"
-              port {
-                number = 3000
-              }
-            }
-          }
-        }
-      }
-    }
-    rule {
-      host = "grafana.${var.cluster_alias}.${var.dns_zone}"
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = "grafana"
-              port {
-                number = 3000
-              }
-            }
-          }
-        }
-      }
     }
   }
 }
