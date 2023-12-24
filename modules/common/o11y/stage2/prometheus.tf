@@ -47,7 +47,7 @@ resource "kubernetes_manifest" "prometheus" {
       "storage" = {
         "volumeClaimTemplate" = {
           "spec" = {
-            "storageClassName" = "gp3"
+            "storageClassName" = var.storage_class
             "resources" = {
               "requests" = {
                 "storage" = "40Gi"

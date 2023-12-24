@@ -48,11 +48,11 @@ resource "kubernetes_namespace" "dmtr_system_namespace" {
 # }
 
 module "o11y" {
-  source    = "../modules/o11y/stage2"
+  source    = "../modules/common/o11y/stage2"
   namespace = var.dmtr_namespace
 }
 
 module "dmtrd" {
-  source    = "../modules/dmtrd/stage2"
+  source    = "../modules/common/dmtrd/stage2"
   namespace = var.dmtr_namespace
 }
