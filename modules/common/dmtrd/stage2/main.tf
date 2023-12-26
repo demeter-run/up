@@ -1,10 +1,9 @@
-variable "namespace" {}
 
 locals {
   label_component = "daemon"
   label_name      = "dmtrd"
-  label_version   = "0.1.0"
-  image           = "dmtrd"
+  label_version   = var.dmtrd_version
+  image           = "ghcr.io/demeter-run/daemon:${var.dmtrd_version}"
 }
 
 resource "kubernetes_cluster_role_binding" "dmtrd" {
@@ -88,7 +87,6 @@ resource "kubernetes_deployment" "dmtrd" {
         container {
           name  = "main"
           image = local.image
-          args  = []
 
           port {
             name           = "grpc"
