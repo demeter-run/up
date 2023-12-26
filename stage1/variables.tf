@@ -1,6 +1,11 @@
 variable "cloud_provider" {
   description = "the cloud provider being used to host the cluster"
-  type        = list("aws", "gcp", "azure", "none")
+  type        = string
+
+  validation {
+    condition     = can(regex("^(aws|gcp|azure|kind|k3d|other)$", var.cloud_provider))
+    error_message = "The environment must be either 'aws', 'gcp', 'azure', 'kind', 'k3d' or 'other'"
+  }
 }
 
 variable "k8s_config" {
