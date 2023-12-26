@@ -1,10 +1,10 @@
-# Stage 1
+# Stage 3
 
-Stage 1 of the bootstrap procedure is responsible for setting up static resources for shared services in the Kubernetes cluster. These are self-contained resources that are common to any implementation regardless of the specific use-case, such as: CRDs, operators, classes, etc. Some of these resources are specific to the cloud-provider, if any, hosting the k8s cluster.
+Stage 3 of the bootstrap procedure is responsible for setting up any use-case specific extensions your Demeter cluster wants to provider. These are the resources that end-users (aka: developers, dApps) will consume from your cluster, such as: hosting workers, blockchain indexers / RPCs, database engines, etc.
 
 ## Dependencies
 
-- Stage 0 completed
+- Stage 2 completed
 - Terraform CLI
 - Kubernetes configuration
 
@@ -44,7 +44,7 @@ Specify the correct values for the required stage2 variables by modifying the `e
 The following variables are required:
 
 - `k8s_context`: The name of the k8s context as defined in the kube config file. This should match the context created during the stage0 setup of your k8s cluster.
-- `cloud_provider`: A key to identify the cloud provider, if any, that is hosting the k8s cluster. This allows the script to install provider-specific requirements. Valid values are: `aws`, `gcp`, `azure`, `none`.
+- `cluster_name`: An alphanumeric string that uniquely identifies your cluster within the set of connected cluster that conform the fabric.
 
 > [!TIP]
 > There are other variables available that you can use to tailor the installation but they have reasonable defaults. Check the `variables.tf` file for the definition of each. If you want to override the default value, add the corresponding line to `env.auto.tfvars` specifying the adjusted value.

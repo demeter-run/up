@@ -1,5 +1,6 @@
 variable "cloud_provider" {
   description = "the cloud provider being used to host the cluster"
+  type        = list("aws", "gcp", "azure", "none")
 }
 
 variable "k8s_config" {

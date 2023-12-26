@@ -11,3 +11,8 @@ variable "dmtr_namespace" {
   description = "the namespace where to install Demeter's system"
   default     = "dmtr-system"
 }
+
+variable "dmtrd_version" {
+  description = "version of the Demeter daemon to deploy"
+  default     = "0.1.0-alpha.2"
+}
