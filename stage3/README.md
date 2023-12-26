@@ -60,3 +60,7 @@ terraform apply
 The output will show you the planned changes before applying them. Answer 'yes' in the confirmation step to continue with the process.
 
 The execution of the command might take a while depending on the specific cluster. Make sure that terraform command completed successfully and there're no error reports in the terminal output.
+
+## Next Steps
+
+You're done with cluster provisioning! You can start using your Demeter instance.

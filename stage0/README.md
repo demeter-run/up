@@ -13,3 +13,8 @@ The specific Compute infrastructure and Kubernetes control-plane out-of-scope fo
 | Hosted cluster in AWS        | [README](aws-eksctl/README.md) |
 | Hosted cluster in GCP        | (coming soon)                  |
 | Hosted cluster in Azure      | (coming soon)                  |
+
+
+## Next Steps
+
+You're done with stage 0. You can continue with [Stage 1](../stage1/README.md)

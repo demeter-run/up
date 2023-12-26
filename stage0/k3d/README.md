@@ -11,5 +11,5 @@ Instructions on how to execute the stage 0 bootstrap procedure using K3d.
 Run the following command from your terminal to create a new cluster named `dmtr`.
 
 ```bash
-k3d create cluster dmtr
+k3d cluster create --k3s-arg "--disable=traefik@server:0" --no-lb dmtr
 ```

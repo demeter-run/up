@@ -59,11 +59,13 @@ module "gateway" {
 }
 
 module "o11y" {
-  source    = "../modules/common/o11y/stage1"
-  namespace = var.dmtr_namespace
+  source     = "../modules/common/o11y/stage1"
+  namespace  = var.dmtr_namespace
+  depends_on = [kubernetes_namespace_v1.dmtr]
 }
 
 module "dmtrd" {
-  source    = "../modules/common/dmtrd/stage1"
-  namespace = var.dmtr_namespace
+  source     = "../modules/common/dmtrd/stage1"
+  namespace  = var.dmtr_namespace
+  depends_on = [kubernetes_namespace_v1.dmtr]
 }

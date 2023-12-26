@@ -44,7 +44,7 @@ Specify the correct values for the required stage2 variables by modifying the `e
 The following variables are required:
 
 - `k8s_context`: The name of the k8s context as defined in the kube config file. This should match the context created during the stage0 setup of your k8s cluster.
-- `cloud_provider`: A key to identify the cloud provider, if any, that is hosting the k8s cluster. This allows the script to install provider-specific requirements. Valid values are: `aws`, `gcp`, `azure`, `none`.
+- `cloud_provider`: A key to identify the cloud provider, if any, that is hosting the k8s cluster. This allows the script to install provider-specific requirements. Valid values are: `aws`, `gcp`, `azure`, `k3d`, `kind`.
 
 > [!TIP]
 > There are other variables available that you can use to tailor the installation but they have reasonable defaults. Check the `variables.tf` file for the definition of each. If you want to override the default value, add the corresponding line to `env.auto.tfvars` specifying the adjusted value.
@@ -60,3 +60,7 @@ terraform apply
 The output will show you the planned changes before applying them. Answer 'yes' in the confirmation step to continue with the process.
 
 The execution of the command might take a while depending on the specific cluster. Make sure that terraform command completed successfully and there're no error reports in the terminal output.
+
+## Next Steps
+
+You're done with stage 1. You can continue with [Stage 2](../stage2/README.md)
