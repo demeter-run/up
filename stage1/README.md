@@ -29,7 +29,7 @@ terraform {
 
 ### Initialize Terraform
 
-Initialize the stage2 module by running the `init` command from stage2 directory:
+Initialize the stage 1 module by running the `init` command from stage1 directory:
 
 ```sh
 terraform init

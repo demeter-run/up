@@ -41,6 +41,11 @@ module "kind_storage_classes" {
   count  = var.cloud_provider == "kind" ? 1 : 0
 }
 
+module "k3d_storage_classes" {
+  source = "../modules/k3d/storage-classes/stage1"
+  count  = var.cloud_provider == "k3d" ? 1 : 0
+}
+
 # module "metrics_server" {
 #   source = "../modules/common/metrics-server/stage1"
 # }
