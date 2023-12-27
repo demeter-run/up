@@ -1,6 +1,6 @@
 locals {
-  cluster_vars = yamldecode(file("cluster.yaml"))
-  config_vars  = try(yamldecode(file("../config.yaml")), {})
+  cluster_vars = yamldecode(file("../aws-eksctl/cluster.yaml"))
+  config_vars  = try(yamldecode(file("../../config.yaml")), {})
   name         = try(local.config_vars.metadata.name, local.cluster_vars.metadata.name, "dmtr-cluster")
   region       = try(local.config_vars.metadata.region, local.cluster_vars.metadata.region, "us-west-2")
   azs          = try(local.config_vars.availabilityZones, local.cluster_vars.availabilityZones, ["us-west-2b", "us-west-2c"])
