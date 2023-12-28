@@ -1,0 +1,5 @@
+data:
+  config.json: |-
+    {
+      "sharedFileSystemPath": "/var/lib/rancher/k3s/storage"
+    }

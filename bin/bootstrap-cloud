@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+
+# This script is designed to help someone bootstrap terraform and requires the
+# user already has AWS credentials and Terraform installed
+
+# NOTE: we use the aws command line tool to verify you have access configured
+check_aws_prerequisites() {
+  aws sts get-caller-identity 2>&1 >/dev/null
+  if [[ $? -ne 0 ]]; then
+    echo "You must configure your local 'aws' client before using this tool"
+    exit 1
+  fi
+
+  local __tfver=$(terraform version | sed 's/^.* v//' 2>/dev/null)
+  if [[ $? -eq 0 ]]; then
+    local __tmp=( ${__tfver//./ } )
+    if [[ ${__tmp[0]} -eq 1 ]]; then
+      if [[ ${__tmp[1]} -eq 0 ]] && [[ ${__tmp[2]} -ge 3 ]]; then
+        :
+      elif [[ ${__tmp[1]} -ge 1 ]]; then
+        :
+      else
+        echo "You must install Terraform 1.0.3 or higher"
+        exit 1
+      fi
+    else
+      echo "You must install Terraform 1.0.3 or higher"
+      exit 1
+    fi
+  else
+    echo "You must install Terraform 1.0.3 or higher"
+    exit 1
+  fi
+  return 0
+}
+
+# Check for top-level config.yaml to override defaults
+if test -e $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/config.yaml; then
+  __cloud=$(grep ^cloud_provider: $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/config.yaml | awk '{print $2}')
+else
+  __cloud=k3d
+fi
+
+if [[ ${__cloud} == aws ]]; then
+  check_aws_prerequisites
+
+  echo bootstrapping terraform for ${__cloud}
+  set -e
+  cd $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/bootstrap
+  terraform init
+  terraform validate
+  set +e
+  terraform plan -detailed-exitcode -input=false
+  __ret=$?
+  case ${__ret} in
+    2) echo terraform apply -auto-approve ;; # remove echo
+    *) echo terraform plan result ${__ret} && exit ${__ret} ;;
+  esac
+  __ret=$?
+  case ${__ret} in
+    0) echo terraform apply successful ;;
+    *) echo terraform apply result ${__ret} && exit ${__ret} ;;
+  esac
+
+  if test -e backend.tf; then
+    echo backend is already configured... remove bootstrap/backend.tf to reset
+    exit 0
+  fi
+
+  __bucket=$(terraform output -raw terraform_state_bucket)
+  __region=$(terraform output -raw region)
+  if [[ ${__bucket} =~ terraform-state ]]; then
+    echo bucket: ${__bucket}
+  else
+    __bucket=TEST_BUCKET
+    __region=us-YOMOMMA
+  fi
+
+  set -e
+  sed -e "s/CHANGEME_BUCKET/${__bucket}/" -e "s/CHANGEME_REGION/${__region}/" backend.tf.example > backend.tf
+  echo terraform init -migrate-state -force-copy # remove echo
+
+  echo starting stage0 on ${__cloud}
+  cd $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/stage0/aws-terraform
+  if ! test -e backend.tf; then
+    sed -e "s/CHANGEME_BUCKET/${__bucket}/" -e "s/CHANGEME_REGION/${__region}/" backend.tf.example > backend.tf
+  fi
+
+  terraform init
+  terraform validate
+  set +e
+  terraform plan -detailed-exitcode -input=false
+  __ret=$?
+  case ${__ret} in
+    2) echo terraform apply -auto-approve ;; # remove echo
+    *) echo terraform plan result ${__ret} && exit ${__ret} ;;
+  esac
+  __ret=$?
+  case ${__ret} in
+    0) echo terraform apply successful ;;
+    *) echo terraform apply result ${__ret} && exit ${__ret} ;;
+  esac
+
+else # k3d
+
+  cd $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/bootstrap
+  echo k3d cluster create --k3s-arg "--disable=traefik@server:0" --image rancher/k3s:v1.25.6-k3s1 --port 80:80@server:0:direct --no-lb dmtr-cluster
+  sleep 1
+  echo waiting for local-path-provisioner
+  while true; do
+    kubectl get -n kube-system deployment/local-path-provisioner configmap/local-path-config
+    __ret=$?
+    if [[ ${__ret} -eq 0 ]]; then
+      break
+    fi
+  done
+  echo patching
+  set -e
+  # Patch local-path-provisioner to enable RWX PVs
+  kubectl patch -n kube-system configmap/local-path-config --patch-file patches/local-path-provisioner-configmap.yaml
+  kubectl patch -n kube-system deployment/local-path-provisioner --patch-file patches/local-path-provisioner-deployment.yaml
+  # Patches local-path storageclass to not default
+  kubectl patch storageclass/local-path --patch-file patches/local-path-provisioner-storageclass.yaml
+
+fi
