@@ -16,3 +16,7 @@ variable "dmtrd_version" {
   description = "version of the Demeter daemon to deploy"
   default     = "0.1.0-alpha.2"
 }
+
+variable "cloudfared_token" {
+  description = "token to authenticate with cloudfared tunnel"
+}
