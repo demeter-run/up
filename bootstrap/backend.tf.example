@@ -1,0 +1,10 @@
+terraform {
+  backend "s3" {
+    bucket = CHANGEME_BUCKET
+    key = "bootstrap.tfstate"
+    region = CHANGEME_REGION
+    dynamodb_table = "terraform-state-lock"
+    encrypt = true
+    kms_key_id = "alias/terraform-state"
+  }
+}

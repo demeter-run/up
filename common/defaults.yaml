@@ -1,0 +1,3 @@
+cloud_provider: k3d # TODO: switch to aws
+metadata:
+  region: us-west-2
