@@ -5,27 +5,16 @@ locals {
   cloud_provider = try(
     local.config_vars.cloud_provider,
     local.default_vars.cloud_provider,
-    "aws",
   )
   region = try(
     local.config_vars.metadata.region,
-    local.config_vars.region,
-    local.default_vars.metadata.region,
-    "us-west-2"
+    local.default_vars.region,
   )
   tags = try(
     local.config_vars.tags,
     local.default_vars.tags,
     {}
   )
-}
-
-output "terraform_state_bucket" {
-  value = join(",", values(aws_s3_bucket.this)[*].id)
-}
-
-output "region" {
-  value = local.region
 }
 
 terraform {

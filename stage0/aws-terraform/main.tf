@@ -1,11 +1,33 @@
 locals {
+  default_vars = yamldecode(file("../../common/defaults.yaml"))
   cluster_vars = yamldecode(file("../aws-eksctl/cluster.yaml"))
   config_vars  = try(yamldecode(file("../../config.yaml")), {})
-  name         = try(local.config_vars.metadata.name, local.cluster_vars.metadata.name, "dmtr-cluster")
-  region       = try(local.config_vars.metadata.region, local.cluster_vars.metadata.region, "us-west-2")
-  azs          = try(local.config_vars.availabilityZones, local.cluster_vars.availabilityZones, ["us-west-2b", "us-west-2c"])
-  vpc_vars     = try(local.config_vars.vpc, local.cluster_vars.vpc, { "cidr" : "10.6.0.0/16" })
-  node_vars    = try(local.config_vars.managedNodeGroups, local.cluster_vars.managedNodeGroups, [])
+
+  name = try(
+    local.config_vars.metadata.name,
+    local.cluster_vars.metadata.name,
+    local.default_vars.cluster_name,
+  )
+  region = try(
+    local.config_vars.metadata.region,
+    local.cluster_vars.metadata.region,
+    local.default_vars.region,
+  )
+  azs = try(
+    local.config_vars.availabilityZones,
+    local.cluster_vars.availabilityZones,
+    split(",", local.default_vars.azs),
+  )
+  vpc_vars = try(
+    local.config_vars.vpc,
+    local.cluster_vars.vpc,
+    { "cidr" : local.default_vars.vpc_cidr },
+  )
+  node_vars = try(
+    local.config_vars.managedNodeGroups,
+    local.cluster_vars.managedNodeGroups,
+    local.default_vars.managed_node_groups,
+  )
 
   cluster_version = "1.27"
 
@@ -120,7 +142,7 @@ module "aws_cluster_eks" {
 
       subnet_ids = [
         for s in coalesce(n.availabilityZones, []) :
-          data.aws_subnets.filtered[replace(s, "/^[a-z]+-[a-z]+-[0-9]/", "${local.region}")]
+        data.aws_subnets.filtered[replace(s, "/^[a-z]+-[a-z]+-[0-9]/", "${local.region}")]
       ]
       capacity_type = try(n.capacityType, null)
     }

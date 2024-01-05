@@ -1,3 +1,8 @@
 cloud_provider: k3d # TODO: switch to aws
-metadata:
-  region: us-west-2
+cluster_name: dmtr-cluster
+region: us-west-2
+azs: us-west-2b,us-west-2c
+vpc_cidr: "10.6.0.0/16"
+managed_node_groups: []
+dmtr_namespace: dmtr-system
+dmtr_context: k3d-dmtr-cluster
