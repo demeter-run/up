@@ -1,6 +1,7 @@
 # This file is a global configuration and is shared between the various stages
 # in this repository.
 
+cloud_provider: aws
 availabilityZones: [eu-central-1b, eu-central-1c]
 vpc:
   cidr: 10.16.0.0/16

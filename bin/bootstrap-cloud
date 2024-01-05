@@ -104,7 +104,12 @@ if [[ ${__cloud} == aws ]]; then
 else # k3d
 
   cd $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/bootstrap
-  echo k3d cluster create --k3s-arg "--disable=traefik@server:0" --image rancher/k3s:v1.25.6-k3s1 --port 80:80@server:0:direct --no-lb dmtr-cluster
+  if test -e $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/config.yaml; then
+    __name=$(grep ^cluster_name: $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/config.yaml | awk '{print $2}')
+  else
+    __name=dmtr-cluster
+  fi
+  echo k3d cluster create --k3s-arg "--disable=traefik@server:0" --image rancher/k3s:v1.25.6-k3s1 --port 80:80@server:0:direct --no-lb ${__name}
   sleep 1
   echo waiting for local-path-provisioner
   while true; do
