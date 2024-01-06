@@ -31,8 +31,8 @@ module "aws_elb_controller" {
   cluster_name = var.aws_eks_cluster_name
 }
 
-module "aws_external_snapshoter" {
-  source = "../modules/aws/external-snapshoter/stage1"
+module "aws_external_snapshotter" {
+  source = "../modules/aws/external-snapshotter/stage1"
   count  = var.cloud_provider == "aws" ? 1 : 0
 }
 
