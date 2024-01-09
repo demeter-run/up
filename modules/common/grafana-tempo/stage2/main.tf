@@ -11,7 +11,7 @@ resource "helm_release" "grafana_tempo" {
   }
 
   set {
-    name = "tempo.retention"
+    name  = "tempo.retention"
     value = "168h"
   }
 
