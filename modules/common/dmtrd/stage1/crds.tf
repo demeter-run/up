@@ -43,7 +43,7 @@ resource "kubernetes_manifest" "crd_dependencies" {
                       "type" = "string"
                     }
                     "annotations" = {
-                      "type" = "object"
+                      "type"                                 = "object"
                       "x-kubernetes-preserve-unknown-fields" = true
                     }
                   }
@@ -53,30 +53,30 @@ resource "kubernetes_manifest" "crd_dependencies" {
               "type" = "object"
             }
           }
-          "additionalPrinterColumns": [
+          "additionalPrinterColumns" : [
             {
-              "name": "Service Kind"
-              "type": "string"
-              "jsonPath": ".spec.serviceKind"
+              "name" : "Service Kind"
+              "type" : "string"
+              "jsonPath" : ".spec.serviceKind"
             },
             {
-              "name": "Service Instance"
-              "type": "string"
-              "jsonPath": ".spec.instanceId"
+              "name" : "Service Instance"
+              "type" : "string"
+              "jsonPath" : ".spec.instanceId"
             },
             {
-              "name": "Instance Name"
-              "type": "string"
-              "jsonPath": ".spec.instanceName"
+              "name" : "Instance Name"
+              "type" : "string"
+              "jsonPath" : ".spec.instanceName"
             },
             {
-              "name": "Service Salt"
-              "type": "string"
-              "jsonPath": ".spec.instanceSalt"
+              "name" : "Service Salt"
+              "type" : "string"
+              "jsonPath" : ".spec.instanceSalt"
             }
           ]
-            
-          
+
+
           "served"  = true
           "storage" = true
         },

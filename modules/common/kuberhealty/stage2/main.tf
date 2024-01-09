@@ -26,7 +26,7 @@ resource "helm_release" "kuberhealthy" {
   }
 
   set {
-    name = "prometheus.serviceMonitor.namespace"
+    name  = "prometheus.serviceMonitor.namespace"
     value = "demeter-system"
   }
 
@@ -86,17 +86,17 @@ resource "helm_release" "kuberhealthy" {
   }
 
   set {
-    name = "check.daemonset.enabled"
+    name  = "check.daemonset.enabled"
     value = "false"
   }
 
   set {
-    name = "check.deployment.enabled"
+    name  = "check.deployment.enabled"
     value = "false"
   }
 
   set {
-    name = "check.dnsInternal.enabled"
+    name  = "check.dnsInternal.enabled"
     value = "false"
   }
 }

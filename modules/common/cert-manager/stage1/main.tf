@@ -7,7 +7,7 @@ locals {
 }
 
 resource "kubernetes_manifest" "cert_manager_crds" {
-  for_each = { for x in local.crds: yamldecode(x).metadata.name => x }
+  for_each = { for x in local.crds : yamldecode(x).metadata.name => x }
   manifest = yamldecode(each.value)
 }
 
