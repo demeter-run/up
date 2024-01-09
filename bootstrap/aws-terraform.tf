@@ -78,7 +78,7 @@ resource "aws_s3_bucket" "this" {
 resource "aws_s3_bucket_ownership_controls" "this" {
   for_each = toset([for b in toset(["terraform-state"]) : b if local.cloud_provider == "aws"])
 
-  bucket = aws_s3_bucket.this["${random_id.this.hex}-${each.key}"].id
+  bucket = aws_s3_bucket.this[each.key].id
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
@@ -87,7 +87,7 @@ resource "aws_s3_bucket_ownership_controls" "this" {
 resource "aws_s3_bucket_public_access_block" "this" {
   for_each = toset([for b in toset(["terraform-state"]) : b if local.cloud_provider == "aws"])
 
-  bucket = aws_s3_bucket.this["${random_id.this.hex}-${each.key}"].id
+  bucket = aws_s3_bucket.this[each.key].id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -103,7 +103,7 @@ resource "aws_s3_bucket_acl" "this" {
     aws_s3_bucket_public_access_block.this,
   ]
 
-  bucket = aws_s3_bucket.this["${random_id.this.hex}-${each.key}"].id
+  bucket = aws_s3_bucket.this[each.key].id
   acl    = "private"
 }
 
@@ -111,7 +111,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
   # This loop uses the KMS key identifier
   for_each = toset([for k in toset(["terraform-state"]) : k if local.cloud_provider == "aws"])
 
-  bucket = aws_s3_bucket.this["${random_id.this.hex}-${each.key}"].id
+  bucket = aws_s3_bucket.this[each.key].id
   rule {
     apply_server_side_encryption_by_default {
       kms_master_key_id = aws_kms_key.this[each.key].arn
@@ -128,7 +128,7 @@ resource "aws_s3_bucket_versioning" "this" {
     aws_s3_bucket_server_side_encryption_configuration.this,
   ]
 
-  bucket = aws_s3_bucket.this["${random_id.this.hex}-${each.key}"].id
+  bucket = aws_s3_bucket.this[each.key].id
   versioning_configuration {
     status = "Enabled"
   }

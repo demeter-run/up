@@ -41,19 +41,22 @@ else
   __cloud=k3d
 fi
 
+echo bootstrapping terraform for ${__cloud}
+__root=$(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)
+
 if [[ ${__cloud} == aws ]]; then
   check_aws_prerequisites
 
-  echo bootstrapping terraform for ${__cloud}
   set -e
-  cd $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/bootstrap
+  cd ${__root}/bootstrap
   terraform init
   terraform validate
   set +e
   terraform plan -detailed-exitcode -input=false
   __ret=$?
   case ${__ret} in
-    2) echo terraform apply -auto-approve ;; # remove echo
+    2) terraform apply -auto-approve ;;
+    0) echo terraform apply skipped with no changes ;;
     *) echo terraform plan result ${__ret} && exit ${__ret} ;;
   esac
   __ret=$?
@@ -62,28 +65,45 @@ if [[ ${__cloud} == aws ]]; then
     *) echo terraform apply result ${__ret} && exit ${__ret} ;;
   esac
 
-  if test -e backend.tf; then
-    echo backend is already configured... remove bootstrap/backend.tf to reset
-    exit 0
-  fi
-
+  set -e
   __bucket=$(terraform output -raw terraform_state_bucket)
   __region=$(terraform output -raw region)
   if [[ ${__bucket} =~ terraform-state ]]; then
-    echo bucket: ${__bucket}
+    echo Terraform state bucket: ${__bucket}
   else
-    __bucket=TEST_BUCKET
-    __region=us-YOMOMMA
+    echo Cloud not detect state bucket && exit 1
+  fi
+  if [[ ${__region} == REGION ]]; then
+    echo Region is not set && exit 1
+  else
+    echo Terraform state bucket region: ${__region}
   fi
 
+  set +e
+  # configure bootstrap backend
+  __configure_bootstrap_backend=false
+  if [[ ! -e backend.tf ]]; then
+    __configure_bootstrap_backend=true
+  elif [[ $(grep -o BUCKET_NAME backend.tf 2>/dev/null) == BUCKET_NAME ]]; then
+    __configure_bootstrap_backend=true
+  elif [[ $(grep -o REGION backend.tf 2>/dev/null) == REGION ]]; then
+    __configure_bootstrap_backend=true
+  fi
   set -e
-  sed -e "s/CHANGEME_BUCKET/${__bucket}/" -e "s/CHANGEME_REGION/${__region}/" backend.tf.example > backend.tf
-  echo terraform init -migrate-state -force-copy # remove echo
+  if [[ ${__configure_bootstrap_backend} == true ]]; then
+    echo configuring bootstrap backend
+    sed -e "s#BUCKET_NAME#${__bucket}#" \
+        -e "s#REGION#${__region}#" \
+        backend-aws.tf.example > backend.tf
+    terraform init -migrate-state -force-copy
+  fi
 
   echo starting stage0 on ${__cloud}
-  cd $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/stage0/aws-terraform
+  cd ${__root}/stage0/aws-terraform
   if ! test -e backend.tf; then
-    sed -e "s/CHANGEME_BUCKET/${__bucket}/" -e "s/CHANGEME_REGION/${__region}/" backend.tf.example > backend.tf
+    sed -e "s#BUCKET_NAME#${__bucket}#" \
+        -e "s#REGION#${__region}#" \
+        backend.tf.example > backend.tf
   fi
 
   terraform init
@@ -92,7 +112,8 @@ if [[ ${__cloud} == aws ]]; then
   terraform plan -detailed-exitcode -input=false
   __ret=$?
   case ${__ret} in
-    2) echo terraform apply -auto-approve ;; # remove echo
+    2) terraform apply -auto-approve ;;
+    0) echo terraform apply skipped with no changes ;;
     *) echo terraform plan result ${__ret} && exit ${__ret} ;;
   esac
   __ret=$?
@@ -103,9 +124,9 @@ if [[ ${__cloud} == aws ]]; then
 
 else # k3d
 
-  cd $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/bootstrap
-  if test -e $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/config.yaml; then
-    __name=$(grep ^cluster_name: $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/config.yaml | awk '{print $2}')
+  cd ${__root}/bootstrap
+  if test -e ${__root}/config.yaml; then
+    __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
   else
     __name=dmtr-cluster
   fi

@@ -71,10 +71,12 @@ module "aws_cluster_vpc" {
 
   public_subnet_tags = {
     "kubernetes.io/role/elb" = 1
+    "public"                 = "true"
   }
 
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = 1
+    "private"                         = "true"
   }
 
   tags = local.tags
@@ -83,14 +85,21 @@ module "aws_cluster_vpc" {
 data "aws_subnets" "filtered" {
   for_each = toset(local.azs)
 
+  depends_on = [module.aws_cluster_vpc]
+
   filter {
     name   = "vpc-id"
     values = [module.aws_cluster_vpc.vpc_id]
   }
 
   filter {
-    name   = "availability-zone-id"
+    name   = "availability-zone"
     values = ["${each.value}"]
+  }
+
+  filter {
+    name   = "tag:private"
+    values = ["true"]
   }
 }
 
@@ -127,6 +136,7 @@ module "aws_cluster_eks" {
     n.name => {
       name           = n.name
       labels         = try(n.labels, {})
+      ami_type       = n.labels["demeter.run/compute-arch"] == "arm64" ? "AL2_ARM_64" : "AL2_x86_64"
       instance_types = try(tolist(n.instanceType), n.instanceTypes, null)
       min_size       = try(n.minSize, 0)
       max_size       = try(n.maxSize, 1)
@@ -140,10 +150,10 @@ module "aws_cluster_eks" {
         }
       ]
 
-      subnet_ids = [
+      subnet_ids = flatten([
         for s in coalesce(n.availabilityZones, []) :
-        data.aws_subnets.filtered[replace(s, "/^[a-z]+-[a-z]+-[0-9]/", "${local.region}")]
-      ]
+        data.aws_subnets.filtered[replace(s, "/^[a-z]+-[a-z]+-[0-9]/", "${local.region}")].ids
+      ])
       capacity_type = try(n.capacityType, null)
     }
   }
