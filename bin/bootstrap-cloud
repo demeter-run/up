@@ -122,6 +122,18 @@ if [[ ${__cloud} == aws ]]; then
     *) echo terraform apply result ${__ret} && exit ${__ret} ;;
   esac
 
+  if test -e ${__root}/config.yaml; then
+    __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
+  else
+    __name=dmtr-cluster
+  fi
+  if [[ $(kubectl config get-contexts | awk '{print $2}' | grep -o aws-${__name} 2>/dev/null) == aws-${__name} ]]; then
+    echo cluster context found: aws-${__name}
+  else
+    echo configuring cluster: aws-${__name}
+    aws eks update-kubeconfig --region ${__region} --name ${__name} --alias aws-${__name}
+  fi
+
 else # k3d
 
   cd ${__root}/bootstrap
