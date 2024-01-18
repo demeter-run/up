@@ -39,7 +39,7 @@ Make sure that terraform command completed successfully and there're no error re
 
 ### Define Variable Values
 
-Specify the correct values for the required stage2 variables by modifying the `env.auto.tfvars` file.
+Specify the correct values for the required stage1 variables by copying the `env.auto.tfvars.example` file to `env.auto.tfvars` and modifying the file.
 
 The following variables are required:
 
@@ -48,6 +48,9 @@ The following variables are required:
 
 > [!TIP]
 > There are other variables available that you can use to tailor the installation but they have reasonable defaults. Check the `variables.tf` file for the definition of each. If you want to override the default value, add the corresponding line to `env.auto.tfvars` specifying the adjusted value.
+
+> [!TIP]
+> If you wish to commit your `env.auto.tfvars` file to git, you can create a `.gitignore` file in this directory containing `!env.auto.tfvars` which will remove the file from git's ignore list.
 
 ### Apply Terraform
 

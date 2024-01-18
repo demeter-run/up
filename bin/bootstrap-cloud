@@ -125,7 +125,6 @@ if [[ ${__cloud} == aws ]]; then
   if test -e ${__root}/config.yaml; then
     __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
   fi
-
   if [[ -z ${__name} ]]; then
     __name=dmtr-cluster
   fi
@@ -145,6 +144,16 @@ if [[ ${__cloud} == aws ]]; then
         -e "s#REGION#${__region}#" \
         backend.aws.tf.example > backend.tf
   fi
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage1 terraform variables
+    sed -e 's:^# ::' \
+        -e 's:aws" | "gcp" | "azure" | "none:aws:' \
+	-e "s#some-context#aws-${__name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
+    echo "aws_eks_cluster_name = \"${__name}\"" >> env.auto.tfvars
+  fi
+  terraform init
+  terraform validate
 
   cd ${__root}/stage2
   if ! test -e backend.tf; then
@@ -167,7 +176,8 @@ else # k3d
   cd ${__root}/bootstrap
   if test -e ${__root}/config.yaml; then
     __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
-  else
+  fi
+  if [[ -z ${__name} ]]; then
     __name=dmtr-cluster
   fi
   echo k3d cluster create --k3s-arg "--disable=traefik@server:0" --image rancher/k3s:v1.25.6-k3s1 --port 80:80@server:0:direct --no-lb ${__name}
@@ -188,4 +198,12 @@ else # k3d
   # Patches local-path storageclass to not default
   kubectl patch storageclass/local-path --patch-file patches/local-path-provisioner-storageclass.yaml
 
+  cd ${__root}/stage1
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage1 terraform variables
+    sed -e 's:^# ::' \
+        -e 's:aws" | "gcp" | "azure" | "none:k3d:' \
+	-e "s#some-context#k3d-${__name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
+  fi
 fi
