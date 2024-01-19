@@ -34,40 +34,48 @@ check_aws_prerequisites() {
   return 0
 }
 
+__root=$(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)
+
 # Check for top-level config.yaml to override defaults
-if test -e $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/config.yaml; then
-  __cloud=$(grep ^cloud_provider: $(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)/config.yaml | awk '{print $2}')
+if test -e ${__root}/config.yaml; then
+  __cloud=$(grep ^cloud_provider: ${__root}/config.yaml | awk '{print $2}')
+  __bucket=$(grep ^terraform_state_bucket: ${__root}/config.yaml | awk '{print $2}')
+  __region=$(grep ^terraform_state_region: ${__root}/config.yaml | awk '{print $2}')
+  [[ -z ${__bucket} ]] && unset __bucket
+  [[ -z ${__region} ]] && unset __region
 else
   __cloud=k3d
 fi
 
 echo bootstrapping terraform for ${__cloud}
-__root=$(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)
 
 if [[ ${__cloud} == aws ]]; then
   check_aws_prerequisites
 
   set -e
   cd ${__root}/bootstrap
-  terraform init
-  terraform validate
-  set +e
-  terraform plan -detailed-exitcode -input=false
-  __ret=$?
-  case ${__ret} in
-    2) terraform apply -auto-approve ;;
-    0) echo terraform apply skipped with no changes ;;
-    *) echo terraform plan result ${__ret} && exit ${__ret} ;;
-  esac
-  __ret=$?
-  case ${__ret} in
-    0) echo terraform apply successful ;;
-    *) echo terraform apply result ${__ret} && exit ${__ret} ;;
-  esac
+  if [[ -z ${__bucket} ]] && [[ -z ${__region} ]]; then
+    terraform init
+    terraform validate
+    set +e
+    terraform plan -detailed-exitcode -input=false
+    __ret=$?
+    case ${__ret} in
+      2) terraform apply -auto-approve ;;
+      0) echo terraform apply skipped with no changes ;;
+      *) echo terraform plan result ${__ret} && exit ${__ret} ;;
+    esac
+    __ret=$?
+    case ${__ret} in
+      0) echo terraform apply successful ;;
+      *) echo terraform apply result ${__ret} && exit ${__ret} ;;
+    esac
 
-  set -e
-  __bucket=$(terraform output -raw terraform_state_bucket)
-  __region=$(terraform output -raw region)
+    set -e
+    __bucket=$(terraform output -raw terraform_state_bucket)
+    __region=$(terraform output -raw region)
+  fi
+
   if [[ ${__bucket} =~ terraform-state ]]; then
     echo Terraform state bucket: ${__bucket}
   else
