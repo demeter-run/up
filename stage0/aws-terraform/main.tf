@@ -52,6 +52,7 @@ provider "kubernetes" {
 }
 
 data "aws_caller_identity" "current" {}
+data "aws_availability_zones" "available" {}
 
 module "aws_cluster_vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -103,6 +104,24 @@ data "aws_subnets" "filtered" {
   }
 }
 
+module "aws_cluster_vpc_cni_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name_prefix      = "VPC-CNI-IRSA"
+  attach_vpc_cni_policy = true
+  vpc_cni_enable_ipv6   = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.aws_cluster_eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-node"]
+    }
+  }
+
+  tags = local.tags
+}
+
 module "aws_cluster_eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.0"
@@ -112,17 +131,45 @@ module "aws_cluster_eks" {
 
   cluster_endpoint_public_access = true
 
-  # cluster_addons = {
-  #   coredns = {
-  #     most_recent = true
-  #   }
-  #   kube-proxy = {
-  #     most_recent = true
-  #   }
-  #   vpc-cni = {
-  #     most_recent = true
-  #   }
-  # }
+  cluster_addons = {
+    coredns = {
+      most_recent = true
+      configuration_values = jsonencode({
+        tolerations : [
+          {
+            key : "demeter.run/compute-arch",
+            operator : "Equal",
+            value : "arm64",
+            effect : "NoSchedule"
+          },
+          {
+            key : "demeter.run/compute-arch",
+            operator : "Equal",
+            value : "x86",
+            effect : "NoSchedule"
+          },
+          {
+            key : "demeter.run/compute-profile",
+            operator : "Equal",
+            value : "general-purpose",
+            effect : "NoSchedule"
+          },
+          {
+            key : "demeter.run/availability-sla",
+            operator : "Equal",
+            value : "best-effort",
+            effect : "NoSchedule"
+          },
+        ]
+      })
+    }
+    kube-proxy = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
+    }
+  }
 
   vpc_id                   = module.aws_cluster_vpc.vpc_id
   subnet_ids               = module.aws_cluster_vpc.private_subnets
@@ -130,6 +177,13 @@ module "aws_cluster_eks" {
 
   eks_managed_node_group_defaults = {
     instance_types = ["m6a.2xlarge", "m6i.2xlarge", "t3.2xlarge", "m5.2xlarge", "m5a.2xlarge"]
+
+    # We are using the IRSA created below for permissions
+    # However, we have to deploy with the policy attached FIRST (when creating a fresh cluster)
+    # and then turn this off after the cluster/node group is created. Without this initial policy,
+    # the VPC CNI fails to assign IPs and nodes cannot join the cluster
+    # See https://github.com/aws/containers-roadmap/issues/1666 for more context
+    iam_role_attach_cni_policy = true
   }
 
   eks_managed_node_groups = { for n in local.node_vars :
@@ -162,7 +216,7 @@ module "aws_cluster_eks" {
 
   aws_auth_roles = [
     {
-      rolearn  = data.aws_caller_identity.current.arn
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AdministratorAccess"
       username = "admin"
       groups   = ["system:masters"]
     },
