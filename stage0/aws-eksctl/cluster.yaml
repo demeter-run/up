@@ -12,6 +12,52 @@ metadata:
 
 managedNodeGroups:
   # Consistent
+  - name: co-ad-x86-az1
+    labels:
+      demeter.run/availability-sla: consistent
+      demeter.run/compute-profile: admin
+      demeter.run/compute-arch: x86
+      demeter.run/availability-zone: az1
+    instanceType: m6a.large
+    minSize: 1
+    maxSize: 1
+    desiredCapacity: 1
+    taints:
+      - key: demeter.run/availability-sla
+        value: "consistent"
+        effect: NoSchedule
+      - key: demeter.run/compute-profile
+        value: "admin"
+        effect: NoSchedule
+      - key: demeter.run/compute-arch
+        value: "x86"
+        effect: NoSchedule
+    availabilityZones:
+      - us-west-2b
+
+  - name: co-ad-x86-az2
+    labels:
+      demeter.run/availability-sla: consistent
+      demeter.run/compute-profile: admin
+      demeter.run/compute-arch: x86
+      demeter.run/availability-zone: az2
+    instanceType: m6a.large
+    minSize: 0
+    maxSize: 1
+    desiredCapacity: 0
+    taints:
+      - key: demeter.run/availability-sla
+        value: "consistent"
+        effect: NoSchedule
+      - key: demeter.run/compute-profile
+        value: "admin"
+        effect: NoSchedule
+      - key: demeter.run/compute-arch
+        value: "x86"
+        effect: NoSchedule
+    availabilityZones:
+      - us-west-2c
+
   - name: co-gp-x86-az1
     labels:
       demeter.run/availability-sla: consistent
