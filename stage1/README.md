@@ -44,6 +44,7 @@ Specify the correct values for the required stage1 variables by copying the `env
 The following variables are required:
 
 - `k8s_context`: The name of the k8s context as defined in the kube config file. This should match the context created during the stage0 setup of your k8s cluster.
+`kubectl config get-contexts` can be used to list the available contexts. Looking for a name that matches your k8s cluster (example: k3d-dmtr).
 - `cloud_provider`: A key to identify the cloud provider, if any, that is hosting the k8s cluster. This allows the script to install provider-specific requirements. Valid values are: `aws`, `gcp`, `azure`, `k3d`, `kind`.
 
 > [!TIP]
