@@ -1,11 +1,11 @@
 
-resource "kubernetes_deployment" "cloudfared" {
+resource "kubernetes_deployment" "cloudflared" {
   metadata {
-    name      = "cloudfared"
+    name      = "cloudflared"
     namespace = var.dmtr_namespace
 
     labels = {
-      "app.kubernetes.io/name" = "cloudfared"
+      "app.kubernetes.io/name" = "cloudflared"
     }
   }
 
@@ -14,14 +14,14 @@ resource "kubernetes_deployment" "cloudfared" {
 
     selector {
       match_labels = {
-        "app.kubernetes.io/name" = "cloudfared"
+        "app.kubernetes.io/name" = "cloudflared"
       }
     }
 
     template {
       metadata {
         labels = {
-          "app.kubernetes.io/name" = "cloudfared"
+          "app.kubernetes.io/name" = "cloudflared"
         }
 
         annotations = {
@@ -40,7 +40,7 @@ resource "kubernetes_deployment" "cloudfared" {
             "--no-autoupdate",
             "run",
             "--token",
-            var.cloudfared_token
+            var.cloudflared_token
           ]
 
           resources {
