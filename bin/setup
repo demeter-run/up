@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+
+# This script is designed to help someone bootstrap terraform and requires the
+# user already has AWS credentials and Terraform installed
+
+# NOTE: we use the aws command line tool to verify you have access configured
+check_aws_prerequisites() {
+  aws sts get-caller-identity 2>&1 >/dev/null
+  if [[ $? -ne 0 ]]; then
+    echo "You must configure your local 'aws' client before using this tool"
+    exit 1
+  fi
+
+  local __tfver=$(terraform version | sed 's/^.* v//' 2>/dev/null)
+  if [[ $? -eq 0 ]]; then
+    local __tmp=( ${__tfver//./ } )
+    if [[ ${__tmp[0]} -eq 1 ]]; then
+      if [[ ${__tmp[1]} -eq 0 ]] && [[ ${__tmp[2]} -ge 3 ]]; then
+        :
+      elif [[ ${__tmp[1]} -ge 1 ]]; then
+        :
+      else
+        echo "You must install Terraform 1.0.3 or higher"
+        exit 1
+      fi
+    else
+      echo "You must install Terraform 1.0.3 or higher"
+      exit 1
+    fi
+  else
+    echo "You must install Terraform 1.0.3 or higher"
+    exit 1
+  fi
+  return 0
+}
+
+__root=$(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)
+
+# Check for top-level config.yaml to override defaults
+if test -e ${__root}/config.yaml; then
+  __cloud=$(grep ^cloud_provider: ${__root}/config.yaml | awk '{print $2}')
+  __bucket=$(grep ^terraform_state_bucket: ${__root}/config.yaml | awk '{print $2}')
+  __region=$(grep ^terraform_state_region: ${__root}/config.yaml | awk '{print $2}')
+  [[ -z ${__bucket} ]] && unset __bucket
+  [[ -z ${__region} ]] && unset __region
+else
+  __cloud=k3d
+fi
+
+echo configuring terraform for ${__cloud}
+
+if [[ ${__cloud} == aws ]]; then
+  check_aws_prerequisites
+
+  set -e
+  if [[ ${__bucket} =~ terraform-state ]]; then
+    echo Terraform state bucket: ${__bucket}
+  else
+    echo Cloud not detect state bucket && exit 1
+  fi
+  if [[ ${__region} == REGION ]]; then
+    echo Region is not set && exit 1
+  else
+    echo Terraform state bucket region: ${__region}
+  fi
+
+  set +e
+  # configure bootstrap backend
+  __configure_bootstrap_backend=false
+  if [[ ! -e backend.tf ]]; then
+    __configure_bootstrap_backend=true
+  elif [[ $(grep -o BUCKET_NAME backend.tf 2>/dev/null) == BUCKET_NAME ]]; then
+    __configure_bootstrap_backend=true
+  elif [[ $(grep -o REGION backend.tf 2>/dev/null) == REGION ]]; then
+    __configure_bootstrap_backend=true
+  fi
+
+  set -e
+  cd ${__root}/bootstrap
+  if [[ ${__configure_bootstrap_backend} == true ]]; then
+    echo configuring bootstrap backend
+    sed -e "s#BUCKET_NAME#${__bucket}#" \
+        -e "s#REGION#${__region}#" \
+        backend-aws.tf.example > backend.tf
+  fi
+  terraform init
+
+  cd ${__root}/stage0/aws-terraform
+  if ! test -e backend.tf; then
+    echo configuring stage0 backend
+    sed -e "s#BUCKET_NAME#${__bucket}#" \
+        -e "s#REGION#${__region}#" \
+        backend.tf.example > backend.tf
+  fi
+  terraform init
+
+  if test -e ${__root}/config.yaml; then
+    __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
+  fi
+  if [[ -z ${__name} ]]; then
+    __name=dmtr-cluster
+  fi
+
+  set -e
+  if [[ $(kubectl config get-contexts | awk '{print $2}' | grep -o aws-${__name} 2>/dev/null) == aws-${__name} ]]; then
+    echo cluster context found: aws-${__name}
+  else
+    echo configuring cluster: aws-${__name}
+    aws eks update-kubeconfig --region ${__region} --name ${__name} --alias aws-${__name}
+  fi
+
+  cd ${__root}/stage1
+  if ! test -e backend.tf; then
+    echo configuring stage1 backend
+    sed -e "s#BUCKET_NAME#${__bucket}#" \
+        -e "s#REGION#${__region}#" \
+        backend.aws.tf.example > backend.tf
+  fi
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage1 terraform variables
+    sed -e 's:^# ::' \
+        -e 's:aws" | "gcp" | "azure" | "none:aws:' \
+	-e "s#some-context#aws-${__name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
+    echo "aws_eks_cluster_name = \"${__name}\"" >> env.auto.tfvars
+  fi
+  terraform init
+
+  cd ${__root}/stage2
+  if ! test -e backend.tf; then
+    echo configuring stage2 backend
+    sed -e "s#BUCKET_NAME#${__bucket}#" \
+        -e "s#REGION#${__region}#" \
+        backend.aws.tf.example > backend.tf
+  fi
+  terraform init
+
+  cd ${__root}/stage3
+  if ! test -e backend.tf; then
+    echo configuring stage3 backend
+    sed -e "s#BUCKET_NAME#${__bucket}#" \
+        -e "s#REGION#${__region}#" \
+        backend.aws.tf.example > backend.tf
+  fi
+  terraform init
+
+else # k3d
+
+  cd ${__root}/bootstrap
+  if test -e ${__root}/config.yaml; then
+    __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
+  fi
+  if [[ -z ${__name} ]]; then
+    __name=dmtr-cluster
+  fi
+
+  cd ${__root}/stage1
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage1 terraform variables
+    sed -e 's:^# ::' \
+        -e 's:aws" | "gcp" | "azure" | "none:k3d:' \
+	-e "s#some-context#k3d-${__name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
+  fi
+fi
