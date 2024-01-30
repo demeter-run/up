@@ -183,6 +183,9 @@ module "aws_cluster_eks" {
     kube-proxy = {
       most_recent = true
     }
+    snapshot-controller = {
+      most_recent = true
+    }
     vpc-cni = {
       most_recent = true
     }
