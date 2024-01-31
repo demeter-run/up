@@ -39,9 +39,16 @@ resource "kubernetes_deployment" "cloudflared" {
             "tunnel",
             "--no-autoupdate",
             "run",
+            "--metrics",
+            "0.0.0.0:60123",
             "--token",
             var.cloudflared_token
           ]
+
+          port {
+            container_port = 60123
+            protocol       = "TCP"
+          }
 
           resources {
             limits = {
@@ -92,5 +99,25 @@ resource "kubernetes_deployment" "cloudflared" {
         }
       }
     }
+  }
+}
+
+resource "kubernetes_service" "cloudflared_metrics" {
+  metadata {
+    name      = "cloudflared-metrics"
+    namespace = var.dmtr_namespace
+  }
+
+  spec {
+    selector = {
+      "app.kubernetes.io/name" = "cloudflared"
+    }
+
+    port {
+      port        = 60123
+      target_port = 60123
+    }
+
+    type = "ClusterIP"
   }
 }
