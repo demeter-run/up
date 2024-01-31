@@ -110,3 +110,25 @@ resource "cloudflare_record" "tunnels" {
   type    = "CNAME"
   proxied = true
 }
+
+resource "cloudflare_load_balancer_pool" "tunnels" {
+  name = "ProviderTunnels"
+
+  account_id = var.cloudflare_account_id
+
+  dynamic "origins" {
+    for_each = {for k in var.cloudflare_tunnels : k.name => k}
+    content {
+      name    = origins.value.name
+      address = cloudflare_tunnel.this[origins.value.name].cname
+    }
+  }
+}
+
+resource "cloudflare_load_balancer" "tunnels" {
+  zone_id = var.cloudflare_zone_id
+  name    = "*.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.tunnels.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.tunnels.id
+  proxied          = true
+}
