@@ -38,9 +38,9 @@ resource "kubernetes_deployment" "cloudflared" {
           args = [
             "tunnel",
             "--no-autoupdate",
-            "run",
             "--metrics",
             "0.0.0.0:60123",
+            "run",
             "--token",
             var.cloudflared_token
           ]
