@@ -121,6 +121,23 @@ module "aws_cluster_elb_controller_irsa" {
   tags = local.tags
 }
 
+module "aws_cluster_ebs_csi_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name_prefix      = "EBS-CSI-IRSA"
+  attach_ebs_csi_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.aws_cluster_eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+    }
+  }
+
+  tags = local.tags
+}
+
 module "aws_cluster_vpc_cni_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~> 5.0"
@@ -188,6 +205,68 @@ module "aws_cluster_eks" {
     }
     vpc-cni = {
       most_recent = true
+    }
+    aws-ebs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = module.aws_cluster_ebs_csi_irsa.iam_role_arn
+      configuration_values = jsonencode({
+        controller = {
+          tolerations = [
+            {
+              key      = "demeter.run/compute-arch",
+              operator = "Equal",
+              value    = "arm64",
+              effect   = "NoSchedule"
+            },
+            {
+              key      = "demeter.run/compute-arch",
+              operator = "Equal",
+              value    = "x86",
+              effect   = "NoSchedule"
+            },
+            {
+              key      = "demeter.run/compute-profile",
+              operator = "Equal",
+              value    = "admin",
+              effect   = "NoSchedule"
+            },
+            {
+              key      = "demeter.run/availability-sla",
+              operator = "Equal",
+              value    = "consistent",
+              effect   = "NoSchedule"
+            }
+          ]
+        },
+        node = {
+          tolerations = [
+            {
+              key      = "demeter.run/compute-arch",
+              operator = "Equal",
+              value    = "arm64",
+              effect   = "NoSchedule"
+            },
+            {
+              key      = "demeter.run/compute-arch",
+              operator = "Equal",
+              value    = "x86",
+              effect   = "NoSchedule"
+            },
+            {
+              key      = "demeter.run/compute-profile",
+              operator = "Equal",
+              value    = "admin",
+              effect   = "NoSchedule"
+            },
+            {
+              key      = "demeter.run/availability-sla",
+              operator = "Equal",
+              value    = "consistent",
+              effect   = "NoSchedule"
+            }
+          ]
+        }
+      })
     }
   }
 
