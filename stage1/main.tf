@@ -36,6 +36,11 @@ module "aws_external_snapshotter" {
   count  = var.cloud_provider == "aws" ? 1 : 0
 }
 
+module "aws_storage_classes" {
+  source = "../modules/aws/storage-classes/stage1"
+  count  = var.cloud_provider == "aws" ? 1 : 0
+}
+
 module "kind_storage_classes" {
   source = "../modules/kind/storage-classes/stage1"
   count  = var.cloud_provider == "kind" ? 1 : 0
