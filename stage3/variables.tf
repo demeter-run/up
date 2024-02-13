@@ -15,3 +15,7 @@ variable "dmtr_namespace" {
 variable "cluster_name" {
   description = "a unique (hostname-safe) name to identify the cluster within the fabric"
 }
+
+variable "cloudflared_token" {
+  description = "token to authenticate with cloudflared tunnel"
+}

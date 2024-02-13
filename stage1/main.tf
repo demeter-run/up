@@ -59,10 +59,6 @@ module "k3d_storage_classes" {
 #   source = "../modules/common/cert-manager/stage1"
 # }
 
-module "gateway" {
-  source = "../modules/common/gateway-api/stage1"
-}
-
 module "o11y" {
   source     = "../modules/common/o11y/stage1"
   namespace  = var.dmtr_namespace
