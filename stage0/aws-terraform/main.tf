@@ -205,6 +205,12 @@ module "aws_cluster_eks" {
     }
     vpc-cni = {
       most_recent = true
+      configuration_values = jsonencode({
+        env = {
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
+      })
     }
     aws-ebs-csi-driver = {
       most_recent              = true
