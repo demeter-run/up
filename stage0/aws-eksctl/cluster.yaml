@@ -18,9 +18,9 @@ managedNodeGroups:
       demeter.run/compute-profile: admin
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az1
-    instanceType: m6a.large
+    instanceType: t3a.medium
     minSize: 1
-    maxSize: 1
+    maxSize: 2
     desiredCapacity: 1
     taints:
       - key: demeter.run/availability-sla
