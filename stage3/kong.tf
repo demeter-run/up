@@ -43,113 +43,54 @@ resource "helm_release" "kong" {
   }
 }
 
-
-# TODO this is a placeholder
-resource "kubernetes_service_v1" "placeholder_service" {
+resource "kubernetes_service_v1" "kong_ping_endpoint" {
   metadata {
-    name      = "placeholder-service"
+    name      = "kong-ping-endpoint"
     namespace = "dmtr-system"
   }
   spec {
-    selector = {
-      app = "placeholder-app"
+    # This value will not be used for routing, but must resolve always.
+    external_name = "kubernetes.default.svc"
+    type          = "ExternalName"
+  }
+}
+
+resource "kubernetes_manifest" "kong_ping_endpoint_request_termination_plugin" {
+  manifest = {
+    apiVersion = "configuration.konghq.com/v1"
+    kind       = "KongPlugin"
+
+    metadata = {
+      name = "kong-ping-endpoint-request-termination"
     }
-    port {
-      port        = 80
-      target_port = 8080
+    "plugin" = "request-termination"
+    "config" = {
+      "status_code" = 200
+      "message"     = "PONG"
     }
   }
 }
 
-# TODO this is a placeholder
-resource "kubernetes_pod_v1" "placeholder_pod" {
+resource "kubernetes_ingress_v1" "kong_ping_endpoint" {
   metadata {
-    name      = "placeholder-pod"
-    namespace = "dmtr-system"
-    labels = {
-      app = "placeholder-app"
-    }
-  }
-  spec {
-    container {
-      image = "nginx"
-      name  = "placeholder-container"
-
-      port {
-        container_port = 8080
-      }
-    }
-
-    toleration {
-      key      = "demeter.run/compute-arch"
-      operator = "Equal"
-      value    = "arm64"
-      effect   = "NoSchedule"
-    }
-
-    toleration {
-      key      = "demeter.run/compute-arch"
-      operator = "Equal"
-      value    = "x86"
-      effect   = "NoSchedule"
-    }
-
-    toleration {
-      key      = "demeter.run/compute-profile"
-      operator = "Equal"
-      value    = "admin"
-      effect   = "NoSchedule"
-    }
-
-    toleration {
-      key      = "demeter.run/availability-sla"
-      operator = "Equal"
-      value    = "consistent"
-      effect   = "NoSchedule"
-    }
-  }
-}
-
-# TODO this is a placeholder
-resource "kubernetes_ingress_v1" "dmtr_host_ingress" {
-  metadata {
-    name      = "dmtr-host-ingress"
+    name      = "kong-ping-endpoint"
     namespace = "dmtr-system"
     annotations = {
       "kubernetes.io/ingress.class" = "kong"
+      "konghq.com/plugins"          = "kong-ping-endpoint-request-termination"
     }
   }
 
   spec {
     rule {
-      host = "txpipe.dmtr.host"
       http {
         path {
-          path      = "/"
-          path_type = "Prefix"
+          path      = "/ping_provider_healthcheck"
+          path_type = "ImplementationSpecific"
 
           backend {
             service {
-              name = "placeholder-service"
-              port {
-                number = 80
-              }
-            }
-          }
-        }
-      }
-    }
-
-    rule {
-      host = "*.dmtr.host"
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-
-          backend {
-            service {
-              name = "placeholder-service"
+              name = "kong-ping-endpoint"
               port {
                 number = 80
               }
