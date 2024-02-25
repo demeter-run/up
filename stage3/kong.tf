@@ -61,7 +61,8 @@ resource "kubernetes_manifest" "kong_ping_endpoint_request_termination_plugin" {
     kind       = "KongPlugin"
 
     metadata = {
-      name = "kong-ping-endpoint-request-termination"
+      name      = "kong-ping-endpoint-request-termination"
+      namespace = "dmtr-system"
     }
     "plugin" = "request-termination"
     "config" = {
