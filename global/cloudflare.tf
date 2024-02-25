@@ -29,7 +29,7 @@ resource "cloudflare_zone" "this" {
 # Zone settings
 # The commented items don't seem to be supported on free plans
 resource "cloudflare_zone_settings_override" "this" {
-  for_each   = toset(local.cloudflare_zone_names)
+  for_each = toset(local.cloudflare_zone_names)
 
   zone_id = cloudflare_zone.this[each.key].id
 
@@ -68,7 +68,7 @@ resource "cloudflare_zone_settings_override" "this" {
 }
 
 resource "cloudflare_tunnel" "this" {
-  for_each = {for k in var.cloudflare_tunnels : k.name => k}
+  for_each = { for k in var.cloudflare_tunnels : k.name => k }
 
   account_id = var.cloudflare_account_id
   name       = each.value.name
@@ -77,19 +77,19 @@ resource "cloudflare_tunnel" "this" {
 }
 
 resource "cloudflare_tunnel_config" "this" {
-  for_each = {for k in var.cloudflare_tunnels : k.name => k}
+  for_each = { for k in var.cloudflare_tunnels : k.name => k }
 
   account_id = var.cloudflare_account_id
   tunnel_id  = cloudflare_tunnel.this[each.value.name].id
 
   config {
     ingress_rule {
-      service  = "http://kong:80"
+      service  = "http://kong-kong-proxy:80"
       hostname = "*.${var.cloudflare_zone_name}"
     }
 
     ingress_rule {
-      service  = "http://kong:80"
+      service  = "http://kong-kong-proxy:80"
       hostname = "${each.value.name}.${var.cloudflare_zone_name}"
     }
 
@@ -100,7 +100,7 @@ resource "cloudflare_tunnel_config" "this" {
 }
 
 resource "cloudflare_record" "tunnels" {
-  for_each = {for k in var.cloudflare_tunnels : k.name => k}
+  for_each = { for k in var.cloudflare_tunnels : k.name => k }
 
   depends_on = [cloudflare_zone.this]
 
@@ -115,9 +115,10 @@ resource "cloudflare_load_balancer_pool" "tunnels" {
   name = "ProviderTunnels"
 
   account_id = var.cloudflare_account_id
+  monitor    = cloudflare_load_balancer_monitor.tunnels_monitor.id
 
   dynamic "origins" {
-    for_each = {for k in var.cloudflare_tunnels : k.name => k}
+    for_each = { for k in var.cloudflare_tunnels : k.name => k }
     content {
       name    = origins.value.name
       address = cloudflare_tunnel.this[origins.value.name].cname
@@ -126,9 +127,26 @@ resource "cloudflare_load_balancer_pool" "tunnels" {
 }
 
 resource "cloudflare_load_balancer" "tunnels" {
-  zone_id = var.cloudflare_zone_id
-  name    = "*.${var.cloudflare_zone_name}"
+  zone_id          = var.cloudflare_zone_id
+  name             = "*.${var.cloudflare_zone_name}"
   default_pool_ids = [cloudflare_load_balancer_pool.tunnels.id]
   fallback_pool_id = cloudflare_load_balancer_pool.tunnels.id
   proxied          = true
+}
+
+resource "cloudflare_load_balancer_monitor" "tunnels_monitor" {
+  account_id     = var.cloudflare_account_id
+  type           = "https"
+  description    = "Health check for tunnels"
+  path           = "/ping_provider_healthcheck"
+  interval       = 60
+  timeout        = 5
+  retries        = 2
+  method         = "GET"
+  expected_codes = "200"
+
+  header {
+    header = "Host"
+    values = ["health.dmtr.host"]
+  }
 }
