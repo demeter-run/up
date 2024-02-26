@@ -11,7 +11,7 @@ check_aws_prerequisites() {
     exit 1
   fi
 
-  local __tfver=$(terraform version | sed 's/^.* v//' 2>/dev/null)
+  local __tfver=$(terraform version 2>/dev/null | sed 's/^.* v//' 2>/dev/null)
   if [[ $? -eq 0 ]]; then
     local __tmp=( ${__tfver//./ } )
     if [[ ${__tmp[0]} -eq 1 ]]; then
@@ -96,9 +96,14 @@ if [[ ${__cloud} == aws ]]; then
 
   if test -e ${__root}/config.yaml; then
     __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
+    __cloudflared_token=$(grep ^cloudflared_token: ${__root}/config.yaml | awk '{print $2}')
   fi
   if [[ -z ${__name} ]]; then
     __name=dmtr-cluster
+  fi
+  if [[ -z ${__cloudflared_token} ]]; then
+    echo you must configure cloudflared_token in config.yaml
+    exit 1
   fi
 
   set -e
@@ -119,7 +124,7 @@ if [[ ${__cloud} == aws ]]; then
   if ! test -e env.auto.tfvars; then
     echo configuring stage1 terraform variables
     sed -e 's:^# ::' \
-        -e 's:aws" | "gcp" | "azure" | "none:aws:' \
+        -e 's:aws"|"gcp"|"azure"|"kind"|"k3d"|"other:aws:' \
 	-e "s#some-context#aws-${__name}#" \
         env.auto.tfvars.example > env.auto.tfvars
     echo "aws_eks_cluster_name = \"${__name}\"" >> env.auto.tfvars
@@ -133,6 +138,12 @@ if [[ ${__cloud} == aws ]]; then
         -e "s#REGION#${__region}#" \
         backend.aws.tf.example > backend.tf
   fi
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage2 terraform variables
+    sed -e 's:^# ::' \
+	-e "s#some-context#aws-${__name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
+  fi
   terraform init
 
   cd ${__root}/stage3
@@ -141,6 +152,14 @@ if [[ ${__cloud} == aws ]]; then
     sed -e "s#BUCKET_NAME#${__bucket}#" \
         -e "s#REGION#${__region}#" \
         backend.aws.tf.example > backend.tf
+  fi
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage3 terraform variables
+    sed -e 's:^# ::' \
+        -e "s:eyJ...:${__cloudflared_token}:" \
+	-e "s:dmtr-cluster:${__name}:" \
+	-e "s#some-context#aws-${__name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init
 
