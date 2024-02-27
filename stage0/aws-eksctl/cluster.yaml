@@ -21,7 +21,7 @@ managedNodeGroups:
     instanceType: t3a.medium
     minSize: 1
     maxSize: 2
-    desiredCapacity: 1
+    desiredCapacity: 2
     taints:
       - key: demeter.run/availability-sla
         value: "consistent"
@@ -206,7 +206,7 @@ managedNodeGroups:
       demeter.run/compute-arch: arm64
       demeter.run/availability-zone: az1
     instanceTypes: ["m7g.2xlarge", "m6g.2xlarge", "t4g.2xlarge"]
-    minSize: 1
+    minSize: 0
     maxSize: 1
     desiredCapacity: 1
     spot: true
