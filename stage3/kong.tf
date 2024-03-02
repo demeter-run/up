@@ -24,23 +24,27 @@ resource "helm_release" "kong" {
         operator: "Equal"
         value: "consistent"
         effect: "NoSchedule"
+
+    env:
+      database: "off"
+
+    # Specify Kong admin API service and listener configuration
+    admin:
+      enabled: true
+      type: ClusterIP
+      http:
+        enabled: true
+      tls:
+        enabled: false
+
+    ingressController:
+      enabled: true
+
+    proxy:
+      type: "ClusterIP"
+
     EOT
   ]
-
-  set {
-    name  = "env.database"
-    value = "off"
-  }
-
-  set {
-    name  = "ingressController.enabled"
-    value = "true"
-  }
-
-  set {
-    name  = "proxy.type"
-    value = "ClusterIP"
-  }
 }
 
 resource "kubernetes_service_v1" "kong_ping_endpoint" {
@@ -68,6 +72,32 @@ resource "kubernetes_manifest" "kong_ping_endpoint_request_termination_plugin" {
     "config" = {
       "status_code" = 200
       "message"     = "PONG"
+    }
+  }
+}
+
+resource "kubernetes_manifest" "kong_prometheus_plugin" {
+  manifest = {
+    apiVersion = "configuration.konghq.com/v1"
+    kind       = "KongClusterPlugin"
+
+    metadata = {
+      name = "kong-prometheus"
+      labels = {
+        "konghq.com/plugin" = "prometheus"
+        "global"            = "true"
+      }
+      annotations = {
+        "kubernetes.io/ingress.class" = "kong"
+      }
+    }
+    "plugin" = "prometheus"
+    "config" = {
+      "per_consumer"            = false
+      "latency_metrics"         = true
+      "bandwidth_metrics"       = true
+      "status_code_metrics"     = true
+      "upstream_health_metrics" = true
     }
   }
 }
