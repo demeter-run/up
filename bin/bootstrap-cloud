@@ -170,6 +170,12 @@ if [[ ${__cloud} == aws ]]; then
         -e "s#REGION#${__region}#" \
         backend.aws.tf.example > backend.tf
   fi
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage2 terraform variables
+    sed -e 's:^# ::' \
+	-e "s#some-context#aws-${__name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
+  fi
 
   cd ${__root}/stage3
   if ! test -e backend.tf; then
@@ -177,6 +183,14 @@ if [[ ${__cloud} == aws ]]; then
     sed -e "s#BUCKET_NAME#${__bucket}#" \
         -e "s#REGION#${__region}#" \
         backend.aws.tf.example > backend.tf
+  fi
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage3 terraform variables
+    sed -e 's:^# ::' \
+        -e "s:eyJ...:${__cloudflared_token}:" \
+	-e "s:dmtr-cluster:${__name}:" \
+	-e "s#some-context#aws-${__name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
   fi
 
 else # k3d
