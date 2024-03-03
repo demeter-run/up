@@ -1,7 +1,18 @@
 # This file is a global configuration and is shared between the various stages
 # in this repository.
 
+# Configuring the cloud provider allows for simplified bootstrapping and storage of Terraform state for later stages.
 cloud_provider: aws
+
+# The cloudflared_token is stored in the global Terraform state and is required for stage3 deployment. It is a base64 token.
+cloudflared_token: eyJ...
+
+# The terraform state bucket name and location. These can be created by bootstrap if not preconfigured.
+terraform_state_bucket: pre-configured-bucket
+terraform_state_region: eu-central-1
+
+# Overrides for defaults for configuring a cluster using bootstrap and stage0/aws-terraform in AWS. These override the defaults
+# in stage0/aws-eksctl/cluster.yaml (shared between eksctl and terraform)
 availabilityZones: [eu-central-1b, eu-central-1c]
 vpc:
   cidr: 10.16.0.0/16

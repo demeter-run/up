@@ -38,13 +38,22 @@ __root=$(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)
 
 # Check for top-level config.yaml to override defaults
 if test -e ${__root}/config.yaml; then
-  __cloud=$(grep ^cloud_provider: ${__root}/config.yaml | awk '{print $2}')
   __bucket=$(grep ^terraform_state_bucket: ${__root}/config.yaml | awk '{print $2}')
+  __cloud=$(grep ^cloud_provider: ${__root}/config.yaml | awk '{print $2}')
+  __cloudflared_token=$(grep ^cloudflared_token: ${__root}/config.yaml | awk '{print $2}')
+  __cluster_name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
   __region=$(grep ^terraform_state_region: ${__root}/config.yaml | awk '{print $2}')
   [[ -z ${__bucket} ]] && unset __bucket
   [[ -z ${__region} ]] && unset __region
 else
   __cloud=k3d
+fi
+if [[ -z ${__cluster_name} ]]; then
+  __cluster_name=dmtr-cluster
+fi
+if [[ -z ${__cloudflared_token} ]]; then
+  echo you must configure cloudflared_token in config.yaml
+  exit 1
 fi
 
 echo configuring terraform for ${__cloud}
@@ -94,24 +103,12 @@ if [[ ${__cloud} == aws ]]; then
   fi
   terraform init
 
-  if test -e ${__root}/config.yaml; then
-    __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
-    __cloudflared_token=$(grep ^cloudflared_token: ${__root}/config.yaml | awk '{print $2}')
-  fi
-  if [[ -z ${__name} ]]; then
-    __name=dmtr-cluster
-  fi
-  if [[ -z ${__cloudflared_token} ]]; then
-    echo you must configure cloudflared_token in config.yaml
-    exit 1
-  fi
-
   set -e
-  if [[ $(kubectl config get-contexts | awk '{print $2}' | grep -o aws-${__name} 2>/dev/null) == aws-${__name} ]]; then
-    echo cluster context found: aws-${__name}
+  if [[ $(kubectl config get-contexts | awk '{print $2}' | grep -o aws-${__cluster_name} 2>/dev/null) == aws-${__cluster_name} ]]; then
+    echo cluster context found: aws-${__cluster_name}
   else
-    echo configuring cluster: aws-${__name}
-    aws eks update-kubeconfig --region ${__region} --name ${__name} --alias aws-${__name}
+    echo configuring cluster: aws-${__cluster_name}
+    aws eks update-kubeconfig --region ${__region} --name ${__cluster_name} --alias aws-${__cluster_name}
   fi
 
   cd ${__root}/stage1
@@ -125,9 +122,9 @@ if [[ ${__cloud} == aws ]]; then
     echo configuring stage1 terraform variables
     sed -e 's:^# ::' \
         -e 's:aws"|"gcp"|"azure"|"kind"|"k3d"|"other:aws:' \
-	-e "s#some-context#aws-${__name}#" \
+	-e "s#some-context#aws-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
-    echo "aws_eks_cluster_name = \"${__name}\"" >> env.auto.tfvars
+    echo "aws_eks_cluster_name = \"${__cluster_name}\"" >> env.auto.tfvars
   fi
   terraform init
 
@@ -141,7 +138,7 @@ if [[ ${__cloud} == aws ]]; then
   if ! test -e env.auto.tfvars; then
     echo configuring stage2 terraform variables
     sed -e 's:^# ::' \
-	-e "s#some-context#aws-${__name}#" \
+	-e "s#some-context#aws-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init
@@ -157,8 +154,8 @@ if [[ ${__cloud} == aws ]]; then
     echo configuring stage3 terraform variables
     sed -e 's:^# ::' \
         -e "s:eyJ...:${__cloudflared_token}:" \
-	-e "s:dmtr-cluster:${__name}:" \
-	-e "s#some-context#aws-${__name}#" \
+	-e "s:dmtr-cluster:${__cluster_name}:" \
+	-e "s#some-context#aws-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init
@@ -167,10 +164,10 @@ else # k3d
 
   cd ${__root}/bootstrap
   if test -e ${__root}/config.yaml; then
-    __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
+    __cluster_name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
   fi
-  if [[ -z ${__name} ]]; then
-    __name=dmtr-cluster
+  if [[ -z ${__cluster_name} ]]; then
+    __cluster_name=dmtr-cluster
   fi
 
   cd ${__root}/stage1
@@ -178,7 +175,25 @@ else # k3d
     echo configuring stage1 terraform variables
     sed -e 's:^# ::' \
         -e 's:aws" | "gcp" | "azure" | "none:k3d:' \
-	-e "s#some-context#k3d-${__name}#" \
+	-e "s#some-context#k3d-${__cluster_name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
+  fi
+
+  cd ${__root}/stage2
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage2 terraform variables
+    sed -e 's:^# ::' \
+	-e "s#some-context#aws-${__cluster_name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
+  fi
+
+  cd ${__root}/stage3
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage3 terraform variables
+    sed -e 's:^# ::' \
+        -e "s:eyJ...:${__cloudflared_token}:" \
+	-e "s:dmtr-cluster:${__cluster_name}:" \
+	-e "s#some-context#aws-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
 fi
