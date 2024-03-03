@@ -32,6 +32,8 @@ resource "helm_release" "kong" {
     admin:
       enabled: true
       type: ClusterIP
+      labels:
+        app.kubernetes.io/component: kong-admin-metrics
       http:
         enabled: true
       tls:
@@ -129,6 +131,40 @@ resource "kubernetes_ingress_v1" "kong_ping_endpoint" {
           }
         }
       }
+    }
+  }
+}
+
+# Prometheus Service Monitor for Kong's Admin API
+resource "kubernetes_manifest" "kong_admin_service_monitor" {
+  manifest = {
+    apiVersion = "monitoring.coreos.com/v1"
+    kind       = "ServiceMonitor"
+    metadata = {
+      name      = "kong-admin-metrics"
+      namespace = "dmtr-system"
+      labels = {
+        release = "prometheus"
+        # Match labels from prometheus resource serviceMonitorSelector
+        "app.kubernetes.io/component" = "o11y"
+        "app.kubernetes.io/part-of"   = "demeter"
+      }
+    }
+    spec = {
+      selector = {
+        matchLabels = {
+          "app.kubernetes.io/instance"  = "kong"
+          "app.kubernetes.io/name"      = "kong"
+          "app.kubernetes.io/component" = "kong-admin-metrics"
+        }
+      }
+      endpoints = [
+        {
+          port     = "kong-admin"
+          interval = "30s"
+          path     = "/metrics"
+        }
+      ]
     }
   }
 }
