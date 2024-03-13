@@ -78,6 +78,32 @@ resource "kubernetes_manifest" "kong_ping_endpoint_request_termination_plugin" {
   }
 }
 
+resource "kubernetes_manifest" "kong_response_transformer_plugin" {
+  manifest = {
+    apiVersion = "configuration.konghq.com/v1"
+    kind       = "KongClusterPlugin"
+
+    metadata = {
+      name = "kong-response-transformer"
+      labels = {
+        "konghq.com/plugin" = "response-transformer"
+        "global"            = "true"
+      }
+      annotations = {
+        "kubernetes.io/ingress.class" = "kong"
+      }
+    }
+    "plugin" = "response-transformer"
+    "config" = {
+      "add" = {
+        "headers" = [
+          "Rendered-By:${var.provider_name}",
+        ]
+      }
+    }
+  }
+}
+
 resource "kubernetes_manifest" "kong_prometheus_plugin" {
   manifest = {
     apiVersion = "configuration.konghq.com/v1"
