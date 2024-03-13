@@ -19,3 +19,8 @@ variable "cluster_name" {
 variable "cloudflared_token" {
   description = "token to authenticate with cloudflared tunnel"
 }
+
+variable "provider_name" {
+  description = "name of the provider"
+  default     = "TxPipe.io"
+}
