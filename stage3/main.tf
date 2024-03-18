@@ -41,6 +41,7 @@ module "workers_configs" {
 }
 
 module "workers_operator" {
+  depends_on    = [helm_release.kong]
   source        = "git::https://github.com/demeter-run/workloads.git//bootstrap/operator"
   namespace     = local.ext_workers_namespace
   cluster_name  = var.cluster_name
