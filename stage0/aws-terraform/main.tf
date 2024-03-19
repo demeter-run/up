@@ -1,31 +1,25 @@
 locals {
   default_vars = yamldecode(file("../../common/defaults.yaml"))
-  cluster_vars = yamldecode(file("../aws-eksctl/cluster.yaml"))
   config_vars  = try(yamldecode(file("../../config.yaml")), {})
 
   name = try(
-    local.config_vars.metadata.name,
-    local.cluster_vars.metadata.name,
+    local.config_vars.cluster_name,
     local.default_vars.cluster_name,
   )
   region = try(
-    local.config_vars.metadata.region,
-    local.cluster_vars.metadata.region,
+    local.config_vars.region,
     local.default_vars.region,
   )
   azs = try(
-    local.config_vars.availabilityZones,
-    local.cluster_vars.availabilityZones,
-    split(",", local.default_vars.azs),
+    local.config_vars.azs,
+    local.default_vars.azs,
   )
-  vpc_vars = try(
-    local.config_vars.vpc,
-    local.cluster_vars.vpc,
-    { "cidr" : local.default_vars.vpc_cidr },
+  vpc_cidr = try(
+    local.config_vars.vpc_cidr,
+    local.default_vars.vpc_cidr,
   )
   node_vars = try(
-    local.config_vars.managedNodeGroups,
-    local.cluster_vars.managedNodeGroups,
+    local.config_vars.managed_node_groups,
     local.default_vars.managed_node_groups,
   )
 
@@ -59,11 +53,11 @@ module "aws_cluster_vpc" {
   version = "~> 5.0"
 
   name = local.name
-  cidr = local.vpc_vars.cidr
+  cidr = local.vpc_cidr
 
   azs             = local.azs
-  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_vars.cidr, 8, k)]
-  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_vars.cidr, 8, k + 4)]
+  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
+  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 4)]
 
   enable_dns_hostnames = true
   enable_dns_support   = true
@@ -296,10 +290,10 @@ module "aws_cluster_eks" {
       name           = n.name
       labels         = try(n.labels, {})
       ami_type       = n.labels["demeter.run/compute-arch"] == "arm64" ? "AL2_ARM_64" : "AL2_x86_64"
-      instance_types = try(tolist(n.instanceType), n.instanceTypes, null)
-      min_size       = try(n.minSize, 0)
-      max_size       = try(n.maxSize, 1)
-      desired_size   = try(n.desiredCapacity, 0)
+      instance_types = try(tolist(n.instance_type), n.instance_types, null)
+      min_size       = try(n.min_size, 0)
+      max_size       = try(n.max_size, 1)
+      desired_size   = try(n.desired_capacity, 0)
 
       taints = [
         for t in coalesce(n.taints, []) : {
@@ -310,10 +304,10 @@ module "aws_cluster_eks" {
       ]
 
       subnet_ids = flatten([
-        for s in coalesce(n.availabilityZones, []) :
+        for s in coalesce(n.availability_zones, []) :
         data.aws_subnets.filtered[replace(s, "/^[a-z]+-[a-z]+-[0-9]/", "${local.region}")].ids
       ])
-      capacity_type = try(n.capacityType, null)
+      capacity_type = try(n.capacity_ype, null)
     }
   }
 
