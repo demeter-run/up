@@ -106,6 +106,9 @@ resource "kubernetes_service" "cloudflared_metrics" {
   metadata {
     name      = "cloudflared-metrics"
     namespace = var.dmtr_namespace
+    labels = {
+      "app.kubernetes.io/name" = "cloudflared-metrics"
+    }
   }
 
   spec {
@@ -114,10 +117,43 @@ resource "kubernetes_service" "cloudflared_metrics" {
     }
 
     port {
+      name        = "metrics"
       port        = 60123
       target_port = 60123
     }
 
     type = "ClusterIP"
+  }
+}
+
+resource "kubernetes_manifest" "cloudflared_service_monitor" {
+  manifest = {
+    apiVersion = "monitoring.coreos.com/v1"
+    kind       = "ServiceMonitor"
+    metadata = {
+      name      = "cloudflared-metrics-monitor"
+      namespace = "dmtr-system"
+      labels = {
+        app = "cloudflared"
+        # Match labels from prometheus resource serviceMonitorSelector
+        "app.kubernetes.io/component" = "o11y"
+        "app.kubernetes.io/part-of"   = "demeter"
+      }
+    }
+    spec = {
+      selector = {
+        matchLabels = {
+          "app.kubernetes.io/name" = "cloudflared-metrics"
+        }
+      }
+      endpoints = [
+        {
+          port     = "metrics"
+          interval = "30s"
+          path     = "/metrics"
+          scheme   = "http"
+        }
+      ]
+    }
   }
 }
