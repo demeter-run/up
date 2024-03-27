@@ -6,13 +6,13 @@ The specific Compute infrastructure and Kubernetes control-plane out-of-scope fo
 
 ## Common Scenarios
 
-| Scenario                     | Docs                           |
-| ---------------------------- | ------------------------------ |
-| Local development using K3d  | [README](k3d/README.md)        |
-| Local development using Kind | [README](kind/README.md)       |
-| Hosted cluster in AWS        | [README](aws-eksctl/README.md) |
-| Hosted cluster in GCP        | (coming soon)                  |
-| Hosted cluster in Azure      | (coming soon)                  |
+| Scenario                     | Docs                              |
+| ---------------------------- | --------------------------------- |
+| Local development using K3d  | [README](k3d/README.md)           |
+| Local development using Kind | [README](kind/README.md)          |
+| Hosted cluster in AWS        | [README](aws-terraform/README.md) |
+| Hosted cluster in GCP        | (coming soon)                     |
+| Hosted cluster in Azure      | (coming soon)                     |
 
 
 ## Next Steps
