@@ -12,9 +12,7 @@ terraform_state_bucket: pre-configured-bucket
 terraform_state_region: eu-central-1
 
 # Overrides for defaults for configuring a cluster using bootstrap and stage0/aws-terraform in AWS. These override the defaults
-# in stage0/aws-eksctl/cluster.yaml (shared between eksctl and terraform)
-availabilityZones: [eu-central-1b, eu-central-1c]
-vpc:
-  cidr: 10.16.0.0/16
-metadata:
-  region: eu-central-1
+# in common/defaults.yaml
+azs: [eu-central-1b, eu-central-1c]
+vpc_cidr: 10.16.0.0/16
+region: eu-central-1
