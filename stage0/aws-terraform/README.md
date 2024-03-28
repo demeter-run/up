@@ -97,3 +97,13 @@ command to apply the changes:
 ```bash
 terraform apply
 ```
+
+### Connecting to Kubernetes
+
+You will need to configure your `~/.kube/config` with the appropriate login
+information for your cluster. You can do this easily using the `aws` command
+line utility (AWS CLI).
+
+```bash
+aws eks update-kubeconfig --region us-east-1 --name dmtr-cluster --alias aws-dmtr-cluster
+```
