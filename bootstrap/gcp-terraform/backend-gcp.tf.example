@@ -1,0 +1,6 @@
+terraform {
+  backend "gcs" {
+    bucket             = "BUCKET_NAME"
+    kms_encryption_key = "KMS_ENCRYPTION_KEY"
+  }
+}

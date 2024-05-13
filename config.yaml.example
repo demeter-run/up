@@ -2,10 +2,14 @@
 # in this repository.
 
 # Configuring the cloud provider allows for simplified bootstrapping and storage of Terraform state for later stages.
+# Supported cloud providers are: aws, gcp, k3d(default)
 cloud_provider: aws
 
 # The cloudflared_token is stored in the global Terraform state and is required for stage3 deployment. It is a base64 token.
 cloudflared_token: eyJ...
+
+# Define project id for GCP. This is required for bootstrapping and storing Terraform state.
+terraform_project_id: <project_id>
 
 # The terraform state bucket name and location. These can be created by bootstrap if not preconfigured.
 terraform_state_bucket: pre-configured-bucket

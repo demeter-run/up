@@ -31,7 +31,15 @@ terraform_state_bucket: <bucket>
 terraform_state_region: <region>
 ```
 
-Currently, this supports AWS, but we intend on supporting additional providers in the
+For example, for GCP:
+
+```yaml
+cloud_provider: gcp
+terraform_project_id: <project_id>
+terraform_state_region: us-east4
+```
+
+Currently, this supports AWS and GCP, but we intend on supporting additional providers in the
 future.
 
 ## Next Steps
