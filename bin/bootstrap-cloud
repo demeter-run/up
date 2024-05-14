@@ -165,7 +165,7 @@ case ${__cloud} in
     aws eks update-kubeconfig --region ${__region} --name ${__name} --alias aws-${__name}
   fi
 
-  cd ${__root}/stage1
+  cd ${__root}/stage1/aws-terraform
   if ! test -e backend.tf; then
     echo configuring stage1 backend
     sed -e "s#BUCKET_NAME#${__bucket}#" \
@@ -250,12 +250,17 @@ case ${__cloud} in
 
     set -e
     __bucket=$(terraform output -raw terraform_state_bucket)
+    __region=$(terraform output -raw region)
     __kmskey=$(terraform output -raw terraform_state_crypto_key)
-    __project_id=$(terraform output -raw terraform_project_id)
     if [[ ${__bucket} =~ bucket-tfstate ]]; then
       echo Terraform state bucket: ${__bucket}
     else
       echo Could not detect state bucket && exit 1
+    fi
+    if [[ ${__region} == REGION ]]; then
+      echo Region is not set && exit 1
+    else
+      echo Terraform state bucket region: ${__region}
     fi
     if [[ ${__kmskey} =~ terraform-state-bucket ]]; then
       echo Terraform state KMS key: ${__kmskey}
@@ -301,8 +306,78 @@ case ${__cloud} in
           backend-gcp.tf.example > backend.tf
       terraform init -migrate-state -force-copy
     fi
-    echo "Initial Bootstrap Complete"
-    #TODO: Add the rest of the stages
+    echo "Initial Bootstrap Complete \n"
+
+    # ----------------- STAGE 0 -----------------
+    echo Starting stage0 on ${__cloud}
+    cd ${__root}/stage0/gcp-terraform
+    if ! test -e backend.tf; then
+      sed -e "s#BUCKET_NAME#${__bucket}#" \
+          -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
+            backend.tf.example > backend.tf
+    fi
+
+    terraform init
+    terraform validate
+    set +e
+    terraform plan -detailed-exitcode -input=false
+    __ret=$?
+    case ${__ret} in
+      2) terraform apply -auto-approve ;;
+      0) echo terraform apply skipped with no changes ;;
+      *) echo terraform plan result ${__ret} && exit ${__ret} ;;
+    esac
+    __ret=$?
+    case ${__ret} in
+      0) echo terraform apply successful ;;
+      *) echo terraform apply result ${__ret} && exit ${__ret} ;;
+    esac
+
+    if test -e ${__root}/config.yaml; then
+      __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
+    fi
+    if [[ -z ${__name} ]]; then
+      __name=dmtr-cluster
+    fi
+
+    set -e
+    if [[ $(kubectl config get-contexts | awk '{print $2}' | grep -o gcp-${__name} 2>/dev/null) == gcp-${__name} ]]; then
+      echo cluster context found: gcp-${__name}
+    else
+      echo configuring cluster: gcp-${__name}
+      gcloud container clusters get-credentials ${__name} --region ${__region} --project ${__project_id}
+    fi
+    echo "Stage 0 Complete"
+    # ----------------- STAGE 1 -----------------
+    echo "Starting Stage 1 on ${__cloud}"
+    cd ${__root}/stage1/gcp-terraform
+    if ! test -e backend.tf; then
+      sed -e "s#BUCKET_NAME#${__bucket}#" \
+          -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
+            backend.tf.example > backend.tf
+    fi
+
+    current_context=$(kubectl config current-context)
+    if [[ -z ${current_context} ]]; then
+      echo "No current context found, exiting..."
+      exit 1
+    fi
+    if [[ "${current_context}" != "${__cloud}-${__name}" ]]; then
+      kubectl config rename-context "${current_context}" "${__cloud}-${__name}"
+      echo "Context has been renamed to: ${__cloud}-${__name}"
+    fi
+
+    if ! test -e env.auto.tfvars; then
+      echo "configuring stage1 terraform variables"
+      sed -e 's:^# ::' \
+          -e "s:cloud_provider = \"aws\"|\"gcp\"|\"azure\"|\"kind\"|\"k3d\"|\"other\":cloud_provider = \"${__cloud}\":" \
+          -e "s#k8s_context = \"some-context\"#k8s_context = \"${__cloud}-${__name}\"#" \
+          env.auto.tfvars.example > env.auto.tfvars
+      echo "${__cloud}_cluster_name = \"${__name}\"" >> env.auto.tfvars
+    fi
+    terraform init
+    terraform validate
+    # TODO: Add the rest of the stages
     ;;
 k3d)
   cd ${__root}/bootstrap
