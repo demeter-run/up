@@ -9,3 +9,7 @@ output "terraform_state_bucket" {
 output "terraform_state_crypto_key" {
   value = google_kms_crypto_key.terraform_state_bucket.id
 }
+
+output "region" {
+  value = local.region
+}

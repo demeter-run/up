@@ -1,7 +1,7 @@
 terraform {
   backend "gcs" {
     bucket             = "BUCKET_NAME"
-    prefix             = "bootstrap/terraform-state"
+    prefix             = "stage0/terraform-state"
     kms_encryption_key = "KMS_ENCRYPTION_KEY"
   }
 }
