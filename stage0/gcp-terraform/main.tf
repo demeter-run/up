@@ -53,33 +53,65 @@ resource "google_compute_subnetwork" "default" {
   network = google_compute_network.default.id
   secondary_ip_range {
     range_name    = "services-range"
-    ip_cidr_range = "192.168.0.0/24"
+    ip_cidr_range = "192.168.0.0/20"
   }
 
   secondary_ip_range {
     range_name    = "pod-ranges"
-    ip_cidr_range = "192.168.1.0/24"
+    ip_cidr_range = "192.168.16.0/20"
   }
 }
 
+resource "google_service_account" "default" {
+  account_id   = "dmtr-account-id"
+  display_name = "Service Account"
+}
+
 resource "google_container_cluster" "default" {
-  # Dmtr autopilot cluster
   name = "dmtr-cluster"
 
   location                 = local.region
-  enable_autopilot         = true
   enable_l4_ilb_subsetting = true
+  # We can't create a cluster with no node pool defined, but we want to only use
+  # separately managed node pools. So we create the smallest possible default
+  # node pool and immediately delete it.
+  remove_default_node_pool = true
+  initial_node_count       = 1
 
   network    = google_compute_network.default.id
   subnetwork = google_compute_subnetwork.default.id
 
   ip_allocation_policy {
-    stack_type                    = "IPV4_IPV6"
+    stack_type                    = "IPV4"
     services_secondary_range_name = google_compute_subnetwork.default.secondary_ip_range[0].range_name
     cluster_secondary_range_name  = google_compute_subnetwork.default.secondary_ip_range[1].range_name
   }
 
   deletion_protection = false
+}
+
+resource "google_container_node_pool" "primary_preemptible_nodes" {
+  name       = "dmtr-node-pool"
+  location   = local.region
+  cluster    = google_container_cluster.default.name
+  node_count = 1
+
+  node_config {
+    preemptible  = true
+    machine_type = "e2-medium"
+    disk_size_gb = 10
+    ephemeral_storage_local_ssd_config {
+      local_ssd_count = 0
+    }
+
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    service_account = google_service_account.default.email
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform"
+    ]
+  }
+
+
 }
 
 data "google_client_config" "default" {}
