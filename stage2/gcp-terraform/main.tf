@@ -32,13 +32,12 @@ provider "helm" {
 #   source = "../modules/postgresql/stage2"
 # }
 
-# # Nodeexporter deamonset requires defined resource quota as part of critical pods
-# module "o11y" {
-#   source        = "../../modules/common/o11y/stage2"
-#   namespace     = var.dmtr_namespace
-#   storage_class = "standard"
-#   depends_on    = [kubernetes_resource_quota.critical_pods_quota]
-# }
+module "o11y" {
+  source        = "../../modules/common/o11y/stage2"
+  namespace     = var.dmtr_namespace
+  storage_class = "standard"
+  depends_on    = [kubernetes_resource_quota.critical_pods_quota]
+}
 
 module "dmtrd" {
   source        = "../../modules/common/dmtrd/stage2"
