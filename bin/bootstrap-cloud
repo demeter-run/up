@@ -377,6 +377,21 @@ case ${__cloud} in
     fi
     terraform init
     terraform validate
+    # ----------------- STAGE 2 -----------------
+    echo "Starting Stage 2 on ${__cloud}"
+    cd ${__root}/stage2/gcp-terraform
+    if ! test -e backend.tf; then
+      sed -e "s#BUCKET_NAME#${__bucket}#" \
+          -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
+            backend.tf.example > backend.tf
+    fi
+
+    if ! test -e env.auto.tfvars; then
+      echo "configuring stage2 terraform variables"
+      sed -e 's:^# ::' \
+          -e "s#k8s_context = \"some-context\"#k8s_context = \"${__cloud}-${__name}\"#" \
+          env.auto.tfvars.example > env.auto.tfvars
+    fi
     # TODO: Add the rest of the stages
     ;;
 k3d)
