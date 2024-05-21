@@ -94,7 +94,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "dmtr-node-pool"
   location   = local.region
   cluster    = google_container_cluster.default.name
-  node_count = 1
+  node_count = 2
 
   node_config {
     preemptible  = true
@@ -110,8 +110,6 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
-
-
 }
 
 data "google_client_config" "default" {}

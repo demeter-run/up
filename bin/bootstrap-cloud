@@ -212,6 +212,8 @@ case ${__cloud} in
 	-e "s#some-context#aws-${__name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
+  terraform init
+  terraform validate
   ;;
   gcp)
     check_gcp_prerequisites
@@ -392,7 +394,23 @@ case ${__cloud} in
           -e "s#k8s_context = \"some-context\"#k8s_context = \"${__cloud}-${__name}\"#" \
           env.auto.tfvars.example > env.auto.tfvars
     fi
-    # TODO: Add the rest of the stages
+    # ----------------- STAGE 3 -----------------
+    echo "Starting Stage 3 on ${__cloud}"
+    cd ${__root}/stage3/gcp-terraform
+    if ! test -e backend.tf; then
+      sed -e "s#BUCKET_NAME#${__bucket}#" \
+          -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
+            backend.tf.example > backend.tf
+    fi
+
+    if ! test -e env.auto.tfvars; then
+      echo "configuring stage3 terraform variables"
+      sed -e 's:^# ::' \
+          -e "s#k8s_context = \"some-context\"#k8s_context = \"${__cloud}-${__name}\"#" \
+          env.auto.tfvars.example > env.auto.tfvars
+    fi
+    terraform init
+    terraform validate
     ;;
 k3d)
   cd ${__root}/bootstrap
