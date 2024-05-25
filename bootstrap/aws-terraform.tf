@@ -1,8 +1,3 @@
-# Configure our AWS provider
-provider "aws" {
-  region = local.region
-}
-
 # Create a dynamodb table for storing terraform state locks
 resource "aws_dynamodb_table" "this" {
   for_each = toset([for t in toset(["terraform-state-lock"]) : t if local.cloud_provider == "aws"])
@@ -57,11 +52,6 @@ resource "aws_kms_alias" "this" {
 
   target_key_id = aws_kms_key.this[each.key].key_id
   name          = "alias/${each.key}"
-}
-
-# Generate a random identifier
-resource "random_id" "this" {
-  byte_length = 8
 }
 
 # Create an S3 bucket with versioning for our state

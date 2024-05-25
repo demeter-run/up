@@ -7,6 +7,7 @@ locals {
 }
 
 resource "google_service_account" "terraform_runner" {
+  for_each                     = toset([for b in toset(["terraform-state"]) : b if local.cloud_provider == "gcp"])
   account_id                   = "terraform-runner"
   display_name                 = "Terraform Runner"
   project                      = local.project_id
@@ -14,7 +15,7 @@ resource "google_service_account" "terraform_runner" {
 }
 
 resource "google_project_service" "this" {
-  for_each = toset(local.service_apis)
+  for_each = toset([for t in toset(local.service_apis) : t if local.cloud_provider == "gcp"])
   project  = local.project_id
   service  = each.key
 
@@ -25,14 +26,16 @@ resource "google_project_service" "this" {
 }
 
 resource "google_kms_key_ring" "terraform_state" {
+  for_each = toset([for b in toset(["terraform-state"]) : b if local.cloud_provider == "gcp"])
   name     = "${random_id.this.hex}-bucket-tfstate"
   location = "us"
   project  = local.project_id
 }
 
 resource "google_kms_crypto_key" "terraform_state_bucket" {
+  for_each        = toset([for b in toset(["terraform-state"]) : b if local.cloud_provider == "gcp"])
   name            = "${random_id.this.hex}-terraform-state-bucket"
-  key_ring        = google_kms_key_ring.terraform_state.id
+  key_ring        = google_kms_key_ring.terraform_state[each.key].id
   rotation_period = "86400s"
 
   lifecycle {
@@ -40,17 +43,20 @@ resource "google_kms_crypto_key" "terraform_state_bucket" {
   }
 }
 
-data "google_storage_project_service_account" "this" {}
+data "google_storage_project_service_account" "this" {
+  count = local.cloud_provider == "gcp" ? 1 : 0
+}
 
 resource "google_project_iam_member" "this" {
-  project = local.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:${data.google_storage_project_service_account.this.email_address}"
+  for_each = toset([for b in toset(["terraform-state"]) : b if local.cloud_provider == "gcp"])
+  project  = local.project_id
+  role     = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member   = "serviceAccount:${data.google_storage_project_service_account.this[0].email_address}"
 }
 
 resource "google_storage_bucket" "terraform_state" {
-  depends_on = [google_project_iam_member.this]
-
+  for_each                    = toset([for b in toset(["terraform-state"]) : b if local.cloud_provider == "gcp"])
+  depends_on                  = [google_project_iam_member.this]
   name                        = "${random_id.this.hex}-bucket-tfstate"
   force_destroy               = false
   location                    = "US"
@@ -58,7 +64,7 @@ resource "google_storage_bucket" "terraform_state" {
   uniform_bucket_level_access = true
 
   encryption {
-    default_kms_key_name = google_kms_crypto_key.terraform_state_bucket.id
+    default_kms_key_name = google_kms_crypto_key.terraform_state_bucket[each.key].id
   }
 
   lifecycle_rule {

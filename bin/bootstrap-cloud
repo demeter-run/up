@@ -73,12 +73,14 @@ case ${__cloud} in
   check_terraform_prerequisites
 
   set -e
-  cd ${__root}/bootstrap/aws-terraform
+  cd ${__root}/bootstrap
   if [[ -z ${__bucket} ]] && [[ -z ${__region} ]]; then
     terraform init
     terraform validate
     set +e
     terraform plan -detailed-exitcode -input=false
+    # TODO remove debugging breakpoint
+    exit 0
     __ret=$?
     case ${__ret} in
       2) terraform apply -auto-approve ;;
@@ -232,11 +234,13 @@ case ${__cloud} in
     fi
     
     set -e
-    cd ${__root}/bootstrap/gcp-terraform
+    cd ${__root}/bootstrap
     terraform init
     terraform validate
     set +e
-    terraform plan -detailed-exitcode -input=false  
+    terraform plan -detailed-exitcode -input=false 
+    # TODO remove debugging breakpoint
+    exit 0
     
     __ret=$?
     case ${__ret} in
@@ -290,7 +294,7 @@ case ${__cloud} in
     fi
 
     set +e
-    cd ${__root}/bootstrap/gcp-terraform
+    cd ${__root}/bootstrap
     # configure projects backend
     __configure_projects_backend=false
     if [[ ! -e backend.tf ]]; then
@@ -309,6 +313,7 @@ case ${__cloud} in
       terraform init -migrate-state -force-copy
     fi
     echo "Initial Bootstrap Complete \n"
+    exit 0
 
     # ----------------- STAGE 0 -----------------
     echo Starting stage0 on ${__cloud}
