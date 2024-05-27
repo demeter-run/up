@@ -160,6 +160,25 @@ if [[ ${__cloud} == aws ]]; then
   fi
   terraform init
 
+elif [[ ${__cloud} == gcp ]]; then
+
+  cd ${__root}/stage3
+  if ! test -e backend.tf; then
+    echo configuring stage3 backend
+    sed -e "s#BUCKET_NAME#${__bucket}#" \
+        -e "s#REGION#${__region}#" \
+        backend.gcp.tf.example > backend.tf
+  fi
+  if ! test -e env.auto.tfvars; then
+    echo configuring stage3 terraform variables
+    sed -e 's:^# ::' \
+        -e "s:eyJ...:${__cloudflared_token}:" \
+	-e "s:dmtr-cluster:${__cluster_name}:" \
+	-e "s#some-context#aws-${__cluster_name}#" \
+        env.auto.tfvars.example > env.auto.tfvars
+  fi
+  terraform init
+
 else # k3d
 
   cd ${__root}/bootstrap
