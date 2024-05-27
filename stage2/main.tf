@@ -33,12 +33,12 @@ provider "helm" {
 # }
 
 module "o11y" {
-  source    = "../../modules/common/o11y/stage2"
+  source    = "../modules/common/o11y/stage2"
   namespace = var.dmtr_namespace
 }
 
 module "dmtrd" {
-  source        = "../../modules/common/dmtrd/stage2"
+  source        = "../modules/common/dmtrd/stage2"
   namespace     = var.dmtr_namespace
   dmtrd_version = var.dmtrd_version
 }

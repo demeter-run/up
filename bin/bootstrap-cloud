@@ -196,6 +196,8 @@ case ${__cloud} in
 	-e "s#some-context#aws-${__name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
+  terraform init
+  terraform validate
 
   cd ${__root}/stage3
   if ! test -e backend.tf; then
@@ -380,11 +382,11 @@ case ${__cloud} in
     terraform validate
     # ----------------- STAGE 2 -----------------
     echo "Starting Stage 2 on ${__cloud}"
-    cd ${__root}/stage2/gcp-terraform
+    cd ${__root}/stage2
     if ! test -e backend.tf; then
       sed -e "s#BUCKET_NAME#${__bucket}#" \
           -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
-            backend.tf.example > backend.tf
+            backend.gcp.tf.example > backend.tf
     fi
 
     if ! test -e env.auto.tfvars; then
@@ -393,6 +395,8 @@ case ${__cloud} in
           -e "s#k8s_context = \"some-context\"#k8s_context = \"${__cloud}-${__name}\"#" \
           env.auto.tfvars.example > env.auto.tfvars
     fi
+    terraform init
+    terraform validate
     # ----------------- STAGE 3 -----------------
     echo "Starting Stage 3 on ${__cloud}"
     cd ${__root}/stage3
