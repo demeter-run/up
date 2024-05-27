@@ -308,8 +308,7 @@ case ${__cloud} in
           backend-gcp.tf.example > backend.tf
       terraform init -migrate-state -force-copy
     fi
-    echo "Initial Bootstrap Complete \n"
-
+    echo "Initial Bootstrap Complete"
     # ----------------- STAGE 0 -----------------
     echo Starting stage0 on ${__cloud}
     cd ${__root}/stage0/gcp-terraform
@@ -396,11 +395,11 @@ case ${__cloud} in
     fi
     # ----------------- STAGE 3 -----------------
     echo "Starting Stage 3 on ${__cloud}"
-    cd ${__root}/stage3/gcp-terraform
+    cd ${__root}/stage3
     if ! test -e backend.tf; then
       sed -e "s#BUCKET_NAME#${__bucket}#" \
           -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
-            backend.tf.example > backend.tf
+            backend.gcp.tf.example > backend.tf
     fi
 
     if ! test -e env.auto.tfvars; then
