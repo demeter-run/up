@@ -165,7 +165,7 @@ case ${__cloud} in
     aws eks update-kubeconfig --region ${__region} --name ${__name} --alias aws-${__name}
   fi
 
-  cd ${__root}/stage1/aws-terraform
+  cd ${__root}/stage1
   if ! test -e backend.tf; then
     echo configuring stage1 backend
     sed -e "s#BUCKET_NAME#${__bucket}#" \
@@ -353,11 +353,11 @@ case ${__cloud} in
     echo "Stage 0 Complete"
     # ----------------- STAGE 1 -----------------
     echo "Starting Stage 1 on ${__cloud}"
-    cd ${__root}/stage1/gcp-terraform
+    cd ${__root}/stage1
     if ! test -e backend.tf; then
       sed -e "s#BUCKET_NAME#${__bucket}#" \
           -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
-            backend.tf.example > backend.tf
+            backend.gcp.tf.example > backend.tf
     fi
 
     current_context=$(kubectl config current-context)
