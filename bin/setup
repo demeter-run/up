@@ -162,6 +162,15 @@ if [[ ${__cloud} == aws ]]; then
 
 elif [[ ${__cloud} == gcp ]]; then
 
+  cd ${__root}/stage0/gcp-terraform
+  if ! test -e backend.tf; then
+    echo configuring stage0 backend
+    sed -e "s#BUCKET_NAME#${__bucket}#" \
+        -e "s#REGION#${__region}#" \
+        backend.tf.example > backend.tf
+  fi
+  terraform init
+
   cd ${__root}/stage1
   if ! test -e backend.tf; then
     echo configuring stage1 backend

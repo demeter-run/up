@@ -1,5 +1,5 @@
 locals {
-  default_vars = yamldecode(file("../../common/defaults.yaml"))
+  default_vars = yamldecode(file("../../common/defaults-gcp.yaml"))
   config_vars  = try(yamldecode(file("../../config.yaml")), {})
   project_id   = try(local.config_vars.terraform_project_id, "")
   region       = try(local.config_vars.region, local.default_vars.region)
@@ -52,75 +52,89 @@ resource "google_compute_subnetwork" "default" {
 
   network = google_compute_network.default.id
   secondary_ip_range {
+    range_name    = "pod-range"
+    ip_cidr_range = "192.168.16.0/20"
+  }
+  secondary_ip_range {
     range_name    = "services-range"
     ip_cidr_range = "192.168.0.0/20"
   }
-
-  secondary_ip_range {
-    range_name    = "pod-ranges"
-    ip_cidr_range = "192.168.16.0/20"
-  }
 }
 
-resource "google_service_account" "default" {
-  account_id   = "dmtr-account-id"
-  display_name = "Service Account"
+# Defined in bootstrap/gcp-terraform/gcp-terraform.tf
+data "google_service_account" "existing" {
+  account_id = "terraform-runner"
+  project    = local.project_id
 }
 
-resource "google_container_cluster" "default" {
-  name = "dmtr-cluster"
+module "gke" {
+  source                     = "terraform-google-modules/kubernetes-engine/google"
+  project_id                 = local.project_id
+  name                       = local.name
+  region                     = local.region
+  zones                      = local.azs
+  network                    = google_compute_network.default.name
+  subnetwork                 = google_compute_subnetwork.default.name
+  ip_range_pods              = "pod-range"
+  ip_range_services          = "services-range"
+  http_load_balancing        = false
+  network_policy             = false
+  horizontal_pod_autoscaling = true
+  filestore_csi_driver       = false
+  dns_cache                  = false
+  deletion_protection        = false
 
-  location                 = local.region
-  enable_l4_ilb_subsetting = true
-  # We can't create a cluster with no node pool defined, but we want to only use
-  # separately managed node pools. So we create the smallest possible default
-  # node pool and immediately delete it.
-  remove_default_node_pool = true
-  initial_node_count       = 1
+  node_pools = [for np in local.node_vars : {
+    name               = np.name
+    machine_type       = np.instance_type
+    node_locations     = np.availability_zones
+    min_count          = np.min_size
+    max_count          = np.max_size
+    disk_size_gb       = np.disk_size_gb
+    disk_type          = "pd-ssd"
+    auto_repair        = true
+    auto_upgrade       = true
+    service_account    = data.google_service_account.existing.email
+    preemptible        = false
+    initial_node_count = np.desired_capacity
+  }]
 
-  network    = google_compute_network.default.id
-  subnetwork = google_compute_subnetwork.default.id
-
-  ip_allocation_policy {
-    stack_type                    = "IPV4"
-    services_secondary_range_name = google_compute_subnetwork.default.secondary_ip_range[0].range_name
-    cluster_secondary_range_name  = google_compute_subnetwork.default.secondary_ip_range[1].range_name
-  }
-
-  deletion_protection = false
-}
-
-resource "google_container_node_pool" "primary_preemptible_nodes" {
-  name       = "dmtr-node-pool"
-  location   = local.region
-  cluster    = google_container_cluster.default.name
-  node_count = 2
-
-  node_config {
-    preemptible  = true
-    machine_type = "e2-medium"
-    disk_size_gb = 10
-    ephemeral_storage_local_ssd_config {
-      local_ssd_count = 0
-    }
-
-    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
-    service_account = google_service_account.default.email
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/cloud-platform"
+  node_pools_oauth_scopes = {
+    all = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
     ]
   }
+
+  node_pools_labels = merge(
+    {
+      all = {}
+    },
+    { for np in local.node_vars : np.name => np.labels }
+  )
+
+  node_pools_metadata = {
+    all = {}
+
+  }
+
+  node_pools_taints = merge(
+    {
+      all = []
+    },
+    { for np in local.node_vars : np.name => np.taints }
+  )
+
+  node_pools_tags = {
+    all = []
+  }
 }
+
 
 data "google_client_config" "default" {}
 
 provider "kubernetes" {
-  host                   = "https://${google_container_cluster.default.endpoint}"
+  host                   = "https://${module.gke.endpoint}"
   token                  = data.google_client_config.default.access_token
-  cluster_ca_certificate = base64decode(google_container_cluster.default.master_auth[0].cluster_ca_certificate)
-
-  ignore_annotations = [
-    "^autopilot\\.gke\\.io\\/.*",
-    "^cloud\\.google\\.com\\/.*"
-  ]
+  cluster_ca_certificate = base64decode(module.gke.ca_certificate)
 }
