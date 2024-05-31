@@ -37,6 +37,7 @@ For example, for GCP:
 cloud_provider: gcp
 terraform_project_id: <project_id>
 terraform_state_region: us-east4
+terraform_state_kmskey: <kms_key>
 ```
 
 Currently, this supports AWS and GCP, but we intend on supporting additional providers in the
