@@ -28,6 +28,9 @@ resource "google_kms_key_ring" "terraform_state" {
   name     = "${random_id.this.hex}-bucket-tfstate"
   location = "us"
   project  = local.project_id
+  depends_on = [
+    google_project_service.this
+  ]
 }
 
 resource "google_kms_crypto_key" "terraform_state_bucket" {
@@ -38,6 +41,9 @@ resource "google_kms_crypto_key" "terraform_state_bucket" {
   lifecycle {
     prevent_destroy = false
   }
+  depends_on = [
+    google_project_service.this
+  ]
 }
 
 data "google_storage_project_service_account" "this" {}

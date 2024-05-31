@@ -43,6 +43,7 @@ if test -e ${__root}/config.yaml; then
   __cloudflared_token=$(grep ^cloudflared_token: ${__root}/config.yaml | awk '{print $2}')
   __cluster_name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
   __region=$(grep ^terraform_state_region: ${__root}/config.yaml | awk '{print $2}')
+  __kmskey=$(grep ^terraform_state_kmskey: ${__root}/config.yaml | awk '{print $2}')
   [[ -z ${__bucket} ]] && unset __bucket
   [[ -z ${__region} ]] && unset __region
 else
@@ -85,12 +86,12 @@ if [[ ${__cloud} == aws ]]; then
   fi
 
   set -e
-  cd ${__root}/bootstrap
+  cd ${__root}/bootstrap/aws-terraform
   if [[ ${__configure_bootstrap_backend} == true ]]; then
     echo configuring bootstrap backend
     sed -e "s#BUCKET_NAME#${__bucket}#" \
         -e "s#REGION#${__region}#" \
-        backend-aws.tf.example > backend.tf
+        backend.tf.example > backend.tf
   fi
   terraform init
 
@@ -162,11 +163,22 @@ if [[ ${__cloud} == aws ]]; then
 
 elif [[ ${__cloud} == gcp ]]; then
 
+  cd ${__root}/bootstrap/gcp-terraform
+  if ! test -e backend.tf; then
+    echo configuring bootstrap backend
+    sed -e "s#BUCKET_NAME#${__bucket}#" \
+        -e "s#REGION#${__region}#" \
+        -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
+        backend.tf.example > backend.tf
+  fi
+  terraform init
+
   cd ${__root}/stage0/gcp-terraform
   if ! test -e backend.tf; then
     echo configuring stage0 backend
     sed -e "s#BUCKET_NAME#${__bucket}#" \
         -e "s#REGION#${__region}#" \
+        -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
         backend.tf.example > backend.tf
   fi
   terraform init
@@ -176,6 +188,7 @@ elif [[ ${__cloud} == gcp ]]; then
     echo configuring stage1 backend
     sed -e "s#BUCKET_NAME#${__bucket}#" \
         -e "s#REGION#${__region}#" \
+        -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
         backend.gcp.tf.example > backend.tf
   fi
   if ! test -e env.auto.tfvars; then
@@ -192,6 +205,7 @@ elif [[ ${__cloud} == gcp ]]; then
     echo configuring stage2 backend
     sed -e "s#BUCKET_NAME#${__bucket}#" \
         -e "s#REGION#${__region}#" \
+        -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
         backend.gcp.tf.example > backend.tf
   fi
   if ! test -e env.auto.tfvars; then
@@ -207,6 +221,7 @@ elif [[ ${__cloud} == gcp ]]; then
     echo configuring stage3 backend
     sed -e "s#BUCKET_NAME#${__bucket}#" \
         -e "s#REGION#${__region}#" \
+        -e "s#KMS_ENCRYPTION_KEY#${__kmskey}#" \
         backend.gcp.tf.example > backend.tf
   fi
   if ! test -e env.auto.tfvars; then

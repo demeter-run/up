@@ -122,7 +122,7 @@ case ${__cloud} in
     echo configuring bootstrap backend
     sed -e "s#BUCKET_NAME#${__bucket}#" \
         -e "s#REGION#${__region}#" \
-        backend-aws.tf.example > backend.tf
+        backend.tf.example > backend.tf
     terraform init -migrate-state -force-copy
   fi
 
