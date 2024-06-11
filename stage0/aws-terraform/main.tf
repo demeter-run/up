@@ -307,7 +307,7 @@ module "aws_cluster_eks" {
         for s in coalesce(n.availability_zones, []) :
         data.aws_subnets.filtered[replace(s, "/^[a-z]+-[a-z]+-[0-9]/", "${local.region}")].ids
       ])
-      capacity_type = try(n.capacity_ype, null)
+      capacity_type = try(n.capacity_type, null)
     }
   }
 

@@ -87,11 +87,11 @@ module "gke" {
   node_pools = [for np in local.node_vars : {
     name               = np.name
     machine_type       = np.instance_type
-    node_locations     = np.availability_zones
+    node_locations     = replace(np.availability_zones, "/^[a-z]+-[a-z]+[0-9]+/", "${local.region}")
     min_count          = np.min_size
     max_count          = np.max_size
     disk_size_gb       = np.disk_size_gb
-    disk_type          = "pd-ssd"
+    disk_type          = try(np.disk_type, "pd-ssd")
     auto_repair        = true
     auto_upgrade       = true
     service_account    = data.google_service_account.existing.email

@@ -195,7 +195,7 @@ elif [[ ${__cloud} == gcp ]]; then
     echo configuring stage1 terraform variables
     sed -e 's:^# ::' \
     -e 's:aws"|"gcp"|"azure"|"kind"|"k3d"|"other:gcp:' \
-	-e "s#some-context#aws-${__cluster_name}#" \
+	-e "s#some-context#gcp-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init
@@ -211,7 +211,7 @@ elif [[ ${__cloud} == gcp ]]; then
   if ! test -e env.auto.tfvars; then
     echo configuring stage2 terraform variables
     sed -e 's:^# ::' \
-	-e "s#some-context#aws-${__cluster_name}#" \
+	-e "s#some-context#gcp-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init
@@ -229,7 +229,7 @@ elif [[ ${__cloud} == gcp ]]; then
     sed -e 's:^# ::' \
         -e "s:eyJ...:${__cloudflared_token}:" \
 	-e "s:dmtr-cluster:${__cluster_name}:" \
-	-e "s#some-context#aws-${__cluster_name}#" \
+	-e "s#some-context#gcp-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init
@@ -257,7 +257,7 @@ else # k3d
   if ! test -e env.auto.tfvars; then
     echo configuring stage2 terraform variables
     sed -e 's:^# ::' \
-	-e "s#some-context#aws-${__cluster_name}#" \
+	-e "s#some-context#k3d-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
 
@@ -267,7 +267,7 @@ else # k3d
     sed -e 's:^# ::' \
         -e "s:eyJ...:${__cloudflared_token}:" \
 	-e "s:dmtr-cluster:${__cluster_name}:" \
-	-e "s#some-context#aws-${__cluster_name}#" \
+	-e "s#some-context#k3d-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
 fi
