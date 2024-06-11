@@ -1,9 +1,9 @@
 cloud_provider: gcp
 cluster_name: dmtr-cluster
-region: us-west2
+region: us-central1
 azs:
-  - us-west2-b
-  - us-west2-c
+  - us-central1-a
+  - us-central1-b
 vpc_cidr: "10.6.0.0/16"
 dmtr_namespace: dmtr-system
 dmtr_context: k3d-dmtr-cluster
@@ -30,7 +30,7 @@ managed_node_groups:
       - key: demeter.run/compute-arch
         value: "x86"
         effect: NO_SCHEDULE
-    availability_zones: us-west2-b
+    availability_zones: us-central1-a
 
   - name: co-ad-x86-az2
     labels:
@@ -38,7 +38,7 @@ managed_node_groups:
       demeter.run/compute-profile: admin
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az2
-    instance_type: n4-standard-8
+    instance_type: e2-medium
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -53,7 +53,7 @@ managed_node_groups:
       - key: demeter.run/compute-arch
         value: "x86"
         effect: NO_SCHEDULE
-    availability_zones: us-west2-c
+    availability_zones: us-central1-b
 
   - name: co-gp-x86-az1
     labels:
@@ -61,7 +61,7 @@ managed_node_groups:
       demeter.run/compute-profile: general-purpose
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az1
-    instance_type: n4-standard-8
+    instance_type: n2-standard-8
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -76,7 +76,7 @@ managed_node_groups:
       - key: demeter.run/compute-arch
         value: "x86"
         effect: NO_SCHEDULE
-    availability_zones: us-west2-b
+    availability_zones: us-central1-a
 
   - name: co-gp-x86-az2
     labels:
@@ -84,7 +84,7 @@ managed_node_groups:
       demeter.run/compute-profile: general-purpose
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az1
-    instance_type: n4-standard-8
+    instance_type: n2-standard-8
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -99,7 +99,7 @@ managed_node_groups:
       - key: demeter.run/compute-arch
         value: "x86"
         effect: NO_SCHEDULE
-    availability_zones: us-west2-c
+    availability_zones: us-central1-b
 
   - name: co-gp-arm64-az1
     labels:
@@ -122,7 +122,7 @@ managed_node_groups:
       - key: demeter.run/compute-arch
         value: "arm64"
         effect: NO_SCHEDULE
-    availability_zones: us-west2-b
+    availability_zones: us-central1-a
 
   - name: co-mem-x86-az1
     labels:
@@ -130,7 +130,7 @@ managed_node_groups:
       demeter.run/compute-profile: mem-intensive
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az1
-    instance_type: n4-highmem-8
+    instance_type: n2-highmem-8
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -145,7 +145,7 @@ managed_node_groups:
       - key: demeter.run/compute-arch
         value: "x86"
         effect: NO_SCHEDULE
-    availability_zones: us-west2-b
+    availability_zones: us-central1-a
 
   - name: co-mem-arm64-az1
     labels:
@@ -168,7 +168,7 @@ managed_node_groups:
       - key: demeter.run/compute-arch
         value: "arm64"
         effect: NO_SCHEDULE
-    availability_zones: us-west2-b
+    availability_zones: us-central1-a
 
   # Best Effort
   - name: be-gp-x86-az1
@@ -177,7 +177,7 @@ managed_node_groups:
       demeter.run/compute-profile: general-purpose
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az1
-    instance_type: n4-standard-8
+    instance_type: n2-standard-8
     min_size: 0
     max_size: 1
     desired_capacity: 1
@@ -193,7 +193,7 @@ managed_node_groups:
       - key: demeter.run/compute-arch
         value: "x86"
         effect: NO_SCHEDULE
-    availability_zones: us-west2-b
+    availability_zones: us-central1-a
 
   - name: be-gp-arm64-az1
     labels:
@@ -218,4 +218,4 @@ managed_node_groups:
       - key: demeter.run/compute-arch
         value: "arm64"
         effect: NO_SCHEDULE
-    availability_zones: us-west2-b
+    availability_zones: us-central1-a
