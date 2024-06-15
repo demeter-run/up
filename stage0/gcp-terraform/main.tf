@@ -68,21 +68,22 @@ data "google_service_account" "existing" {
 }
 
 module "gke" {
-  source                     = "terraform-google-modules/kubernetes-engine/google"
-  project_id                 = local.project_id
-  name                       = local.name
-  region                     = local.region
-  zones                      = local.azs
-  network                    = google_compute_network.default.name
-  subnetwork                 = google_compute_subnetwork.default.name
-  ip_range_pods              = "pod-range"
-  ip_range_services          = "services-range"
-  http_load_balancing        = false
-  network_policy             = false
-  horizontal_pod_autoscaling = true
-  filestore_csi_driver       = false
-  dns_cache                  = false
-  deletion_protection        = false
+  source                               = "terraform-google-modules/kubernetes-engine/google"
+  project_id                           = local.project_id
+  name                                 = local.name
+  region                               = local.region
+  zones                                = local.azs
+  network                              = google_compute_network.default.name
+  subnetwork                           = google_compute_subnetwork.default.name
+  ip_range_pods                        = "pod-range"
+  ip_range_services                    = "services-range"
+  http_load_balancing                  = false
+  network_policy                       = false
+  horizontal_pod_autoscaling           = true
+  filestore_csi_driver                 = false
+  dns_cache                            = false
+  deletion_protection                  = false
+  monitoring_enable_managed_prometheus = false
 
   node_pools = [for np in local.node_vars : {
     name               = np.name
@@ -129,7 +130,6 @@ module "gke" {
     all = []
   }
 }
-
 
 data "google_client_config" "default" {}
 
