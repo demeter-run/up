@@ -55,9 +55,9 @@ module "k3d_storage_classes" {
 #   source = "../modules/common/metrics-server/stage1"
 # }
 
-# module "cert_manager" {
-#   source = "../modules/common/cert-manager/stage1"
-# }
+module "cert_manager" {
+  source = "../modules/common/cert-manager/stage1"
+}
 
 module "o11y" {
   source     = "../modules/common/o11y/stage1"
