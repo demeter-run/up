@@ -12,7 +12,7 @@ Stage 3 of the bootstrap procedure is responsible for setting up any use-case sp
 
 ### Define your Terraform backend
 
-Add a `backend.tf` file in the stage1 directory and include your particular backend configuration. For example:
+Add a `backend.tf` file in the stage1 directory and include your particular backend configuration. If you run `bin/bootstrap-cloud` the `backend.tf` should be automatically generated. For example AWS S3 backend configuration:
 
 ```tf
 terraform {
