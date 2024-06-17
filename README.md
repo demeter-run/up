@@ -27,15 +27,15 @@ fined-grained instructions. Bootstrap and Stage 0 are optional if you bring your
 | Stage 2   | Shared services workload setup | [docs](stage2/README.md)    |
 | Stage 3   | Extensions setup               | [docs](stage3/README.md)    |
 
-
 ### Quick Start
 
 The fastest way to configure your cluster is using the `bin/bootstrap-cloud` script.
 Out of the box, this will configure a local `k3d` cluster. To configure a default
 cluster in AWS in the us-west-2 region, you only need to provide two configuration
-items.
+items or GCP in us-central1.
 
 config.yaml:
+
 ```yaml
 cloud_provider: aws
 cloudflared_token: eyJhI...
@@ -66,6 +66,7 @@ First, configure the `config.yaml` file as you would for bootstrap, but you must
 also include the correct information for the Terraform bucket created by bootstrap.
 
 config.yaml:
+
 ```yaml
 cloud_provider: aws
 cloudflared_token: eyJhI...

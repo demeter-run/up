@@ -15,6 +15,9 @@ terraform_project_id: <project_id>
 terraform_state_bucket: pre-configured-bucket
 terraform_state_region: eu-central-1
 
+# GCP specific configuration
+terraform_state_kmskey: <kms_key_id>
+
 # Overrides for defaults for configuring a cluster using bootstrap and stage0/aws-terraform in AWS. These override the defaults
 # in common/defaults.yaml
 azs: [eu-central-1b, eu-central-1c]
