@@ -20,6 +20,13 @@ provider "helm" {
 }
 
 locals {
+  ingress_classes = {
+    "aws" = "alb"
+    "gcp" = "gce"
+  }
+}
+
+locals {
   acme_account_email = try(var.acme_account_email, null)
   ingress_classes = {
     "aws" = "alb"

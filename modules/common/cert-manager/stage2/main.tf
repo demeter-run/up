@@ -216,11 +216,6 @@ resource "helm_release" "cert-manager" {
     value = "admin"
   }
 
-  set {
-    name  = "webhook.serviceType"
-    value = "LoadBalancer"
-  }
-
   # set {
   #   name = "extraArgs[0]"
   #   value = "--feature-gates=ExperimentalGatewayAPISupport=true"
