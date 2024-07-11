@@ -16,3 +16,11 @@ variable "dmtrd_version" {
   description = "version of the Demeter daemon to deploy"
   default     = "0.1.0-alpha.2"
 }
+
+variable "cloud_provider" {
+  default = "k3d"
+}
+
+variable "acme_account_email" {
+  default = "something@example.com"
+}

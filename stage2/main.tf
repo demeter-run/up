@@ -19,9 +19,19 @@ provider "helm" {
   }
 }
 
-# module "cert_manager" {
-#   source = "../modules/cert-manager/stage2"
-# }
+locals {
+  acme_account_email = try(var.acme_account_email, null)
+  ingress_classes = {
+    "aws" = "alb"
+    "gcp" = "gce"
+  }
+}
+
+module "cert_manager" {
+  source             = "../modules/common/cert-manager/stage2"
+  acme_account_email = local.acme_account_email
+  ingress_class      = local.ingress_classes[var.cloud_provider]
+}
 
 # module "grafana_tempo" {
 #   source    = "../modules/grafana-tempo/stage2"
