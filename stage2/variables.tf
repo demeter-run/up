@@ -17,10 +17,12 @@ variable "dmtrd_version" {
   default     = "0.1.0-alpha.2"
 }
 
+// Ingress class to use for cert-manager
 variable "cloud_provider" {
-  default = "k3d"
+  default = "gcp"
 }
 
+// Email to use for the ACME account
 variable "acme_account_email" {
   default = "something@example.com"
 }

@@ -8,7 +8,7 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "serviceAccount.create"
-    value = "false"
+    value = "true"
   }
 
   set {
@@ -216,6 +216,11 @@ resource "helm_release" "cert-manager" {
     value = "admin"
   }
 
+  set {
+    name  = "webhook.serviceType"
+    value = "LoadBalancer"
+  }
+
   # set {
   #   name = "extraArgs[0]"
   #   value = "--feature-gates=ExperimentalGatewayAPISupport=true"
@@ -241,7 +246,6 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt" {
           {
             "http01" = {
               "ingress" = {
-                "class" = var.ingress_class
                 "podTemplate" = {
                   "spec" = {
                     "tolerations" = [
@@ -309,7 +313,6 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt_http01" {
           {
             "http01" = {
               "ingress" = {
-                "class" = var.ingress_class
                 "podTemplate" = {
                   "spec" = {
                     "tolerations" = [
