@@ -77,7 +77,7 @@ module "gke" {
   subnetwork                           = google_compute_subnetwork.default.name
   ip_range_pods                        = "pod-range"
   ip_range_services                    = "services-range"
-  http_load_balancing                  = false
+  http_load_balancing                  = true
   network_policy                       = false
   horizontal_pod_autoscaling           = true
   filestore_csi_driver                 = false

@@ -8,7 +8,7 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "serviceAccount.create"
-    value = "false"
+    value = "true"
   }
 
   set {
@@ -63,7 +63,7 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "tolerations[2].value"
-    value = "consistent"
+    value = "admin"
   }
 
   set {
@@ -113,7 +113,7 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "webhook.tolerations[2].value"
-    value = "consistent"
+    value = "admin"
   }
 
   set {
@@ -163,7 +163,7 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "cainjector.tolerations[2].value"
-    value = "consistent"
+    value = "admin"
   }
 
   set {
@@ -213,7 +213,12 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "startupapicheck.tolerations[2].value"
-    value = "consistent"
+    value = "admin"
+  }
+
+  set {
+    name  = "webhook.serviceType"
+    value = "LoadBalancer"
   }
 
   # set {
@@ -231,7 +236,7 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt" {
     }
     "spec" = {
       "acme" = {
-        "email"          = local.acme_account_email
+        "email"          = var.acme_account_email
         "preferredChain" = ""
         "privateKeySecretRef" = {
           "name" = "issuer-account-key"
@@ -241,7 +246,6 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt" {
           {
             "http01" = {
               "ingress" = {
-                "class" = local.ingress_class
                 "podTemplate" = {
                   "spec" = {
                     "tolerations" = [
@@ -299,7 +303,7 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt_http01" {
     }
     "spec" = {
       "acme" = {
-        "email"          = local.acme_account_email
+        "email"          = var.acme_account_email
         "preferredChain" = ""
         "privateKeySecretRef" = {
           "name" = "issuer-account-key"
@@ -309,7 +313,6 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt_http01" {
           {
             "http01" = {
               "ingress" = {
-                "class" = local.ingress_class
                 "podTemplate" = {
                   "spec" = {
                     "tolerations" = [
@@ -321,8 +324,7 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt_http01" {
                       {
                         "effect"   = "NoSchedule"
                         "key"      = "demeter.run/compute-arch"
-                        "operator" = "Equal"
-                        "value"    = "x86"
+                        "operator" = "Exists"
                       },
                       {
                         "effect"   = "NoSchedule"
@@ -335,7 +337,6 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt_http01" {
               }
             }
           },
-
         ]
       }
     }
