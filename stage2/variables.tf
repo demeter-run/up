@@ -17,6 +17,26 @@ variable "dmtrd_version" {
   default     = "0.1.0-alpha.2"
 }
 
+variable "dmtrd_broker_urls" {
+  type        = string
+  description = "Comma separated list of queue brokers. Contact Demeter team for this information."
+}
+
+variable "dmtrd_kafka_username" {
+  type        = string
+  description = "Queue username. Contact Demeter team for this information."
+}
+
+variable "dmtrd_kafka_password" {
+  type        = string
+  description = "Queue password. Contact Demeter team for this information."
+}
+
+variable "dmtrd_consumer_name" {
+  type        = string
+  description = "Name of queue consumer, should be unique per cluster. Contact Demeter team for this information."
+}
+
 // Ingress class to use for cert-manager
 variable "cloud_provider" {
   default = "gcp"

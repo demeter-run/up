@@ -76,8 +76,13 @@ module "o11y" {
   namespace = var.dmtr_namespace
 }
 
-module "dmtrd" {
-  source        = "../modules/common/dmtrd/stage2"
-  namespace     = var.dmtr_namespace
-  dmtrd_version = var.dmtrd_version
+module "dmtr_daemon" {
+  source = "git::https://github.com/demeter-run/fabric.git//bootstrap/daemon"
+
+  namespace      = var.namespace
+  image          = "ghcr.io/demeter-run/fabric-daemon:${var.dmtrd_version}"
+  broker_urls    = var.dmtrd_broker_urls
+  consumer_name  = var.consumer_name
+  kafka_username = var.dmtrd_kafka_username
+  kafka_password = var.dmtrd_kafka_password
 }

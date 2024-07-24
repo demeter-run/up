@@ -64,9 +64,3 @@ module "o11y" {
   namespace  = var.dmtr_namespace
   depends_on = [kubernetes_namespace_v1.dmtr]
 }
-
-module "dmtrd" {
-  source     = "../modules/common/dmtrd/stage1"
-  namespace  = var.dmtr_namespace
-  depends_on = [kubernetes_namespace_v1.dmtr]
-}
