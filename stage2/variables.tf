@@ -14,7 +14,7 @@ variable "dmtr_namespace" {
 
 variable "dmtrd_version" {
   description = "version of the Demeter daemon to deploy"
-  default     = "0.1.0-alpha.2"
+  default     = "682dc9e69443091112adddad31c01625fcde4a6e"
 }
 
 variable "dmtrd_broker_urls" {
@@ -35,6 +35,18 @@ variable "dmtrd_kafka_password" {
 variable "dmtrd_consumer_name" {
   type        = string
   description = "Name of queue consumer, should be unique per cluster. Contact Demeter team for this information."
+}
+
+variable "dmtrd_kafka_topic" {
+  type        = string
+  default     = "events"
+  description = "Name of topic to consume from. Contact Demeter team for this information."
+}
+
+variable "dmtrd_replicas" {
+  type        = number
+  default     = 1
+  description = "Amount of Demeter daemon replicas."
 }
 
 // Ingress class to use for cert-manager
