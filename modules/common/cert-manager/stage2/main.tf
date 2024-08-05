@@ -227,7 +227,7 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt" {
     "apiVersion" = "cert-manager.io/v1"
     "kind"       = "ClusterIssuer"
     "metadata" = {
-      "name" = "letsencrypt"
+      "name" = "letsencrypt-dns01"
     }
     "spec" = {
       "acme" = {

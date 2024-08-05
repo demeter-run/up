@@ -20,13 +20,6 @@ provider "helm" {
 }
 
 locals {
-  ingress_classes = {
-    "aws" = "alb"
-    "gcp" = "gce"
-  }
-}
-
-locals {
   acme_account_email = try(var.acme_account_email, null)
   ingress_classes = {
     "aws" = "alb"
@@ -38,36 +31,6 @@ module "cert_manager" {
   source             = "../modules/common/cert-manager/stage2"
   acme_account_email = local.acme_account_email
 }
-
-resource "kubernetes_ingress_v1" "cert_manager_webhook" {
-  metadata {
-    name      = "cert-manager-webhook"
-    namespace = "cert-manager"
-    annotations = {
-      "kubernetes.io/ingress.class" = "gce"
-    }
-  }
-
-  spec {
-    rule {
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = "cert-manager-webhook"
-              port {
-                number = 443
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
 
 # module "grafana_tempo" {
 #   source    = "../modules/grafana-tempo/stage2"

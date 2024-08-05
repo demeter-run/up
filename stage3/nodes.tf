@@ -10,13 +10,13 @@ locals {
 }
 
 module "ext_cardano_node_crds" {
-  source                          = "git::https://github.com/blinklabs-io/demeter-ext-cardano-node.git//bootstrap/crds?ref=feat/gcp-cloud-provider"
-  for_each                        = toset([for n in toset(["global"]) : n if var.enable_cardano_node])
+  source   = "git::https://github.com/blinklabs-io/demeter-ext-cardano-node.git//bootstrap/crds?ref=feat/gcp-cloud-provider"
+  for_each = toset([for n in toset(["global"]) : n if var.enable_cardano_node])
 }
 
 # module "ext_cardano_node_configs" {
-#   source                          = "git::https://github.com/blinklabs-io/demeter-ext-cardano-node.git//bootstrap/configs?ref=feat/gcp-cloud-provider"
-#   for_each                        = toset([for n in toset(["m1"]) : n if var.enable_cardano_node])
+#   source    = "git::https://github.com/blinklabs-io/demeter-ext-cardano-node.git//bootstrap/configs?ref=feat/gcp-cloud-provider"
+#   for_each  = toset([for n in toset(["m1"]) : n if var.enable_cardano_node])
 #   namespace = local.cnode_v1_namespace
 # }
 
