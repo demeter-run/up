@@ -216,11 +216,6 @@ resource "helm_release" "cert-manager" {
     value = "admin"
   }
 
-  set {
-    name  = "webhook.serviceType"
-    value = "LoadBalancer"
-  }
-
   # set {
   #   name = "extraArgs[0]"
   #   value = "--feature-gates=ExperimentalGatewayAPISupport=true"
@@ -232,7 +227,7 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt" {
     "apiVersion" = "cert-manager.io/v1"
     "kind"       = "ClusterIssuer"
     "metadata" = {
-      "name" = "letsencrypt"
+      "name" = "letsencrypt-dns01"
     }
     "spec" = {
       "acme" = {
