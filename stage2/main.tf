@@ -76,36 +76,15 @@ module "o11y" {
   namespace = var.dmtr_namespace
 }
 
-module "dmtr_daemon" {
-  source = "git::https://github.com/demeter-run/fabric.git//bootstrap/daemon"
+module "dmtrd" {
+  source = "../modules/common/dmtrd/stage2"
 
   namespace      = var.dmtr_namespace
-  image          = "ghcr.io/demeter-run/fabric-daemon:${var.dmtrd_version}"
+  image_tag      = var.dmtrd_version
   broker_urls    = var.dmtrd_broker_urls
-  consumer_name  = var.dmtrd_consumer_name
   kafka_username = var.dmtrd_kafka_username
   kafka_password = var.dmtrd_kafka_password
+  consumer_name  = var.dmtrd_consumer_name
   kafka_topic    = var.dmtrd_kafka_topic
   replicas       = var.dmtrd_replicas
-  tolerations = [
-    {
-      effect   = "NoSchedule"
-      key      = "demeter.run/compute-profile"
-      operator = "Equal"
-      value    = "admin"
-    },
-    {
-      effect   = "NoSchedule"
-      key      = "demeter.run/compute-arch"
-      operator = "Equal"
-      value    = "x86"
-    },
-    {
-      effect   = "NoSchedule"
-      key      = "demeter.run/availability-sla"
-      operator = "Equal"
-      value    = "consistent"
-    }
-
-  ]
 }

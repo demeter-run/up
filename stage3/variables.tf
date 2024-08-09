@@ -20,6 +20,22 @@ variable "cloudflared_token" {
   description = "token to authenticate with cloudflared tunnel"
 }
 
+variable "utxorpc_api_key_salt" {
+  type = string
+}
+
+variable "utxorpc_cloudflared_tunnel_id" {
+  type = string
+}
+
+variable "utxorpc_cloudflared_tunnel_secret" {
+  type = string
+}
+
+variable "utxorpc_cloudflared_account_tag" {
+  type = string
+}
+
 variable "provider_name" {
   description = "name of the provider"
   default     = "TxPipe.io"
