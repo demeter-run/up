@@ -98,6 +98,8 @@ module "gke" {
     service_account    = data.google_service_account.existing.email
     preemptible        = false
     initial_node_count = np.desired_capacity
+    # TODO required by ext modules like Kupo
+    # local_nvme_ssd_count = 1
   }]
 
   node_pools_oauth_scopes = {
