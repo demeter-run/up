@@ -1,9 +1,7 @@
 locals {
-  utxorpc_namespace           = "ext-utxorpc-m0"
-  utxorpc_operator_image_tag  = "62e61904e35c3e92f38e5a41ffbbcc762d7d1331"
-  utxorpc_proxy_image_tag     = "0d21946bd688fefaac10c83075ebbee9c2682213"
-  utxorpc_dns_zone            = "utxorpc.cloud"
-  utxorpc_extension_subdomain = "txpipe-eu"
+  utxorpc_namespace          = "ext-utxorpc-m0"
+  utxorpc_operator_image_tag = "62e61904e35c3e92f38e5a41ffbbcc762d7d1331"
+  utxorpc_proxy_image_tag    = "0d21946bd688fefaac10c83075ebbee9c2682213"
 }
 
 module "utxorpc" {
@@ -12,8 +10,8 @@ module "utxorpc" {
   source = "../../ext-cardano-utxorpc/bootstrap/"
 
   operator_image_tag        = local.utxorpc_operator_image_tag
-  extension_subdomain       = local.utxorpc_extension_subdomain
-  dns_zone                  = local.utxorpc_dns_zone
+  extension_subdomain       = var.utxorpc_extension_subdomain
+  dns_zone                  = var.utxorpc_dns_zone
   api_key_salt              = var.utxorpc_api_key_salt
   proxy_image_tag           = local.utxorpc_proxy_image_tag
   namespace                 = local.utxorpc_namespace

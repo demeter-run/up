@@ -21,19 +21,34 @@ variable "cloudflared_token" {
 }
 
 variable "utxorpc_api_key_salt" {
-  type = string
+  type        = string
+  description = "Salt used to generate auth tokens for UtxoRPC. Soon to be deprecated."
 }
 
 variable "utxorpc_cloudflared_tunnel_id" {
-  type = string
+  type        = string
+  description = "ID for the CloudFlare tunnel used to route traffic."
 }
 
 variable "utxorpc_cloudflared_tunnel_secret" {
-  type = string
+  type        = string
+  description = "TunnelSecret for the CloudFlare tunnel used to route traffic, found on credentials json."
 }
 
 variable "utxorpc_cloudflared_account_tag" {
-  type = string
+  type        = string
+  description = "AccountTag for the CloudFlare tunnel used to route traffic, found on credentials json."
+}
+
+variable "utxorpc_extension_subdomain" {
+  type        = string
+  description = "Subdomain of the utxorpc.cloud where this extension is hosted."
+}
+
+variable "utxorpc_dns_zone" {
+  type        = string
+  default     = "utxorpc.cloud"
+  description = "DNS zone for UtxoRPC extension."
 }
 
 variable "provider_name" {

@@ -5,3 +5,5 @@ terraform.tfstate*
 backend.tf
 env.auto.tfvars
 /config.yaml
+**backends/
+**varfiles/
