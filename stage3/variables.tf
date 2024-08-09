@@ -40,3 +40,17 @@ variable "provider_name" {
   description = "name of the provider"
   default     = "TxPipe.io"
 }
+
+variable "cloud_provider" {
+  default = "k3d"
+}
+
+variable "cnode_v1_api_key_salt" {
+  description = "shared salt used for generating API keys"
+  default     = ""
+}
+
+variable "enable_cardano_node" {
+  description = "enable ext-cardano-node support"
+  default     = false
+}
