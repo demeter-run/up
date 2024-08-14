@@ -27,10 +27,10 @@ locals {
   }
 }
 
-module "cert_manager" {
-  source             = "../modules/common/cert-manager/stage2"
-  acme_account_email = local.acme_account_email
-}
+# module "cert_manager" {
+#   source             = "../modules/common/cert-manager/stage2"
+#   acme_account_email = local.acme_account_email
+# }
 
 # module "grafana_tempo" {
 #   source    = "../modules/grafana-tempo/stage2"
@@ -47,7 +47,14 @@ module "o11y" {
 }
 
 module "dmtrd" {
-  source        = "../modules/common/dmtrd/stage2"
-  namespace     = var.dmtr_namespace
-  dmtrd_version = var.dmtrd_version
+  source = "../modules/common/dmtrd/stage2"
+
+  namespace      = var.dmtr_namespace
+  image_tag      = var.dmtrd_version
+  broker_urls    = var.dmtrd_broker_urls
+  kafka_username = var.dmtrd_kafka_username
+  kafka_password = var.dmtrd_kafka_password
+  consumer_name  = var.dmtrd_consumer_name
+  kafka_topic    = var.dmtrd_kafka_topic
+  replicas       = var.dmtrd_replicas
 }

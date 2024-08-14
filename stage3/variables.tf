@@ -38,3 +38,77 @@ variable "enable_cardano_node" {
   description = "enable ext-cardano-node support"
   default     = false
 }
+
+// Extensions
+variable "utxorpc" {
+  default     = null
+  description = "Configurations for the UtxoRPC extension."
+  type = object({
+    operator_image_tag        = optional(string)
+    proxy_image_tag           = optional(string)
+    extension_subdomain       = string
+    dns_zone                  = optional(string)
+    api_key_salt              = string
+    namespace                 = optional(string)
+    networks                  = optional(list(string))
+    cloudflared_tunnel_id     = string
+    cloudflared_tunnel_secret = string
+    cloudflared_account_tag   = string
+
+    cells = map(object({
+      tolerations = optional(list(object({
+        effect   = string
+        key      = string
+        operator = string
+        value    = string
+      })))
+      pvc = object({
+        storage_class = string
+        storage_size  = string
+        volume_name   = string
+      })
+      proxy = optional(object({
+        image_tag = optional(string)
+        replicas  = optional(number)
+        resources = optional(object({
+          limits = object({
+            cpu    = string
+            memory = string
+          })
+          requests = object({
+            cpu    = string
+            memory = string
+          })
+        }))
+      }))
+      cloudflared = optional(object({
+        image_tag = optional(string)
+        replicas  = optional(number)
+        resources = optional(object({
+          limits = object({
+            cpu    = string
+            memory = string
+          })
+          requests = object({
+            cpu    = string
+            memory = string
+          })
+        }))
+      }))
+      instances = map(object({
+        dolos_version = string
+        replicas      = optional(number)
+        resources = optional(object({
+          limits = object({
+            cpu    = string
+            memory = string
+          })
+          requests = object({
+            cpu    = string
+            memory = string
+          })
+        }))
+      }))
+    }))
+  })
+}

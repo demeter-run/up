@@ -1,6 +1,6 @@
 locals {
-  default_vars = yamldecode(file("../../common/defaults.yaml"))
-  config_vars  = try(yamldecode(file("../../config.yaml")), {})
+  default_vars = yamldecode(file("${path.module}/../../common/defaults.yaml"))
+  config_vars  = try(yamldecode(file("${path.module}/../../config.yaml")), {})
 
   name = try(
     local.config_vars.cluster_name,
@@ -23,7 +23,7 @@ locals {
     local.default_vars.managed_node_groups,
   )
 
-  cluster_version = "1.27"
+  cluster_version = "1.30"
 
   tags = {
     Name = local.name
@@ -50,7 +50,7 @@ data "aws_availability_zones" "available" {}
 
 module "aws_cluster_vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.0"
+  version = "5.9.0"
 
   name = local.name
   cidr = local.vpc_cidr
@@ -161,7 +161,7 @@ module "aws_cluster_eks" {
 
   cluster_addons = {
     coredns = {
-      most_recent = true
+      addon_version = "v1.10.1-eksbuild.7"
       configuration_values = jsonencode({
         tolerations : [
           {
@@ -196,6 +196,34 @@ module "aws_cluster_eks" {
     }
     snapshot-controller = {
       most_recent = true
+      configuration_values = jsonencode({
+        tolerations : [
+          {
+            key : "demeter.run/compute-arch",
+            operator : "Equal",
+            value : "arm64",
+            effect : "NoSchedule"
+          },
+          {
+            key : "demeter.run/compute-arch",
+            operator : "Equal",
+            value : "x86",
+            effect : "NoSchedule"
+          },
+          {
+            key : "demeter.run/compute-profile",
+            operator : "Equal",
+            value : "admin",
+            effect : "NoSchedule"
+          },
+          {
+            key : "demeter.run/availability-sla",
+            operator : "Equal",
+            value : "consistent",
+            effect : "NoSchedule"
+          },
+        ]
+      })
     }
     vpc-cni = {
       most_recent = true
@@ -308,6 +336,7 @@ module "aws_cluster_eks" {
         data.aws_subnets.filtered[replace(s, "/^[a-z]+-[a-z]+-[0-9]/", "${local.region}")].ids
       ])
       capacity_type = try(n.capacity_type, null)
+      pre_bootstrap_user_data : try(n.pre_bootstrap_user_data, "")
     }
   }
 
