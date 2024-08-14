@@ -51,13 +51,18 @@ module "k3d_storage_classes" {
   count  = var.cloud_provider == "k3d" ? 1 : 0
 }
 
+module "aws_nvme_provisioner" {
+  source = "../modules/aws/nvme-provisioner/stage1"
+  count  = var.cloud_provider == "aws" ? 1 : 0
+}
+
 # module "metrics_server" {
 #   source = "../modules/common/metrics-server/stage1"
 # }
 
-module "cert_manager" {
-  source = "../modules/common/cert-manager/stage1"
-}
+# module "cert_manager" {
+#   source = "../modules/common/cert-manager/stage1"
+# }
 
 module "o11y" {
   source     = "../modules/common/o11y/stage1"

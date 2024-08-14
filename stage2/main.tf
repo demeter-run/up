@@ -27,10 +27,10 @@ locals {
   }
 }
 
-module "cert_manager" {
-  source             = "../modules/common/cert-manager/stage2"
-  acme_account_email = local.acme_account_email
-}
+# module "cert_manager" {
+#   source             = "../modules/common/cert-manager/stage2"
+#   acme_account_email = local.acme_account_email
+# }
 
 # module "grafana_tempo" {
 #   source    = "../modules/grafana-tempo/stage2"
