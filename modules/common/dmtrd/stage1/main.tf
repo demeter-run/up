@@ -4,6 +4,11 @@ module "utxorpc_crd" {
   source = "../../../../../ext-cardano-utxorpc/bootstrap/crds"
 }
 
+module "kupoports_crds" {
+  # source = "git::https://github.com/demeter-run/ext-cardano-kupo//bootstrap/crds"
+  source = "../../../../../ext-cardano-kupo/bootstrap/crds"
+}
+
 module "dbsyncports_crds" {
   source = "git::https://github.com/demeter-run/ext-cardano-dbsync-serverless//bootstrap/crds"
 }

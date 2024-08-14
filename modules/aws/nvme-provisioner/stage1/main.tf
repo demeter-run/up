@@ -181,7 +181,6 @@ resource "kubernetes_daemon_set_v1" "daemonset" {
         dns_policy     = "ClusterFirst"
         restart_policy = "Always"
         scheduler_name = "default-scheduler"
-        security_context {}
 
         service_account_name             = var.service_account_name
         termination_grace_period_seconds = 30
