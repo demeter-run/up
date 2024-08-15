@@ -10,47 +10,22 @@ added to the cluster. A minimal valid value for the utxorpc variable is the foll
   // Must be provided by Demeter
   extension_subdomain : "txpipe-us-east-1"
   api_key_salt : "random string"
-  cloudflared_tunnel_id : "364496d3-8979-4bce-9626-952722c0ddc3"
-  cloudflared_tunnel_secret : "Smz1nrp1Iki1YCpGljvJ1HOWjt39Hx6wZA902vvty/A="
-  cloudflared_account_tag : "ac5ad90cf6f83abc85ee304a2bb2de73"
+  cloudflared_tunnel_id : "tunnel-id"
+  cloudflared_tunnel_secret : "tunnel-secret"
+  cloudflared_account_tag : "account-tag"
+  networks : ["preprod"]
 
   // Defined by user. Each cell is comprised of a PVC, a CloudFlared deployment,
   // a Proxy deployment and an instance per network.
   cells : {
     "a2b" : {
       pvc : {
-        storage_class = "nvme"
-        storage_size  = "434Gi"
-        volume_name   = "local-pv-uawnddc"
+        storage_class = "fast"
+        storage_size  = "50Gi"
+        volume_name   = "pv-utxorpc-a2b"
       }
       instances : {
-        "mainnet" : {
-          dolos_version : "v0.14.1"
-          resources = {
-            requests = {
-              cpu    = "500m"
-              memory = "5G"
-            }
-            limits = {
-              cpu    = "8"
-              memory = "5G"
-            }
-          }
-        }
         "preprod" : {
-          dolos_version : "v0.14.1"
-          resources = {
-            requests = {
-              cpu    = "500m"
-              memory = "5G"
-            }
-            limits = {
-              cpu    = "1000m"
-              memory = "5G"
-            }
-          }
-        }
-        "preview" : {
           dolos_version : "v0.14.1"
           resources = {
             requests = {
