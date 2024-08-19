@@ -1,11 +1,11 @@
 locals {
   cnode_v1_namespace          = "ext-nodes-m1"
   cnode_v1_default_base_image = "ghcr.io/blinklabs-io/cardano-node"
-  cnode_v1_default_image_tag  = "8.9.4-1"
+  cnode_v1_default_image_tag  = "9.1.0-2"
   cnode_v1_edge_base_image    = "ghcr.io/demeter-run/cardano-node-edge"
   cnode_v1_edge_image_tag     = "be248be99fa238ebb9c2f72e6042739bf02263d6"
   cnode_v1_v135_base_image    = "ghcr.io/blinklabs-io/cardano-node"
-  cnode_v1_v135_image_tag     = "1.35.7-7"
+  cnode_v1_v135_image_tag     = "1.35.7-8"
   cnode_v1_api_key_salt       = coalesce(var.cnode_v1_api_key_salt, "this is a random generated key and must be shared...")
 }
 

@@ -38,3 +38,13 @@ variable "enable_cardano_node" {
   description = "enable ext-cardano-node support"
   default     = false
 }
+
+variable "kupo_v1_api_key_salt" {
+  description = "shared salt used for generating API keys"
+  default     = ""
+}
+
+variable "enable_cardano_kupo" {
+  description = "enable ext-cardano-kupo support"
+  default     = false
+}
