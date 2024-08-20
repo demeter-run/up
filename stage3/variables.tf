@@ -48,3 +48,13 @@ variable "enable_cardano_kupo" {
   description = "enable ext-cardano-kupo support"
   default     = false
 }
+
+variable "ogmios_v1_api_key_salt" {
+  description = "shared salt used for generating API keys"
+  default     = ""
+}
+
+variable "enable_cardano_ogmios" {
+  description = "enable ext-cardano-ogmios support"
+  default     = false
+}
