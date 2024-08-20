@@ -56,9 +56,9 @@ module "aws_nvme_provisioner" {
   count  = var.cloud_provider == "aws" ? 1 : 0
 }
 
-# module "metrics_server" {
-#   source = "../modules/common/metrics-server/stage1"
-# }
+module "metrics_server" {
+  source = "../modules/common/metrics-server/stage1"
+}
 
 # module "cert_manager" {
 #   source = "../modules/common/cert-manager/stage1"
