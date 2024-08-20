@@ -66,7 +66,7 @@ module "ext_cardano_kupo" {
         volume_name        = "main-volume"
         storage_size       = "10Gi"
         storage_class_name = "gp-immediate"
-        access_modes       = "ReadWriteOnce"
+        access_mode        = "ReadWriteOnce"
       }
       instances = {
         "instance1" = {
