@@ -12,6 +12,11 @@ variable "dmtr_namespace" {
   default     = "dmtr-system"
 }
 
+variable "dmtrd_cluster_id" {
+  type        = string
+  description = "ID for the cluster. Contact Demeter team for this information."
+}
+
 variable "dmtrd_version" {
   description = "version of the Demeter daemon to deploy"
   default     = "8ce629cc9151284b102252da584f0338c25063cd"

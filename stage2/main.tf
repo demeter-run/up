@@ -50,6 +50,7 @@ module "dmtrd" {
   source = "../modules/common/dmtrd/stage2"
 
   namespace      = var.dmtr_namespace
+  cluster_id     = var.dmtrd_cluster_id
   image_tag      = var.dmtrd_version
   broker_urls    = var.dmtrd_broker_urls
   kafka_username = var.dmtrd_kafka_username

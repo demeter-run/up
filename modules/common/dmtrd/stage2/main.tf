@@ -5,7 +5,12 @@ variable "namespace" {
 
 variable "image_tag" {
   description = "version of the Demeter daemon to deploy"
-  default     = "8ce629cc9151284b102252da584f0338c25063cd"
+  default     = "af9d2aef1f176d516e4128813112e7ba27376914"
+}
+
+variable "cluster_id" {
+  description = "ID for the cluster where the daemon runs."
+  type        = string
 }
 
 variable "broker_urls" {
@@ -51,6 +56,7 @@ module "dmtr_daemon" {
   kafka_password = var.kafka_password
   kafka_topic    = var.kafka_topic
   replicas       = var.replicas
+  cluster_id     = var.cluster_id
   tolerations = [
     {
       effect   = "NoSchedule"
