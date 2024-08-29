@@ -25,6 +25,6 @@ module "workers_operator" {
   namespace     = local.ext_workers_namespace
   cluster_name  = var.cluster_name
   cluster_alias = var.cluster_name # TODO: revisit this concept
-  image_tag     = "2399faed49945e6f391a3e05c36d00704a65e287"
+  image_tag     = "3d94222b64ceb779dcb970d439d8b651621f2198"
 }
 

@@ -57,6 +57,7 @@ module "dmtr_daemon" {
   kafka_topic    = var.kafka_topic
   replicas       = var.replicas
   cluster_id     = var.cluster_id
+  prometheus_url = "http://prometheus-operated.${var.namespace}.svc.cluster.local:9090/api/v1"
   tolerations = [
     {
       effect   = "NoSchedule"
