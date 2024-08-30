@@ -58,3 +58,13 @@ variable "enable_cardano_ogmios" {
   description = "enable ext-cardano-ogmios support"
   default     = false
 }
+
+variable "enable_cardano_utxorpc" {
+  description = "enable ext-cardano-utxorpc support"
+  default     = false
+}
+
+variable "utxorpc" {
+  description = "Configuration for the UtxoRPC extension"
+  default     = {}
+}

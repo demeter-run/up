@@ -91,16 +91,3 @@ module "ext_cardano_kupo" {
   }
 }
 
-# Replacement storage class for kupo instead of using the nvme storage class by default
-resource "kubernetes_storage_class_v1" "gp_immediate" {
-  metadata {
-    name = "gp-immediate"
-  }
-  storage_provisioner    = "pd.csi.storage.gke.io"
-  reclaim_policy         = "Delete"
-  volume_binding_mode    = "Immediate"
-  allow_volume_expansion = true
-  parameters = {
-    type = "pd-balanced"
-  }
-}
