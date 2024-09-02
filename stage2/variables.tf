@@ -7,16 +7,6 @@ variable "k8s_context" {
   description = "the name of the k8s context as defined in the kube config file"
 }
 
-variable "dmtr_namespace" {
-  description = "the namespace where to install Demeter's system"
-  default     = "dmtr-system"
-}
-
-variable "dmtrd_version" {
-  description = "version of the Demeter daemon to deploy"
-  default     = "0.1.0-alpha.2"
-}
-
 // Ingress class to use for cert-manager
 variable "cloud_provider" {
   default = "gcp"
@@ -25,4 +15,52 @@ variable "cloud_provider" {
 // Email to use for the ACME account
 variable "acme_account_email" {
   default = "something@example.com"
+}
+
+// Configuration for decentrelized Demeter daemon
+variable "dmtr_namespace" {
+  description = "the namespace where to install Demeter's system"
+  default     = "dmtr-system"
+}
+
+variable "dmtrd_version" {
+  description = "version of the Demeter daemon to deploy"
+  default     = "8ce629cc9151284b102252da584f0338c25063cd"
+}
+
+variable "dmtrd_cluster_id" {
+  type        = string
+  description = "ID for the cluster. Contact Demeter team for this information."
+}
+
+variable "dmtrd_broker_urls" {
+  type        = string
+  description = "Comma separated list of queue brokers. Contact Demeter team for this information."
+}
+
+variable "dmtrd_kafka_username" {
+  type        = string
+  description = "Queue username. Contact Demeter team for this information."
+}
+
+variable "dmtrd_kafka_password" {
+  type        = string
+  description = "Queue password. Contact Demeter team for this information."
+}
+
+variable "dmtrd_consumer_name" {
+  type        = string
+  description = "Name of queue consumer, should be unique per cluster. Contact Demeter team for this information."
+}
+
+variable "dmtrd_kafka_topic" {
+  type        = string
+  default     = "events"
+  description = "Name of topic to consume from. Contact Demeter team for this information."
+}
+
+variable "dmtrd_replicas" {
+  type        = number
+  default     = 1
+  description = "Amount of Demeter daemon replicas."
 }
