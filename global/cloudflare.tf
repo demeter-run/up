@@ -41,23 +41,17 @@ resource "cloudflare_zone_settings_override" "this" {
     cache_level              = "basic"
     early_hints              = "on"
     h2_prioritization        = "on"
-    #http2                    = "on"
-    http3           = "on"
-    min_tls_version = "1.2"
+    http2                    = "on"
+    http3                    = "on"
+    min_tls_version          = "1.2"
     #mirage                   = "on"
     opportunistic_encryption = "on"
     #polish                   = "lossless"
-    rocket_loader = "on"
-    # We need 'flexible' to account for HTTP-only S3 website backend
-    #ssl                      = "flexible"
-    tls_1_3 = "on"
-    #webp                     = "on"
-    websockets = "on"
-    minify {
-      css  = "on"
-      html = "off"
-      js   = "on"
-    }
+    rocket_loader            = "on"
+    ssl                      = "strict"
+    tls_1_3                  = "on"
+    webp                     = "on"
+    websockets               = "on"
     security_header {
       enabled            = true
       preload            = true
