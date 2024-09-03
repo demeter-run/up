@@ -1,191 +1,82 @@
-
-locals {
-  label_component = "daemon"
-  label_name      = "dmtrd"
-  label_version   = var.dmtrd_version
-  image           = "ghcr.io/demeter-run/daemon:${var.dmtrd_version}"
+variable "namespace" {
+  description = "the namespace where to install Demeter's system"
+  default     = "dmtr-system"
 }
 
-resource "kubernetes_cluster_role_binding" "dmtrd" {
-  metadata {
-    name = "dmtrd"
-
-    labels = {
-      "app.kubernetes.io/component" = local.label_component
-      "app.kubernetes.io/name"      = local.label_name
-      "app.kubernetes.io/version"   = local.label_version
-    }
-  }
-
-  subject {
-    kind      = "ServiceAccount"
-    name      = "dmtrd"
-    namespace = var.namespace
-  }
-
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = "dmtrd"
-  }
+variable "image_tag" {
+  description = "version of the Demeter daemon to deploy"
+  default     = "bb23443d393f5a31b4c9e88dfdd891f68df76f7d"
 }
 
-resource "kubernetes_cluster_role" "dmtrd" {
-  metadata {
-    name = "dmtrd"
-
-    labels = {
-      "app.kubernetes.io/component" = local.label_component
-      "app.kubernetes.io/name"      = local.label_name
-      "app.kubernetes.io/version"   = local.label_version
-    }
-  }
-
-  rule {
-    verbs      = ["*"]
-    api_groups = ["", "apps"]
-    resources  = ["*"]
-  }
+variable "cluster_id" {
+  description = "ID for the cluster where the daemon runs."
+  type        = string
 }
 
-resource "kubernetes_deployment" "dmtrd" {
-  metadata {
-    name      = "dmtrd"
-    namespace = var.namespace
-
-    labels = {
-      "app.kubernetes.io/component" = local.label_component
-      "app.kubernetes.io/name"      = local.label_name
-      "app.kubernetes.io/version"   = local.label_version
-    }
-  }
-
-  spec {
-    replicas = 1
-
-    selector {
-      match_labels = {
-        "app.kubernetes.io/component" = local.label_component
-        "app.kubernetes.io/name"      = local.label_name
-      }
-    }
-
-    template {
-      metadata {
-        labels = {
-          "app.kubernetes.io/component" = local.label_component
-          "app.kubernetes.io/name"      = local.label_name
-          "app.kubernetes.io/version"   = local.label_version
-        }
-
-        annotations = {
-          "kubectl.kubernetes.io/default-container" = "main"
-        }
-      }
-
-      spec {
-        container {
-          name  = "main"
-          image = local.image
-
-          port {
-            name           = "grpc"
-            container_port = 50051
-          }
-
-          resources {
-            limits = {
-              memory = "500Mi"
-            }
-
-            requests = {
-              cpu    = "250m"
-              memory = "500Mi"
-            }
-          }
-
-          security_context {
-            capabilities {
-              drop = ["ALL"]
-            }
-
-            read_only_root_filesystem = true
-          }
-        }
-
-        node_selector = {
-          "kubernetes.io/os" = "linux"
-        }
-
-        service_account_name            = "dmtrd"
-        automount_service_account_token = true
-
-        security_context {
-          run_as_user     = 65534
-          run_as_non_root = true
-        }
-
-        toleration {
-          effect   = "NoSchedule"
-          key      = "demeter.run/compute-profile"
-          operator = "Exists"
-        }
-
-        toleration {
-          effect   = "NoSchedule"
-          key      = "demeter.run/compute-arch"
-          operator = "Exists"
-        }
-
-        toleration {
-          effect   = "NoSchedule"
-          key      = "demeter.run/availability-sla"
-          operator = "Equal"
-          value    = "consistent"
-        }
-      }
-    }
-  }
+variable "broker_urls" {
+  type        = string
+  description = "Comma separated list of queue brokers. Contact Demeter team for this information."
 }
 
-resource "kubernetes_service_account" "dmtrd" {
-  metadata {
-    name      = "dmtrd"
-    namespace = var.namespace
-
-    labels = {
-      "app.kubernetes.io/component" = local.label_component
-      "app.kubernetes.io/name"      = local.label_name
-      "app.kubernetes.io/version"   = local.label_version
-    }
-  }
+variable "kafka_username" {
+  type        = string
+  description = "Queue username. Contact Demeter team for this information."
 }
 
-resource "kubernetes_service" "dmtrd" {
-  metadata {
-    name      = "dmtrd"
-    namespace = var.namespace
-
-    labels = {
-      "app.kubernetes.io/component" = local.label_component
-      "app.kubernetes.io/name"      = local.label_name
-      "app.kubernetes.io/version"   = local.label_version
-    }
-  }
-
-  spec {
-    port {
-      name        = "grpc"
-      port        = 50051
-      target_port = "grpc"
-    }
-
-    selector = {
-      "app.kubernetes.io/component" = local.label_component
-      "app.kubernetes.io/name"      = local.label_name
-    }
-
-    cluster_ip = "None"
-  }
+variable "kafka_password" {
+  type        = string
+  description = "Queue password. Contact Demeter team for this information."
 }
 
+variable "consumer_name" {
+  type        = string
+  description = "Name of queue consumer, should be unique per cluster. Contact Demeter team for this information."
+}
+
+variable "kafka_topic" {
+  type        = string
+  default     = "events"
+  description = "Name of topic to consume from. Contact Demeter team for this information."
+}
+
+variable "replicas" {
+  type        = number
+  default     = 1
+  description = "Amount of Demeter daemon replicas."
+}
+
+module "dmtr_daemon" {
+  source = "git::https://github.com/demeter-run/fabric.git//bootstrap/daemon"
+
+  namespace      = var.namespace
+  image          = "ghcr.io/demeter-run/fabric-daemon:${var.image_tag}"
+  broker_urls    = var.broker_urls
+  consumer_name  = var.consumer_name
+  kafka_username = var.kafka_username
+  kafka_password = var.kafka_password
+  kafka_topic    = var.kafka_topic
+  replicas       = var.replicas
+  cluster_id     = var.cluster_id
+  prometheus_url = "http://prometheus-operated.${var.namespace}.svc.cluster.local:9090/api/v1"
+  tolerations = [
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-profile"
+      operator = "Equal"
+      value    = "admin"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-arch"
+      operator = "Equal"
+      value    = "x86"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/availability-sla"
+      operator = "Equal"
+      value    = "consistent"
+    }
+
+  ]
+}
