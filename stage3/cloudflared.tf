@@ -38,6 +38,8 @@ resource "kubernetes_deployment" "cloudflared" {
           args = [
             "tunnel",
             "--no-autoupdate",
+            "--protocol",
+            "http2",
             "--metrics",
             "0.0.0.0:60123",
             "run",
