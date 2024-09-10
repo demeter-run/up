@@ -5,6 +5,7 @@ locals {
   ogmios_v1_metrics_delay         = 60
   ogmios_v1_api_key_salt          = coalesce(var.ogmios_v1_api_key_salt, "this is a random generated key and must be shared...")
   ogmios_v1_dns_zone              = "dmtr.host"
+  ogmios_v1_cluster_issuer        = "letsencrypt-dns01"
   ogmios_v1_proxy_green_image_tag = "40ca4f0e8addc0c64c679e25a6f95d31a9e443c8"
   ogmios_v1_proxy_green_replicas  = "1"
   ogmios_v1_proxy_blue_image_tag  = "40ca4f0e8addc0c64c679e25a6f95d31a9e443c8"
@@ -36,6 +37,7 @@ module "ext_cardano_ogmios" {
   metrics_delay         = local.ogmios_v1_metrics_delay
   api_key_salt          = local.ogmios_v1_api_key_salt
   dns_zone              = local.ogmios_v1_dns_zone
+  cluster_issuer        = local.ogmios_v1_cluster_issuer
   proxy_green_image_tag = local.ogmios_v1_proxy_green_image_tag
   proxy_green_replicas  = local.ogmios_v1_proxy_green_replicas
   proxy_blue_image_tag  = local.ogmios_v1_proxy_blue_image_tag
