@@ -30,6 +30,7 @@ locals {
 module "cert_manager" {
   source             = "../modules/common/cert-manager/stage2"
   acme_account_email = local.acme_account_email
+  cloudflare_token   = var.cloudflare_token
 }
 
 # module "grafana_tempo" {

@@ -17,6 +17,15 @@ variable "acme_account_email" {
   default = "something@example.com"
 }
 
+variable "cloudflare_token" {
+  type        = string
+  description = <<EOF
+Optional Cloudflare API token.
+If provided, will use Cloudflare for DNS challenges.
+Otherwise, it defaults to AWS Route53.
+EOF
+}
+
 // Configuration for decentrelized Demeter daemon
 variable "dmtr_namespace" {
   description = "the namespace where to install Demeter's system"

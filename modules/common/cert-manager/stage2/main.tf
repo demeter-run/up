@@ -222,7 +222,57 @@ resource "helm_release" "cert-manager" {
   # }
 }
 
+# ClusterIssuer for Cloudflare has the same name as the Route53 one
+resource "kubernetes_manifest" "clusterissuer_letsencrypt_cloudflare" {
+  count = var.cloudflare_token != null ? 1 : 0
+  manifest = {
+    "apiVersion" = "cert-manager.io/v1"
+    "kind"       = "ClusterIssuer"
+    "metadata" = {
+      "name" = "letsencrypt-dns01"
+    }
+    "spec" = {
+      "acme" = {
+        "email"          = var.acme_account_email
+        "preferredChain" = ""
+        "privateKeySecretRef" = {
+          "name" = "issuer-account-key"
+        }
+        "server" = "https://acme-v02.api.letsencrypt.org/directory"
+        "solvers" = [
+          {
+            "dns01" = {
+              "cloudflare" = {
+                "apiTokenSecretRef" = {
+                  "name" = "cloudflare-api-token-secret"
+                  "key"  = "api-token"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+
+resource "kubernetes_secret" "cloudflare_api_token" {
+  count = var.cloudflare_token != null ? 1 : 0
+  metadata {
+    name      = "cloudflare-api-token-secret"
+    namespace = "cert-manager"
+  }
+
+  type = "Opaque"
+
+  data = {
+    api-token = var.cloudflare_token
+  }
+}
+
+# ClusterIssuer for Route53 has the same name as the Cloudflare one
 resource "kubernetes_manifest" "clusterissuer_letsencrypt" {
+  count = var.cloudflare_token == null ? 1 : 0
   manifest = {
     "apiVersion" = "cert-manager.io/v1"
     "kind"       = "ClusterIssuer"
