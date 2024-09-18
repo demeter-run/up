@@ -25,7 +25,7 @@ module "ext_cardano_node" {
   for_each                        = toset([for n in toset(["m1"]) : n if var.enable_cardano_node])
   namespace                       = local.cnode_v1_namespace
   cloud_provider                  = var.cloud_provider
-  dns_zone                        = "demeter.run"
+  dns_zone                        = "dmtr.host"
   extension_name                  = "cnode-${each.key}"
   operator_image_tag              = "e23d4e62663419d91c486e70e63808792b62b9ff"
   proxy_blue_image_tag            = "35a9bf5ff8177a7221123ca59198ca2026042180"
