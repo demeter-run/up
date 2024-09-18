@@ -2,6 +2,7 @@ locals {
   kupo_v1_namespace = "ext-kupo-m1"
   // Specify networks for services and configurations
   # kupo_v1_networks           = ["mainnet", "preprod", "preview"]
+  kupo_v1_cluster_issuer     = "letsencrypt-dns01"
   kupo_v1_networks           = ["preview"]
   kupo_v1_operator_image_tag = "7ed38ec1bd825490a7e7b9b8c130415084ea8976"
   kupo_v1_metrics_delay      = 60
@@ -44,6 +45,8 @@ module "ext_cardano_kupo" {
   source             = "git::https://github.com/verbotenj/ext-cardano-kupo.git//bootstrap?ref=feat/ext-kupo-demeter-up"
   for_each           = toset([for n in toset(["v1"]) : n if var.enable_cardano_kupo])
   namespace          = "ftr-kupo-${each.key}"
+  cloud_provider     = var.cloud_provider
+  cluster_issuer     = local.kupo_v1_cluster_issuer
   networks           = local.kupo_v1_networks
   operator_image_tag = local.kupo_v1_operator_image_tag
   metrics_delay      = local.kupo_v1_metrics_delay
@@ -63,7 +66,6 @@ module "ext_cardano_kupo" {
   cells = {
     "cell1" = {
       pvc = {
-        volume_name        = "main-volume"
         storage_size       = "10Gi"
         storage_class_name = "gp-immediate"
         access_mode        = "ReadWriteOnce"
