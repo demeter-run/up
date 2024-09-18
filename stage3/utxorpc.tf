@@ -74,7 +74,7 @@ locals {
 
 module "ext_cardano_utxorpc" {
   # source   = "git::https://github.com/demeter-run/ext-cardano-utxorpc//bootstrap/"
-  source   = "git::https://github.com/verbotenj/ext-cardano-utxorpc.git//bootstrap?ref=feat/use-unnamed-volume"
+  source   = "git::https://github.com/blinklabs-io/demeter-ext-cardano-utxorpc.git//bootstrap?ref=feat/use-unnamed-volume"
   for_each = toset([for n in toset(["v1"]) : n if var.enable_cardano_utxorpc])
 
   operator_image_tag  = local.utxorpc_defaults.operator_image_tag

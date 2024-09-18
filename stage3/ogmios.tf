@@ -29,7 +29,7 @@ module "ext_cardano_ogmios_crds" {
 
 module "ext_cardano_ogmios" {
   # source = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap"
-  source                = "git::https://github.com/verbotenj/ext-cardano-ogmios.git//bootstrap?ref=feat/ext-ogmios-demeter-up"
+  source                = "git::https://github.com/blinklabs-io/demeter-ext-cardano-ogmios.git//bootstrap?ref=feat/ext-ogmios-demeter-up"
   for_each              = toset([for n in toset(["v1"]) : n if var.enable_cardano_ogmios])
   namespace             = local.ogmios_v1_namespace
   networks              = local.ogmios_v1_networks
