@@ -74,19 +74,21 @@ if [[ ${__cloud} == aws ]]; then
     echo Terraform state bucket region: ${__region}
   fi
 
+  cd ${__root}/bootstrap/aws-terraform
   set +e
   # configure bootstrap backend
   __configure_bootstrap_backend=false
   if [[ ! -e backend.tf ]]; then
     __configure_bootstrap_backend=true
-  elif [[ $(grep -o BUCKET_NAME backend.tf 2>/dev/null) == BUCKET_NAME ]]; then
+  fi
+  if [[ $(grep -o BUCKET_NAME backend.tf 2>/dev/null) == BUCKET_NAME ]]; then
     __configure_bootstrap_backend=true
-  elif [[ $(grep -o REGION backend.tf 2>/dev/null) == REGION ]]; then
+  fi
+  if [[ $(grep -o REGION backend.tf 2>/dev/null) == REGION ]]; then
     __configure_bootstrap_backend=true
   fi
 
   set -e
-  cd ${__root}/bootstrap/aws-terraform
   if [[ ${__configure_bootstrap_backend} == true ]]; then
     echo configuring bootstrap backend
     sed -e "s#BUCKET_NAME#${__bucket}#" \
