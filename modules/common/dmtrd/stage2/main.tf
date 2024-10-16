@@ -28,9 +28,14 @@ variable "kafka_password" {
   description = "Queue password. Contact Demeter team for this information."
 }
 
-variable "consumer_name" {
+variable "consumer_monitor_name" {
   type        = string
-  description = "Name of queue consumer, should be unique per cluster. Contact Demeter team for this information."
+  description = "Name of queue consumer for monitor process, should be unique per cluster. Contact Demeter team for this information."
+}
+
+variable "consumer_cache_name" {
+  type        = string
+  description = "Name of queue consumer for cache process, should be unique per cluster. Contact Demeter team for this information."
 }
 
 variable "kafka_topic" {
@@ -48,16 +53,17 @@ variable "replicas" {
 module "dmtr_daemon" {
   source = "git::https://github.com/demeter-run/fabric.git//bootstrap/daemon"
 
-  namespace      = var.namespace
-  image          = "ghcr.io/demeter-run/fabric-daemon:${var.image_tag}"
-  broker_urls    = var.broker_urls
-  consumer_name  = var.consumer_name
-  kafka_username = var.kafka_username
-  kafka_password = var.kafka_password
-  kafka_topic    = var.kafka_topic
-  replicas       = var.replicas
-  cluster_id     = var.cluster_id
-  prometheus_url = "http://prometheus-operated.${var.namespace}.svc.cluster.local:9090/api/v1"
+  namespace             = var.namespace
+  image                 = "ghcr.io/demeter-run/fabric-daemon:${var.image_tag}"
+  broker_urls           = var.broker_urls
+  consumer_monitor_name = var.consumer_monitor_name
+  consumer_cache_name   = var.consumer_cache_name
+  kafka_username        = var.kafka_username
+  kafka_password        = var.kafka_password
+  kafka_topic           = var.kafka_topic
+  replicas              = var.replicas
+  cluster_id            = var.cluster_id
+  prometheus_url        = "http://prometheus-operated.${var.namespace}.svc.cluster.local:9090/api/v1"
   tolerations = [
     {
       effect   = "NoSchedule"
