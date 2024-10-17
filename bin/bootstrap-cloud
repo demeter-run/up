@@ -9,7 +9,7 @@ check_gcp_prerequisites() {
   if [[ $? -ne 0 ]]; then
     echo "You must configure your local 'gcloud' client before using this tool"
     echo "Run 'gcloud auth login'"
-    echo 'Run 'gcloud projects list' to see your projects'
+    echo "Run 'gcloud projects list' to see your projects"
     echo "Run 'gcloud config set project <project-id>'"
     echo "Run 'gcloud auth application-default login'"
     echo "Run 'bin/bootstrap-cloud' to continue"
