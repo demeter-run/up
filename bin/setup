@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
 
 # This script is designed to help someone bootstrap terraform and requires the
-# user already has AWS credentials and Terraform installed
+# user already has AWS or GCP credentials and Terraform installed
+
+# NOTE: we use the gcloud command line tool to verify you have access configured
+check_gcp_prerequisites() {
+  gcloud config get project >/dev/null 2>&1
+  if [[ $? -ne 0 ]]; then
+    echo "You must configure your local 'gcloud' client before using this tool"
+    echo "Run 'gcloud auth login'"
+    echo "Run 'gcloud projects list' to see your projects"
+    echo "Run 'gcloud config set project <project-id>'"
+    echo "Run 'gcloud auth application-default login'"
+    echo "Run 'bin/bootstrap-cloud' to continue"
+    exit 1
+  fi
+  return 0
+}
 
 # NOTE: we use the aws command line tool to verify you have access configured
 check_aws_prerequisites() {
-  aws sts get-caller-identity 2>&1 >/dev/null
+  aws sts get-caller-identity >/dev/null 2>&1
   if [[ $? -ne 0 ]]; then
     echo "You must configure your local 'aws' client before using this tool"
     exit 1
@@ -40,6 +55,19 @@ __root=$(cd $(dirname ${BASH_SOURCE[0]})/..; pwd -P)
 if test -e ${__root}/config.yaml; then
   __bucket=$(grep ^terraform_state_bucket: ${__root}/config.yaml | awk '{print $2}')
   __cloud=$(grep ^cloud_provider: ${__root}/config.yaml | awk '{print $2}')
+  #If cloud is gcp, we need to setup the project_id
+  if [[ ${__cloud} == gcp ]]; then
+    __project_id=$(grep ^terraform_project_id: ${__root}/config.yaml | awk '{print $2}')
+    if [[ -z ${__project_id} ]]; then
+      echo "terraform_project_id not found in config.yaml, exiting..."
+      echo "Hint: run 'gcloud projects list' to see your projects"
+      exit 1
+    fi
+    __name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
+    if [[ -z ${__name} ]]; then
+      __name=dmtr-cluster
+    fi
+  fi
   __cloudflared_token=$(grep ^cloudflared_token: ${__root}/config.yaml | awk '{print $2}')
   __cluster_name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
   __region=$(grep ^terraform_state_region: ${__root}/config.yaml | awk '{print $2}')
@@ -164,6 +192,7 @@ if [[ ${__cloud} == aws ]]; then
   terraform init
 
 elif [[ ${__cloud} == gcp ]]; then
+  check_gcp_prerequisites
 
   cd ${__root}/bootstrap/gcp-terraform
   if ! test -e backend.tf; then
@@ -184,6 +213,29 @@ elif [[ ${__cloud} == gcp ]]; then
         backend.tf.example > backend.tf
   fi
   terraform init
+
+  set -e
+  if [[ $(kubectl config get-contexts | awk '{print $2}' | grep -o gcp-${__name} 2>/dev/null) == gcp-${__name} ]]; then
+    echo cluster context found: gcp-${__name}
+  else
+    echo configuring cluster: gcp-${__name}
+
+    set +e
+    CLUSTER_OUTPUT=$(gcloud container clusters get-credentials ${__name} --region ${__region} --project ${__project_id} 2>&1)
+    CLUSTER_STATUS=$?
+    set -e
+
+    if [[ $CLUSTER_STATUS -ne 0 ]]; then
+      if [[ $CLUSTER_OUTPUT == *"Not found"* ]]; then
+        echo warning: no cluster named ${__name} found in project ${__project_id}. skipping kubectl configuration
+      else
+        echo error occurred: $CLUSTER_OUTPUT
+        exit 1
+      fi
+    else
+      echo cluster credentials configured for ${__name}
+    fi
+  fi
 
   cd ${__root}/stage1
   if ! test -e backend.tf; then
