@@ -57,9 +57,14 @@ variable "dmtrd_kafka_password" {
   description = "Queue password. Contact Demeter team for this information."
 }
 
-variable "dmtrd_consumer_name" {
+variable "dmtrd_consumer_monitor_name" {
   type        = string
-  description = "Name of queue consumer, should be unique per cluster. Contact Demeter team for this information."
+  description = "Name of queue consumer for monitor process, should be unique per cluster. Contact Demeter team for this information."
+}
+
+variable "dmtrd_consumer_cache_name" {
+  type        = string
+  description = "Name of queue consumer for cache process, should be unique per cluster. Contact Demeter team for this information."
 }
 
 variable "dmtrd_kafka_topic" {
