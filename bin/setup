@@ -69,9 +69,18 @@ if test -e ${__root}/config.yaml; then
     fi
   fi
   __cloudflared_token=$(grep ^cloudflared_token: ${__root}/config.yaml | awk '{print $2}')
+  __cloudflare_token=$(grep ^cloudflare_token: ${__root}/config.yaml | awk '{print $2}')
   __cluster_name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
   __region=$(grep ^terraform_state_region: ${__root}/config.yaml | awk '{print $2}')
   __kmskey=$(grep ^terraform_state_kmskey: ${__root}/config.yaml | awk '{print $2}')
+  __dmtrd_cluster_id=$(grep ^dmtrd_cluster_id: ${__root}/config.yaml | awk '{print $2}')
+  __dmtrd_broker_urls=$(grep ^dmtrd_broker_urls: ${__root}/config.yaml | awk '{print $2}')
+  __dmtrd_kafka_topic=$(grep ^dmtrd_kafka_topic: ${__root}/config.yaml | awk '{print $2}')
+  __dmtrd_kafka_username=$(grep ^dmtrd_kafka_username: ${__root}/config.yaml | awk '{print $2}')
+  __dmtrd_kafka_password=$(grep ^dmtrd_kafka_password: ${__root}/config.yaml | awk '{print $2}')
+  __dmtrd_consumer_name=$(grep ^dmtrd_consumer_name: ${__root}/config.yaml | awk '{print $2}')
+  __dmtrd_consumer_monitor_name=$(grep ^dmtrd_consumer_monitor_name: ${__root}/config.yaml | awk '{print $2}')
+  __dmtrd_consumer_cache_name=$(grep ^dmtrd_consumer_cache_name: ${__root}/config.yaml | awk '{print $2}')
   [[ -z ${__bucket} ]] && unset __bucket
   [[ -z ${__region} ]] && unset __region
 else
@@ -265,7 +274,16 @@ elif [[ ${__cloud} == gcp ]]; then
   if ! test -e env.auto.tfvars; then
     echo configuring stage2 terraform variables
     sed -e 's:^# ::' \
-	-e "s#some-context#gcp-${__cluster_name}#" \
+	      -e "s#some-context#gcp-${__cluster_name}#" \
+	      -e "s#aws#${__cloud}#" \
+	      -e "s#your_token#${__cloudflare_token}#" \
+	      -e "s#your-cluster-id#${__dmtrd_cluster_id}#" \
+	      -e "s#your-username#$__dmtrd_kafka_username#" \
+	      -e "s#your-password#$__dmtrd_kafka_password#" \
+	      -e "s#your-consumer-name#$__dmtrd_consumer_name#" \
+	      -e "s#your-consumer-monitor-name#$__dmtrd_consumer_monitor_name#" \
+	      -e "s#your-consumer-cache-name#$__dmtrd_consumer_cache_name#" \
+	      -e "s#redpanda-0.domain.name,redpanda-1.domain.name,redpanda-2.domain.name#$__dmtrd_broker_urls#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init
@@ -281,9 +299,10 @@ elif [[ ${__cloud} == gcp ]]; then
   if ! test -e env.auto.tfvars; then
     echo configuring stage3 terraform variables
     sed -e 's:^# ::' \
+        -e "s#aws#${__cloud}#" \
         -e "s:eyJ...:${__cloudflared_token}:" \
-	-e "s:dmtr-cluster:${__cluster_name}:" \
-	-e "s#some-context#gcp-${__cluster_name}#" \
+	      -e "s:dmtr-cluster:${__cluster_name}:" \
+	      -e "s#some-context#gcp-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init
