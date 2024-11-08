@@ -34,7 +34,7 @@ variable "dmtr_namespace" {
 
 variable "dmtrd_version" {
   description = "version of the Demeter daemon to deploy"
-  default     = "8ce629cc9151284b102252da584f0338c25063cd"
+  default     = "99e71e3af72f6c734b82535052822a89f59921ee"
 }
 
 variable "dmtrd_cluster_id" {
