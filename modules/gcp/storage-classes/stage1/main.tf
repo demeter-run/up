@@ -1,3 +1,18 @@
+resource "kubernetes_storage_class" "fast" {
+  metadata {
+    name = "fast"
+  }
+
+  allow_volume_expansion = true
+  storage_provisioner    = "pd.csi.storage.gke.io"
+  reclaim_policy         = "Delete"
+  volume_binding_mode    = "Immediate"
+
+  parameters = {
+    "type" = "pd-balanced"
+  }
+}
+
 resource "kubernetes_storage_class" "gp" {
   metadata {
     name = "gp"
