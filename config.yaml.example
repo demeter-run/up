@@ -5,6 +5,8 @@
 # Supported cloud providers are: aws, gcp, k3d(default)
 cloud_provider: aws
 
+cloudflare_token: <token>
+
 # The cloudflared_token is stored in the global Terraform state and is required for stage3 deployment. It is a base64 token.
 cloudflared_token: eyJ...
 
@@ -23,3 +25,14 @@ terraform_state_kmskey: <kms_key_id>
 azs: [eu-central-1b, eu-central-1c]
 vpc_cidr: 10.16.0.0/16
 region: eu-central-1
+
+dmtrd_cluster_id: <cluster_id>
+dmtrd_broker_urls: <broker_url>
+dmtrd_kafka_topic: <topic>
+dmtrd_kafka_username: <kafka_username>
+dmtrd_kafka_password: <kafka_password>
+
+# the consumer name has a final segment where you can put anything you want (useful if you need to reprocess the whole queue from start)
+dmtrd_consumer_name: <consumer_name>
+dmtrd_consumer_cache_name: <consumer_cache_name>
+dmtrd_consumer_monitor_name: <consumer_monitor_name>
