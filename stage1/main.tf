@@ -25,6 +25,34 @@ resource "kubernetes_namespace_v1" "dmtr" {
   }
 }
 
+resource "kubernetes_manifest" "dmtr_resource_quota" {
+  manifest = {
+    "apiVersion" = "v1"
+    "kind"       = "ResourceQuota"
+    "metadata" = {
+      "name"      = "dmtr-critical-pods"
+      "namespace" = var.dmtr_namespace
+      "labels" = {
+        "addonmanager.kubernetes.io/mode" = "Reconcile"
+      }
+    }
+    "spec" = {
+      "hard" = {
+        "pods" = "1G"
+      }
+      "scopeSelector" = {
+        "matchExpressions" = [
+          {
+            "operator"  = "In"
+            "scopeName" = "PriorityClass"
+            "values"    = ["system-node-critical", "system-cluster-critical"]
+          }
+        ]
+      }
+    }
+  }
+}
+
 module "aws_elb_controller" {
   source       = "../modules/aws/elb-controller/stage1"
   count        = var.cloud_provider == "aws" ? 1 : 0
@@ -64,3 +92,4 @@ module "o11y" {
   namespace  = var.dmtr_namespace
   depends_on = [kubernetes_namespace_v1.dmtr]
 }
+
