@@ -15,12 +15,13 @@ module "workers_crds" {
 }
 
 module "workers_configs" {
-  source    = "git::https://github.com/demeter-run/workloads.git//bootstrap/configs"
-  namespace = local.ext_workers_namespace
+  source     = "git::https://github.com/demeter-run/workloads.git//bootstrap/configs"
+  namespace  = local.ext_workers_namespace
+  depends_on = [kubernetes_namespace_v1.ext_workers]
 }
 
 module "workers_operator" {
-  depends_on    = [helm_release.kong]
+  depends_on    = [helm_release.kong, kubernetes_namespace_v1.ext_workers]
   source        = "git::https://github.com/demeter-run/workloads.git//bootstrap/operator"
   namespace     = local.ext_workers_namespace
   cluster_name  = var.cluster_name
