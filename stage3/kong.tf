@@ -1,3 +1,4 @@
+# Run terraform apply -target=helm_release.kong to apply this configuration and deploy CRDs
 resource "helm_release" "kong" {
   name       = "kong"
   namespace  = "dmtr-system"
@@ -70,13 +71,12 @@ resource "kubernetes_manifest" "kong_ping_endpoint_request_termination_plugin" {
       name      = "kong-ping-endpoint-request-termination"
       namespace = "dmtr-system"
     }
-    "plugin" = "request-termination"
-    "config" = {
-      "status_code" = 200
-      "message"     = "PONG"
+    plugin = "request-termination"
+    config = {
+      status_code = 200
+      message     = "PONG"
     }
   }
-  depends_on = [helm_release.kong]
 }
 
 resource "kubernetes_manifest" "kong_response_transformer_plugin" {
@@ -94,16 +94,15 @@ resource "kubernetes_manifest" "kong_response_transformer_plugin" {
         "kubernetes.io/ingress.class" = "kong"
       }
     }
-    "plugin" = "response-transformer"
-    "config" = {
-      "add" = {
-        "headers" = [
+    plugin = "response-transformer"
+    config = {
+      add = {
+        headers = [
           "Rendered-By:${var.provider_name}",
         ]
       }
     }
   }
-  depends_on = [helm_release.kong]
 }
 
 resource "kubernetes_manifest" "kong_prometheus_plugin" {
@@ -121,16 +120,15 @@ resource "kubernetes_manifest" "kong_prometheus_plugin" {
         "kubernetes.io/ingress.class" = "kong"
       }
     }
-    "plugin" = "prometheus"
-    "config" = {
-      "per_consumer"            = false
-      "latency_metrics"         = true
-      "bandwidth_metrics"       = true
-      "status_code_metrics"     = true
-      "upstream_health_metrics" = true
+    plugin = "prometheus"
+    config = {
+      per_consumer            = false
+      latency_metrics         = true
+      bandwidth_metrics       = true
+      status_code_metrics     = true
+      upstream_health_metrics = true
     }
   }
-  depends_on = [helm_release.kong]
 }
 
 resource "kubernetes_ingress_v1" "kong_ping_endpoint" {
@@ -174,7 +172,7 @@ resource "kubernetes_manifest" "kong_admin_service_monitor" {
       namespace = "dmtr-system"
       labels = {
         release = "prometheus"
-        # Match labels from prometheus resource serviceMonitorSelector
+        # Match labels from Prometheus resource's serviceMonitorSelector
         "app.kubernetes.io/component" = "o11y"
         "app.kubernetes.io/part-of"   = "demeter"
       }
