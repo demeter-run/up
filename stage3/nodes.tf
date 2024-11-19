@@ -27,12 +27,12 @@ module "ext_cardano_node" {
   cloud_provider                  = var.cloud_provider
   dns_zone                        = "dmtr.host"
   extension_name                  = "cnode-${each.key}"
-  operator_image_tag              = "e23d4e62663419d91c486e70e63808792b62b9ff"
-  proxy_blue_image_tag            = "35a9bf5ff8177a7221123ca59198ca2026042180"
+  operator_image_tag              = "9f24ebfe1ca56351fa44ab47e5a3fdb815d0f213"
+  proxy_blue_image_tag            = "9f24ebfe1ca56351fa44ab47e5a3fdb815d0f213"
   proxy_blue_replicas             = 2
   proxy_blue_instances_namespace  = local.cnode_v1_namespace
   proxy_blue_healthcheck_port     = 31789
-  proxy_green_image_tag           = "1de351af98b36e8e3d946a463a95263fb4d97384"
+  proxy_green_image_tag           = "9f24ebfe1ca56351fa44ab47e5a3fdb815d0f213"
   proxy_green_replicas            = 2
   proxy_green_instances_namespace = local.cnode_v1_namespace
   proxy_green_healthcheck_port    = 32171
