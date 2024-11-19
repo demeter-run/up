@@ -3,7 +3,7 @@ locals {
   utxorpc_defaults = {
     namespace             = "ext-utxorpc-m0"
     dns_zone              = "utxorpc.cloud"
-    operator_image_tag    = "40389c34949a6ac5d72d5a887164a6950e1924a0"
+    operator_image_tag    = "a0db1920b5d23321d26b8a2de5b17476b1d73c7b"
     networks              = ["cardano-mainnet", "cardano-preprod", "cardano-preview"]
     cloudflared_image_tag = "latest"
     cloudflared_replicas  = 0
@@ -34,7 +34,7 @@ locals {
         operator = "Exists"
       }
     ]
-    proxies_image_tag = "40389c34949a6ac5d72d5a887164a6950e1924a0"
+    proxies_image_tag = "a0db1920b5d23321d26b8a2de5b17476b1d73c7b"
     proxies_replicas  = 0
     proxies_resources = {
       limits = {
