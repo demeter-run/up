@@ -24,13 +24,13 @@ managed_node_groups:
     taints:
       - key: demeter.run/availability-sla
         value: "consistent"
-        effect: PREFER_NO_SCHEDULE
+        effect: NO_SCHEDULE
       - key: demeter.run/compute-profile
         value: "admin"
-        effect: PREFER_NO_SCHEDULE
+        effect: NO_SCHEDULE
       - key: demeter.run/compute-arch
         value: "x86"
-        effect: PREFER_NO_SCHEDULE
+        effect: NO_SCHEDULE
     availability_zones: us-central1-a
 
   - name: co-ad-x86-az2
@@ -48,13 +48,13 @@ managed_node_groups:
     taints:
       - key: demeter.run/availability-sla
         value: "consistent"
-        effect: PREFER_NO_SCHEDULE
+        effect: NO_SCHEDULE
       - key: demeter.run/compute-profile
         value: "admin"
-        effect: PREFER_NO_SCHEDULE
+        effect: NO_SCHEDULE
       - key: demeter.run/compute-arch
         value: "x86"
-        effect: PREFER_NO_SCHEDULE
+        effect: NO_SCHEDULE
     availability_zones: us-central1-b
 
   - name: co-gp-x86-az1
