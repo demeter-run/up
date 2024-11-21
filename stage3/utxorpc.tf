@@ -86,7 +86,7 @@ module "ext_cardano_utxorpc" {
 
   network_addresses = {
     # "cardano-mainnet" : "relay.utxorpc-m0.demeter.run:3000"
-    "cardano-preprod" : "relay.utxorpc-m0.demeter.run:3001"
+    # "cardano-preprod" : "relay.utxorpc-m0.demeter.run:3001"
     # "cardano-preview" : "relay.utxorpc-m0.demeter.run:3002"
   }
 
@@ -107,20 +107,38 @@ module "ext_cardano_utxorpc" {
 
   cells = {
     "cell1" = {
-      # tolerations = [
-      #   {
-      #     effect   = "NoSchedule"
-      #     key      = "demeter.run/compute-arch"
-      #     operator = "Equal"
-      #     value    = "arm64"
-      #   }
-      # ]
+      tolerations = [
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/availability-sla"
+          operator = "Equal"
+          value    = "consistent"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/compute-arch"
+          operator = "Equal"
+          value    = "arm64"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/compute-profile"
+          operator = "Equal"
+          value    = "disk-intensive"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "kubernetes.io/arch"
+          operator = "Equal"
+          value    = "arm64"
+        }
+      ]
       pvc = {
         storage_class = "gp-immediate"
         storage_size  = "30Gi"
       }
       instances = {
-        "cardano-preprod" = {
+        "cardano-preview" = {
           dolos_version = "sha-1618ebb"
           replicas      = 1
           resources = {
@@ -134,6 +152,34 @@ module "ext_cardano_utxorpc" {
             }
           }
         }
+        # "cardano-preprod" = {
+        #   dolos_version = "sha-1618ebb"
+        #   replicas      = 1
+        #   resources = {
+        #     limits = {
+        #       cpu    = "1000m"
+        #       memory = "8Gi"
+        #     }
+        #     requests = {
+        #       cpu    = "50m"
+        #       memory = "512Mi"
+        #     }
+        #   }
+        # }
+        # "cardano-mainnet" = {
+        #   dolos_version = "sha-1618ebb"
+        #   replicas      = 1
+        #   resources = {
+        #     limits = {
+        #       cpu    = "1000m"
+        #       memory = "8Gi"
+        #     }
+        #     requests = {
+        #       cpu    = "50m"
+        #       memory = "512Mi"
+        #     }
+        #   }
+        # }
       }
     }
   }

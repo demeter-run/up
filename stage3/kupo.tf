@@ -4,7 +4,7 @@ locals {
   # kupo_v1_networks           = ["mainnet", "preprod", "preview"]
   kupo_v1_cluster_issuer     = "letsencrypt-dns01"
   kupo_v1_networks           = ["preview"]
-  kupo_v1_operator_image_tag = "7ed38ec1bd825490a7e7b9b8c130415084ea8976"
+  kupo_v1_operator_image_tag = "aab07d8cd8fe0fa80281550ce3845108a37f5a0b"
   kupo_v1_metrics_delay      = 60
   kupo_v1_per_min_dcus = {
     mainnet = "36"
@@ -19,9 +19,9 @@ locals {
   kupo_v1_ingress_class         = "kong"
   kupo_v1_extension_subdomain   = "kupo"
   kupo_v1_dns_zone              = "dmtr.host"
-  kupo_v1_proxy_green_image_tag = "e7e26f0e3e82ceabf04ceee6d536d500e14e02ab"
+  kupo_v1_proxy_green_image_tag = "9c0d2ed7d7758c85106d65a171f306bba7d5c64a"
   kupo_v1_proxy_green_replicas  = "1"
-  kupo_v1_proxy_blue_image_tag  = "e7e26f0e3e82ceabf04ceee6d536d500e14e02ab"
+  kupo_v1_proxy_blue_image_tag  = "9c0d2ed7d7758c85106d65a171f306bba7d5c64a"
   kupo_v1_proxy_blue_replicas   = "0"
   kupo_v1_proxy_resources = {
     limits = {
@@ -41,8 +41,7 @@ module "ext_cardano_kupo_crds" {
 }
 
 module "ext_cardano_kupo" {
-  # source             = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap?ref=feat/ext-kupo-demeter-up"
-  source             = "git::https://github.com/blinklabs-io/demeter-ext-cardano-kupo.git//bootstrap?ref=feat/ext-kupo-demeter-up"
+  source             = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap"
   for_each           = toset([for n in toset(["v1"]) : n if var.enable_cardano_kupo])
   namespace          = "ftr-kupo-${each.key}"
   cloud_provider     = var.cloud_provider
@@ -66,8 +65,8 @@ module "ext_cardano_kupo" {
   cells = {
     "cell1" = {
       pvc = {
-        storage_size       = "10Gi"
-        storage_class_name = "gp-immediate"
+        storage_size       = var.kupo_v1_storage_size
+        storage_class_name = var.kupo_v1_storage_class_name
         access_mode        = "ReadWriteOnce"
       }
       instances = {
@@ -79,14 +78,40 @@ module "ext_cardano_kupo" {
           n2n_endpoint = "node-preview-stable.ext-nodes-m1.svc.cluster.local:3307"
           resources = {
             limits = {
-              cpu    = "500m"
-              memory = "512Mi"
+              cpu    = "1"
+              memory = "4Gi"
             }
             requests = {
               cpu    = "250m"
-              memory = "256Mi"
+              memory = "4Gi"
             }
           }
+          tolerations = [
+            {
+              effect   = "NoSchedule"
+              key      = "demeter.run/compute-profile"
+              operator = "Equal"
+              value    = "mem-intensive"
+            },
+            {
+              effect   = "NoSchedule"
+              key      = "demeter.run/compute-arch"
+              operator = "Equal"
+              value    = "arm64"
+            },
+            {
+              effect   = "NoSchedule"
+              key      = "demeter.run/availability-sla"
+              operator = "Equal"
+              value    = "consistent"
+            },
+            {
+              effect   = "NoSchedule"
+              key      = "kubernetes.io/arch"
+              operator = "Equal"
+              value    = "arm64"
+            }
+          ]
         }
       }
     }

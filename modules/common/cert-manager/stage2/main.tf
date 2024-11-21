@@ -63,7 +63,7 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "tolerations[2].value"
-    value = "admin"
+    value = "consistent"
   }
 
   set {
@@ -113,7 +113,7 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "webhook.tolerations[2].value"
-    value = "admin"
+    value = "consistent"
   }
 
   set {
@@ -163,7 +163,7 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "cainjector.tolerations[2].value"
-    value = "admin"
+    value = "consistent"
   }
 
   set {
@@ -213,7 +213,7 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "startupapicheck.tolerations[2].value"
-    value = "admin"
+    value = "consistent"
   }
 
   # set {

@@ -92,7 +92,7 @@ module "gke" {
     min_count          = np.min_size
     max_count          = np.max_size
     disk_size_gb       = np.disk_size_gb
-    disk_type          = try(np.disk_type, "pd-ssd")
+    disk_type          = try(np.disk_type, "hyperdisk-balanced")
     auto_repair        = true
     auto_upgrade       = true
     service_account    = data.google_service_account.existing.email
