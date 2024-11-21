@@ -43,8 +43,9 @@ module "cert_manager" {
 # }
 
 module "o11y" {
-  source    = "../modules/common/o11y/stage2"
-  namespace = var.dmtr_namespace
+  source        = "../modules/common/o11y/stage2"
+  namespace     = var.dmtr_namespace
+  storage_class = "hyperdisk-balanced"
 }
 
 module "dmtrd" {
