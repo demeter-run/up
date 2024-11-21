@@ -132,9 +132,10 @@ module "ext_cardano_node" {
     #   active_salt = "v6g"
     # }
     "preview-stable" = {
-      network     = "preview"
-      release     = "stable"
-      active_salt = "v6g"
+      network      = "preview"
+      release      = "stable"
+      active_salt  = "v6g"
+      node_version = local.cnode_v1_default_image_tag
     }
     # "vector-testnet-stable" = {
     #   network     = "vector-testnet"
