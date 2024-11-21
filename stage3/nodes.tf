@@ -1,11 +1,9 @@
 locals {
   cnode_v1_namespace          = "ext-nodes-m1"
   cnode_v1_default_base_image = "ghcr.io/blinklabs-io/cardano-node"
-  cnode_v1_default_image_tag  = "9.1.0-2"
+  cnode_v1_default_image_tag  = "10.1.2"
   cnode_v1_edge_base_image    = "ghcr.io/demeter-run/cardano-node-edge"
   cnode_v1_edge_image_tag     = "be248be99fa238ebb9c2f72e6042739bf02263d6"
-  cnode_v1_v135_base_image    = "ghcr.io/blinklabs-io/cardano-node"
-  cnode_v1_v135_image_tag     = "1.35.7-8"
   cnode_v1_api_key_salt       = coalesce(var.cnode_v1_api_key_salt, "this is a random generated key and must be shared...")
 }
 
@@ -21,7 +19,7 @@ module "ext_cardano_node_crds" {
 # }
 
 module "ext_cardano_node" {
-  source                          = "git::https://github.com/blinklabs-io/demeter-ext-cardano-node.git//bootstrap?ref=feat/gcp-cloud-provider"
+  source                          = "git::https://github.com/blinklabs-io/demeter-ext-cardano-node.git//bootstrap?ref=feat/list-tolerations"
   for_each                        = toset([for n in toset(["m1"]) : n if var.enable_cardano_node])
   namespace                       = local.cnode_v1_namespace
   cloud_provider                  = var.cloud_provider
@@ -29,11 +27,11 @@ module "ext_cardano_node" {
   extension_name                  = "cnode-${each.key}"
   operator_image_tag              = "9f24ebfe1ca56351fa44ab47e5a3fdb815d0f213"
   proxy_blue_image_tag            = "9f24ebfe1ca56351fa44ab47e5a3fdb815d0f213"
-  proxy_blue_replicas             = 2
+  proxy_blue_replicas             = 1
   proxy_blue_instances_namespace  = local.cnode_v1_namespace
   proxy_blue_healthcheck_port     = 31789
   proxy_green_image_tag           = "9f24ebfe1ca56351fa44ab47e5a3fdb815d0f213"
-  proxy_green_replicas            = 2
+  proxy_green_replicas            = 1
   proxy_green_instances_namespace = local.cnode_v1_namespace
   proxy_green_healthcheck_port    = 32171
   api_key_salt                    = local.cnode_v1_api_key_salt
@@ -65,21 +63,29 @@ module "ext_cardano_node" {
     #       "cpu"    = "2"
     #     }
     #   }
-    #   storage_size       = "200Gi"
+    #   storage_size       = "500Gi"
     #   storage_class_name = "gp"
     #   node_version       = local.cnode_v1_default_image_tag
-    #   replicas           = 2
+    #   replicas           = 1
     #   restore            = true
+    #   tolerations = [
+    #     {
+    #       effect   = "NoSchedule"
+    #       key      = "kubernetes.io/arch"
+    #       operator = "Equal"
+    #       value    = "arm64"
+    #     }
+    #   ]
     # }
 
-    "preview-stage-v6g" = {
+    "preprod-stable-v6g" = {
       node_image    = local.cnode_v1_default_base_image
       image_tag     = local.cnode_v1_default_image_tag
-      network       = "preview"
+      network       = "preprod"
       salt          = "v6g"
       release       = "stable"
-      magic         = 2
-      topology_zone = "us-central1-b"
+      magic         = 1
+      topology_zone = "us-central1-a"
       node_resources = {
         limits = {
           "memory" = "3Gi"
@@ -90,51 +96,73 @@ module "ext_cardano_node" {
           "cpu"    = "100m"
         }
       }
-      storage_class_name = "gp"
+      storage_size       = "50Gi"
+      storage_class_name = "hyperdisk-balanced"
       node_version       = local.cnode_v1_default_image_tag
-      replicas           = 2
+      replicas           = 1
       restore            = true
+      tolerations = [
+        {
+          effect   = "NoSchedule"
+          key      = "kubernetes.io/arch"
+          operator = "Equal"
+          value    = "arm64"
+        }
+      ]
     }
 
-    # "preview-v135-a31" = {
-    #   node_image    = local.cnode_v1_v135_base_image
-    #   image_tag     = local.cnode_v1_v135_image_tag
-    #   network       = "preview"
-    #   salt          = "a31"
-    #   release       = "v135"
-    #   magic         = 2
-    #   topology_zone = "us-central1-b"
-    #   node_version  = "1.35.7"
-    #   replicas      = 1
-    #   restore       = true
-    #   node_resources = {
-    #     limits = {
-    #       "memory" = "3Gi"
-    #       "cpu"    = "8"
-    #     }
-    #     requests = {
-    #       "memory" = "3Gi"
-    #       "cpu"    = "100m"
-    #     }
-    #   }
-    # }
+    "preview-stable-v6g" = {
+      node_image    = local.cnode_v1_default_base_image
+      image_tag     = local.cnode_v1_default_image_tag
+      network       = "preview"
+      salt          = "v6g"
+      release       = "stable"
+      magic         = 2
+      topology_zone = "us-central1-a"
+      node_resources = {
+        limits = {
+          "memory" = "3Gi"
+          "cpu"    = "8"
+        }
+        requests = {
+          "memory" = "3Gi"
+          "cpu"    = "100m"
+        }
+      }
+      storage_size       = "50Gi"
+      storage_class_name = "hyperdisk-balanced"
+      node_version       = local.cnode_v1_default_image_tag
+      replicas           = 1
+      restore            = true
+      tolerations = [
+        {
+          effect   = "NoSchedule"
+          key      = "kubernetes.io/arch"
+          operator = "Equal"
+          value    = "arm64"
+        }
+      ]
+    }
   }
 
   services = {
-    # "mainnet-stable" = {
-    #   network     = "mainnet"
-    #   release     = "stable"
-    #   active_salt = "v6g"
-    # }
-    # "preprod-stable" = {
-    #   network     = "preprod"
-    #   release     = "stable"
-    #   active_salt = "v6g"
-    # }
+    "mainnet-stable" = {
+      network      = "mainnet"
+      release      = "stable"
+      node_version = local.cnode_v1_default_image_tag
+      active_salt  = "v6g"
+    }
+    "preprod-stable" = {
+      network      = "preprod"
+      release      = "stable"
+      node_version = local.cnode_v1_default_image_tag
+      active_salt  = "v6g"
+    }
     "preview-stable" = {
-      network     = "preview"
-      release     = "stable"
-      active_salt = "v6g"
+      network      = "preview"
+      release      = "stable"
+      node_version = local.cnode_v1_default_image_tag
+      active_salt  = "v6g"
     }
     # "vector-testnet-stable" = {
     #   network     = "vector-testnet"
@@ -145,21 +173,6 @@ module "ext_cardano_node" {
     #   network     = "sanchonet"
     #   release     = "edge"
     #   active_salt = "v6g"
-    # }
-    # "mainnet-v135" = {
-    #   network     = "mainnet"
-    #   release     = "v135"
-    #   active_salt = "a31"
-    # }
-    # "preview-v135" = {
-    #   network     = "preview"
-    #   release     = "v135"
-    #   active_salt = "a31"
-    # }
-    # "preprod-v135" = {
-    #   network     = "preprod"
-    #   release     = "v135"
-    #   active_salt = "a31"
     # }
   }
 }
