@@ -81,6 +81,7 @@ if test -e ${__root}/config.yaml; then
   __dmtrd_consumer_name=$(grep ^dmtrd_consumer_name: ${__root}/config.yaml | awk '{print $2}')
   __dmtrd_consumer_monitor_name=$(grep ^dmtrd_consumer_monitor_name: ${__root}/config.yaml | awk '{print $2}')
   __dmtrd_consumer_cache_name=$(grep ^dmtrd_consumer_cache_name: ${__root}/config.yaml | awk '{print $2}')
+  __provider_name=$(grep ^provider_name: ${__root}/config.yaml | awk '{print $2}')
   [[ -z ${__bucket} ]] && unset __bucket
   [[ -z ${__region} ]] && unset __region
 else
@@ -301,8 +302,9 @@ elif [[ ${__cloud} == gcp ]]; then
     sed -e 's:^# ::' \
         -e "s#aws#${__cloud}#" \
         -e "s:eyJ...:${__cloudflared_token}:" \
-	      -e "s:dmtr-cluster:${__cluster_name}:" \
+	      -e "s:dmtr-cluster:${__dmtrd_cluster_id}:" \
 	      -e "s#some-context#gcp-${__cluster_name}#" \
+	      -e "s#some-provider#${__provider_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init
