@@ -1,7 +1,7 @@
 locals {
   cnode_v1_namespace          = "ext-nodes-m1"
   cnode_v1_default_base_image = "ghcr.io/blinklabs-io/cardano-node"
-  cnode_v1_default_image_tag  = "9.1.0-2"
+  cnode_v1_default_image_tag  = "10.1.2"
   cnode_v1_edge_base_image    = "ghcr.io/demeter-run/cardano-node-edge"
   cnode_v1_edge_image_tag     = "be248be99fa238ebb9c2f72e6042739bf02263d6"
   cnode_v1_v135_base_image    = "ghcr.io/blinklabs-io/cardano-node"
