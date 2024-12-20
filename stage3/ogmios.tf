@@ -28,8 +28,7 @@ module "ext_cardano_ogmios_crds" {
 }
 
 module "ext_cardano_ogmios" {
-  # source = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap"
-  source                = "git::https://github.com/blinklabs-io/demeter-ext-cardano-ogmios.git//bootstrap?ref=feat/ext-ogmios-demeter-up"
+  source                = "git::https://github.com/demeter-run/ext-cardano-ogmios.git//bootstrap"
   for_each              = toset([for n in toset(["v1"]) : n if var.enable_cardano_ogmios])
   namespace             = local.ogmios_v1_namespace
   networks              = local.ogmios_v1_networks
@@ -65,6 +64,31 @@ module "ext_cardano_ogmios" {
           memory = "256Mi"
         }
       }
+      tolerations = [
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/compute-profile"
+          operator = "Exists"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/compute-arch"
+          operator = "Equal"
+          value    = "arm64"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/availability-sla"
+          operator = "Equal"
+          value    = "consistent"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "kubernetes.io/arch"
+          operator = "Equal"
+          value    = "arm64"
+        }
+      ]
     }
   }
 }
