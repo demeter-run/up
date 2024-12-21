@@ -8,6 +8,35 @@ vpc_cidr: "10.6.0.0/16"
 dmtr_namespace: dmtr-system
 dmtr_context: k3d-dmtr-cluster
 managed_node_groups:
+  # GKE
+  - name: gke-system-az1
+    labels:
+      gke-managed-components: "true"
+    instance_type: n4-standard-2
+    min_size: 1
+    max_size: 1
+    desired_capacity: 1
+    disk_size_gb: 40
+    taints:
+      - key: components.gke.io/gke-managed-components
+        value: "true"
+        effect: NO_SCHEDULE
+    availability_zones: us-central1-a
+
+  - name: gke-system-az2
+    labels:
+      gke-managed-components: "true"
+    instance_type: n4-standard-2
+    min_size: 1
+    max_size: 1
+    desired_capacity: 1
+    disk_size_gb: 40
+    taints:
+      - key: components.gke.io/gke-managed-components
+        value: "true"
+        effect: NO_SCHEDULE
+    availability_zones: us-central1-b
+
   # Consistent
   - name: co-ad-x86-az1
     labels:
@@ -15,12 +44,11 @@ managed_node_groups:
       demeter.run/compute-profile: admin
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az1
-    instance_type: n2-standard-2
+    instance_type: n4-standard-2
     min_size: 1
     max_size: 2
     desired_capacity: 1
     disk_size_gb: 40
-    disk_type: pd-standard
     taints:
       - key: demeter.run/availability-sla
         value: "consistent"
@@ -39,12 +67,11 @@ managed_node_groups:
       demeter.run/compute-profile: admin
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az2
-    instance_type: n2-standard-2
+    instance_type: n4-standard-2
     min_size: 0
     max_size: 1
     desired_capacity: 0
     disk_size_gb: 40
-    disk_type: pd-standard
     taints:
       - key: demeter.run/availability-sla
         value: "consistent"
@@ -63,7 +90,7 @@ managed_node_groups:
       demeter.run/compute-profile: general-purpose
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az1
-    instance_type: n2-standard-8
+    instance_type: n4-standard-8
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -86,7 +113,7 @@ managed_node_groups:
       demeter.run/compute-profile: general-purpose
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az1
-    instance_type: n2-standard-8
+    instance_type: n4-standard-8
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -109,7 +136,7 @@ managed_node_groups:
       demeter.run/compute-profile: general-purpose
       demeter.run/compute-arch: arm64
       demeter.run/availability-zone: az1
-    instance_type: t2a-standard-8
+    instance_type: c4a-standard-8
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -132,7 +159,7 @@ managed_node_groups:
       demeter.run/compute-profile: mem-intensive
       demeter.run/compute-arch: x86
       demeter.run/availability-zone: az1
-    instance_type: n2-highmem-8
+    instance_type: n4-highmem-8
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -155,7 +182,7 @@ managed_node_groups:
       demeter.run/compute-profile: mem-intensive
       demeter.run/compute-arch: arm64
       demeter.run/availability-zone: az1
-    instance_type: t2a-standard-16
+    instance_type: c4a-highmem-8
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -172,19 +199,17 @@ managed_node_groups:
         effect: NO_SCHEDULE
     availability_zones: us-central1-a
 
-  # Best Effort
-  - name: be-gp-x86-az1
+  - name: co-mem-arm64-az2
     labels:
       demeter.run/availability-sla: best-effort
       demeter.run/compute-profile: general-purpose
-      demeter.run/compute-arch: x86
-      demeter.run/availability-zone: az1
-    instance_type: n2-standard-8
+      demeter.run/compute-arch: arm64
+      demeter.run/availability-zone: az2
+    instance_type: c4a-highmem-8
     min_size: 0
     max_size: 1
-    desired_capacity: 1
+    desired_capacity: 0
     disk_size_gb: 100
-    spot: true
     taints:
       - key: demeter.run/availability-sla
         value: "best-effort"
@@ -193,29 +218,56 @@ managed_node_groups:
         value: "general-purpose"
         effect: NO_SCHEDULE
       - key: demeter.run/compute-arch
-        value: "x86"
+        value: "arm64"
         effect: NO_SCHEDULE
-    availability_zones: us-central1-a
+    availability_zones: us-central1-b
 
-  - name: be-gp-arm64-az1
+  # Disk Intensive
+  - name: co-di-x86-az2
     labels:
-      demeter.run/availability-sla: best-effort
-      demeter.run/compute-profile: general-purpose
-      demeter.run/compute-arch: arm64
+      demeter.run/availability-sla: consistent
+      demeter.run/compute-profile: disk-intensive
+      demeter.run/compute-arch: x86
       demeter.run/availability-zone: az1
-  # Google supports one instance type per node group
-    instance_type: t2a-standard-8
+    instance_type: n2-standard-4
     min_size: 0
     max_size: 1
     desired_capacity: 1
     disk_size_gb: 100
+    disk_type: pd-ssd
     spot: true
     taints:
       - key: demeter.run/availability-sla
-        value: "best-effort"
+        value: "consistent"
         effect: NO_SCHEDULE
       - key: demeter.run/compute-profile
-        value: "general-purpose"
+        value: "disk-intensive"
+        effect: NO_SCHEDULE
+      - key: demeter.run/compute-arch
+        value: "x86"
+        effect: NO_SCHEDULE
+    availability_zones: us-central1-a
+
+  - name: co-di-arm64-az1
+    labels:
+      demeter.run/availability-sla: consistent
+      demeter.run/compute-profile: disk-intensive
+      demeter.run/compute-arch: arm64
+      demeter.run/availability-zone: az1
+  # Google supports one instance type per node group
+    instance_type: t2a-standard-4
+    min_size: 0
+    max_size: 1
+    desired_capacity: 1
+    disk_size_gb: 100
+    disk_type: pd-ssd
+    spot: true
+    taints:
+      - key: demeter.run/availability-sla
+        value: "consistent"
+        effect: NO_SCHEDULE
+      - key: demeter.run/compute-profile
+        value: "disk-intensive"
         effect: NO_SCHEDULE
       - key: demeter.run/compute-arch
         value: "arm64"
