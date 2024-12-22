@@ -73,7 +73,7 @@ module "ext_cardano_node" {
           effect   = "NoSchedule"
           key      = "kubernetes.io/arch"
           operator = "Equal"
-          value    = "amd64"
+          value    = var.toleration_k8s_arch_mainnet
         }
       ]
     }
@@ -106,7 +106,7 @@ module "ext_cardano_node" {
           effect   = "NoSchedule"
           key      = "kubernetes.io/arch"
           operator = "Equal"
-          value    = "arm64"
+          value    = var.toleration_k8s_arch_preprod
         }
       ]
     }
@@ -139,7 +139,7 @@ module "ext_cardano_node" {
           effect   = "NoSchedule"
           key      = "kubernetes.io/arch"
           operator = "Equal"
-          value    = "arm64"
+          value    = var.toleration_k8s_arch_preview
         }
       ]
     }
