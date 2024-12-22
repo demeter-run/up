@@ -50,6 +50,11 @@ variable "storage_class_name_mainnet" {
   default     = "pd-ssd"
 }
 
+variable "toleration_k8s_arch_mainnet" {
+  description = "toleration for the k8s arch"
+  default     = "amd64"
+}
+
 variable "storage_size_preprod" {
   description = "size of the storage for the preprod"
   default     = "50Gi"
@@ -60,6 +65,11 @@ variable "storage_class_name_preprod" {
   default     = "pd-ssd"
 }
 
+variable "toleration_k8s_arch_preprod" {
+  description = "toleration for the k8s arch"
+  default     = "amd64"
+}
+
 variable "storage_size_preview" {
   description = "size of the storage for the preview"
   default     = "50Gi"
@@ -68,6 +78,11 @@ variable "storage_size_preview" {
 variable "storage_class_name_preview" {
   description = "name of the storage class for the preview"
   default     = "pd-ssd"
+}
+
+variable "toleration_k8s_arch_preview" {
+  description = "toleration for the k8s arch"
+  default     = "amd64"
 }
 
 # Kupo extension
