@@ -22,7 +22,7 @@ locals {
   kupo_v1_proxy_green_image_tag = "9c0d2ed7d7758c85106d65a171f306bba7d5c64a"
   kupo_v1_proxy_green_replicas  = "1"
   kupo_v1_proxy_blue_image_tag  = "9c0d2ed7d7758c85106d65a171f306bba7d5c64a"
-  kupo_v1_proxy_blue_replicas   = "0"
+  kupo_v1_proxy_blue_replicas   = "1"
   kupo_v1_proxy_resources = {
     limits = {
       cpu    = "100m"
