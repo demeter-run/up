@@ -9,7 +9,7 @@ locals {
   ogmios_v1_proxy_green_image_tag = "40ca4f0e8addc0c64c679e25a6f95d31a9e443c8"
   ogmios_v1_proxy_green_replicas  = "1"
   ogmios_v1_proxy_blue_image_tag  = "40ca4f0e8addc0c64c679e25a6f95d31a9e443c8"
-  ogmios_v1_proxy_blue_replicas   = "0"
+  ogmios_v1_proxy_blue_replicas   = "1"
   ogmios_v1_proxy_resources = {
     limits = {
       cpu    = "100m"
