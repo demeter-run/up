@@ -3,7 +3,7 @@ locals {
   utxorpc_defaults = {
     namespace             = "ext-utxorpc-m0"
     dns_zone              = "utxorpc.cloud"
-    operator_image_tag    = "a0db1920b5d23321d26b8a2de5b17476b1d73c7b"
+    operator_image_tag    = "0ecf1644a0554d3c34f4256b6765c80a02986e15"
     networks              = ["cardano-mainnet", "cardano-preprod", "cardano-preview"]
     cloudflared_image_tag = "latest"
     cloudflared_replicas  = 0
@@ -34,7 +34,7 @@ locals {
         operator = "Exists"
       }
     ]
-    proxies_image_tag = "a0db1920b5d23321d26b8a2de5b17476b1d73c7b"
+    proxies_image_tag = "7941eec9a681ace6fdaeb7e18d9fb2b26d3cfae3"
     proxies_replicas  = 0
     proxies_resources = {
       limits = {
@@ -67,14 +67,14 @@ locals {
     cloudflared_tunnel_id     = "default-tunnel-id"
     cloudflared_tunnel_secret = "default-tunnel-secret"
     cloudflared_account_tag   = "default-account-tag"
+    dolos_version             = "sha-e0f42cf"
     extension_subdomain       = "utxorpc"
     api_key_salt              = "this is a random generated key and must be shared..."
   }
 }
 
 module "ext_cardano_utxorpc" {
-  # source   = "git::https://github.com/demeter-run/ext-cardano-utxorpc//bootstrap/"
-  source   = "git::https://github.com/blinklabs-io/demeter-ext-cardano-utxorpc.git//bootstrap?ref=feat/use-unnamed-volume"
+  source   = "git::https://github.com/demeter-run/ext-cardano-utxorpc//bootstrap/"
   for_each = toset([for n in toset(["v1"]) : n if var.enable_cardano_utxorpc])
 
   operator_image_tag  = local.utxorpc_defaults.operator_image_tag
@@ -139,7 +139,7 @@ module "ext_cardano_utxorpc" {
       }
       instances = {
         "cardano-preview" = {
-          dolos_version = "sha-1618ebb"
+          dolos_version = local.utxorpc_defaults.dolos_version
           replicas      = 1
           resources = {
             limits = {
@@ -153,7 +153,7 @@ module "ext_cardano_utxorpc" {
           }
         }
         # "cardano-preprod" = {
-        #   dolos_version = "sha-1618ebb"
+        #   dolos_version = local.utxorpc_defaults.dolos_version
         #   replicas      = 1
         #   resources = {
         #     limits = {
@@ -167,7 +167,7 @@ module "ext_cardano_utxorpc" {
         #   }
         # }
         # "cardano-mainnet" = {
-        #   dolos_version = "sha-1618ebb"
+        #   dolos_version = local.utxorpc_defaults.dolos_version
         #   replicas      = 1
         #   resources = {
         #     limits = {
