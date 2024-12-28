@@ -134,8 +134,8 @@ module "ext_cardano_utxorpc" {
         }
       ]
       pvc = {
-        storage_class = "gp-immediate"
-        storage_size  = "30Gi"
+        storage_class = "gp"
+        storage_size  = "600Gi"
       }
       instances = {
         "cardano-preview" = {
@@ -152,34 +152,34 @@ module "ext_cardano_utxorpc" {
             }
           }
         }
-        # "cardano-preprod" = {
-        #   dolos_version = local.utxorpc_defaults.dolos_version
-        #   replicas      = 1
-        #   resources = {
-        #     limits = {
-        #       cpu    = "1000m"
-        #       memory = "8Gi"
-        #     }
-        #     requests = {
-        #       cpu    = "50m"
-        #       memory = "512Mi"
-        #     }
-        #   }
-        # }
-        # "cardano-mainnet" = {
-        #   dolos_version = local.utxorpc_defaults.dolos_version
-        #   replicas      = 1
-        #   resources = {
-        #     limits = {
-        #       cpu    = "1000m"
-        #       memory = "8Gi"
-        #     }
-        #     requests = {
-        #       cpu    = "50m"
-        #       memory = "512Mi"
-        #     }
-        #   }
-        # }
+        "cardano-preprod" = {
+          dolos_version = local.utxorpc_defaults.dolos_version
+          replicas      = 1
+          resources = {
+            limits = {
+              cpu    = "1000m"
+              memory = "8Gi"
+            }
+            requests = {
+              cpu    = "50m"
+              memory = "512Mi"
+            }
+          }
+        }
+        "cardano-mainnet" = {
+          dolos_version = local.utxorpc_defaults.dolos_version
+          replicas      = 1
+          resources = {
+            limits = {
+              cpu    = "2"
+              memory = "8Gi"
+            }
+            requests = {
+              cpu    = "50m"
+              memory = "512Mi"
+            }
+          }
+        }
       }
     }
   }
