@@ -2,7 +2,7 @@ locals {
   // Defaults for UtxoRPC
   utxorpc_defaults = {
     namespace             = "ext-utxorpc-m0"
-    dns_zone              = "utxorpc.cloud"
+    dns_zone              = "dmtr.host"
     operator_image_tag    = "0ecf1644a0554d3c34f4256b6765c80a02986e15"
     networks              = ["cardano-mainnet", "cardano-preprod", "cardano-preview"]
     cloudflared_image_tag = "latest"
@@ -35,7 +35,7 @@ locals {
       }
     ]
     proxies_image_tag = "7941eec9a681ace6fdaeb7e18d9fb2b26d3cfae3"
-    proxies_replicas  = 0
+    proxies_replicas  = 1
     proxies_resources = {
       limits = {
         cpu    = "2"
@@ -71,6 +71,11 @@ locals {
     extension_subdomain       = "utxorpc"
     api_key_salt              = "this is a random generated key and must be shared..."
   }
+}
+
+module "ext_cardano_utxorpc_crds" {
+  source   = "git::https://github.com/demeter-run/ext-cardano-utxorpc//bootstrap/crds"
+  for_each = toset(var.enable_cardano_utxorpc ? ["global"] : [])
 }
 
 module "ext_cardano_utxorpc" {
