@@ -78,3 +78,15 @@ variable "dmtrd_replicas" {
   default     = 1
   description = "Amount of Demeter daemon replicas."
 }
+
+variable "enable_grafana" {
+  description = "Flag to enable or disable Grafana installation"
+  type        = bool
+  default     = false
+}
+
+variable "enable_alertmanager" {
+  description = "Flag to enable or disable Alertmanager installation"
+  type        = bool
+  default     = false
+}

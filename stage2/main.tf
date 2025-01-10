@@ -46,6 +46,8 @@ module "o11y" {
   source        = "../modules/common/o11y/stage2"
   namespace     = var.dmtr_namespace
   storage_class = var.cloud_provider == "gcp" ? "hyperdisk-balanced" : "gp"
+  enable_grafana = var.enable_grafana
+  enable_alertmanager = var.enable_alertmanager
 }
 
 module "dmtrd" {

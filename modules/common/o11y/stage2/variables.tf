@@ -6,3 +6,15 @@ variable "storage_class" {
   description = "storage class name to use for workload PVCs"
   default     = "gp"
 }
+
+variable "enable_grafana" {
+  description = "Flag to enable or disable Grafana installation"
+  type        = bool
+  default     = false
+}
+
+variable "enable_alertmanager" {
+  description = "Flag to enable or disable Alertmanager installation"
+  type        = bool
+  default     = false
+}

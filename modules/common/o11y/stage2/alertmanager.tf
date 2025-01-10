@@ -1,4 +1,5 @@
 resource "kubernetes_manifest" "alertmanager" {
+  count = var.enable_alertmanager ? 1 : 0
   manifest = {
     "apiVersion" = "monitoring.coreos.com/v1"
     "kind"       = "Alertmanager"
