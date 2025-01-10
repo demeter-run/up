@@ -1,4 +1,5 @@
 resource "kubernetes_config_map" "grafana_config" {
+  count = var.enable_grafana ? 1 : 0
   metadata {
     name      = "grafana-config"
     namespace = var.namespace
@@ -18,6 +19,7 @@ resource "kubernetes_config_map" "grafana_config" {
 }
 
 resource "kubernetes_stateful_set_v1" "grafana" {
+  count = var.enable_grafana ? 1 : 0
   metadata {
     name      = "grafana"
     namespace = var.namespace
@@ -163,6 +165,7 @@ resource "kubernetes_stateful_set_v1" "grafana" {
 }
 
 resource "kubernetes_service" "grafana" {
+  count = var.enable_grafana ? 1 : 0
   metadata {
     name      = "grafana"
     namespace = var.namespace
