@@ -19,7 +19,7 @@ resource "helm_release" "kong" {
         effect: "NoSchedule"
       - key: "demeter.run/compute-profile"
         operator: "Equal"
-        value: "admin"
+        value: "general-purpose"
         effect: "NoSchedule"
       - key: "demeter.run/availability-sla"
         operator: "Equal"

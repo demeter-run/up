@@ -23,13 +23,14 @@ managed_node_groups:
         effect: NO_SCHEDULE
     availability_zones: us-central1-a
 
+  # Enamble for HA
   - name: gke-system-az2
     labels:
       gke-managed-components: "true"
     instance_type: n4-standard-2
-    min_size: 1
-    max_size: 1
-    desired_capacity: 1
+    min_size: 0
+    max_size: 0
+    desired_capacity: 0
     disk_size_gb: 40
     taints:
       - key: components.gke.io/gke-managed-components
@@ -37,52 +38,52 @@ managed_node_groups:
         effect: NO_SCHEDULE
     availability_zones: us-central1-b
 
-  # Consistent
-  - name: co-ad-x86-az1
-    labels:
-      demeter.run/availability-sla: consistent
-      demeter.run/compute-profile: admin
-      demeter.run/compute-arch: x86
-      demeter.run/availability-zone: az1
-    instance_type: n4-standard-2
-    min_size: 1
-    max_size: 2
-    desired_capacity: 1
-    disk_size_gb: 40
-    taints:
-      - key: demeter.run/availability-sla
-        value: "consistent"
-        effect: NO_SCHEDULE
-      - key: demeter.run/compute-profile
-        value: "admin"
-        effect: NO_SCHEDULE
-      - key: demeter.run/compute-arch
-        value: "x86"
-        effect: NO_SCHEDULE
-    availability_zones: us-central1-a
+  # Consistent - Admin (optional)
+  # - name: co-ad-x86-az1
+  #   labels:
+  #     demeter.run/availability-sla: consistent
+  #     demeter.run/compute-profile: admin
+  #     demeter.run/compute-arch: x86
+  #     demeter.run/availability-zone: az1
+  #   instance_type: n4-standard-2
+  #   min_size: 1
+  #   max_size: 2
+  #   desired_capacity: 1
+  #   disk_size_gb: 40
+  #   taints:
+  #     - key: demeter.run/availability-sla
+  #       value: "consistent"
+  #       effect: NO_SCHEDULE
+  #     - key: demeter.run/compute-profile
+  #       value: "admin"
+  #       effect: NO_SCHEDULE
+  #     - key: demeter.run/compute-arch
+  #       value: "x86"
+  #       effect: NO_SCHEDULE
+  #   availability_zones: us-central1-a
 
-  - name: co-ad-x86-az2
-    labels:
-      demeter.run/availability-sla: consistent
-      demeter.run/compute-profile: admin
-      demeter.run/compute-arch: x86
-      demeter.run/availability-zone: az2
-    instance_type: n4-standard-2
-    min_size: 0
-    max_size: 1
-    desired_capacity: 0
-    disk_size_gb: 40
-    taints:
-      - key: demeter.run/availability-sla
-        value: "consistent"
-        effect: NO_SCHEDULE
-      - key: demeter.run/compute-profile
-        value: "admin"
-        effect: NO_SCHEDULE
-      - key: demeter.run/compute-arch
-        value: "x86"
-        effect: NO_SCHEDULE
-    availability_zones: us-central1-b
+  # - name: co-ad-x86-az2
+  #   labels:
+  #     demeter.run/availability-sla: consistent
+  #     demeter.run/compute-profile: admin
+  #     demeter.run/compute-arch: x86
+  #     demeter.run/availability-zone: az2
+  #   instance_type: n4-standard-2
+  #   min_size: 0
+  #   max_size: 1
+  #   desired_capacity: 0
+  #   disk_size_gb: 40
+  #   taints:
+  #     - key: demeter.run/availability-sla
+  #       value: "consistent"
+  #       effect: NO_SCHEDULE
+  #     - key: demeter.run/compute-profile
+  #       value: "admin"
+  #       effect: NO_SCHEDULE
+  #     - key: demeter.run/compute-arch
+  #       value: "x86"
+  #       effect: NO_SCHEDULE
+  #   availability_zones: us-central1-b
 
   - name: co-gp-x86-az1
     labels:
@@ -232,7 +233,7 @@ managed_node_groups:
     instance_type: n2-standard-4
     min_size: 0
     max_size: 1
-    desired_capacity: 1
+    desired_capacity: 0
     disk_size_gb: 100
     disk_type: pd-ssd
     spot: true

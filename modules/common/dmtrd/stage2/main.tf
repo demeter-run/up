@@ -69,7 +69,7 @@ module "dmtr_daemon" {
       effect   = "NoSchedule"
       key      = "demeter.run/compute-profile"
       operator = "Equal"
-      value    = "admin"
+      value    = "general-purpose"
     },
     {
       effect   = "NoSchedule"
