@@ -397,6 +397,11 @@ variable "enable_postgres_cluster" {
   default     = false
 }
 
+variable "namespace_cardano_data" {
+  description = "The namespace where to install components that will connect to postgres"
+  default     = "cardano-data"
+}
+
 # UtxoRPC extension
 variable "enable_cardano_utxorpc" {
   description = "enable ext-cardano-utxorpc support"
@@ -406,4 +411,25 @@ variable "enable_cardano_utxorpc" {
 variable "utxorpc" {
   description = "Configuration for the UtxoRPC extension"
   default     = {}
+}
+
+# DBsync extension
+variable "enable_cardano_dbsync" {
+  description = "enable ext-cardano-dbsync-serveless support"
+  default     = false
+}
+
+variable "dbsync_postgres_password" {
+  description = "password for the postgres database"
+  default     = "changeme"
+}
+
+variable "dbsync_pgbouncer_server_crt" {
+  description = "server certificate for pgbouncer"
+  default     = ""
+}
+
+variable "dbsync_pgbouncer_server_key" {
+  description = "server key for pgbouncer"
+  default     = ""
 }

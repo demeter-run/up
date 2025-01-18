@@ -1,3 +1,32 @@
+locals {
+  postgres_tolerations = [
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-profile"
+      operator = "Equal"
+      value    = "general-purpose"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-arch"
+      operator = "Equal"
+      value    = "arm64"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/availability-sla"
+      operator = "Equal"
+      value    = "consistent"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "kubernetes.io/arch"
+      operator = "Equal"
+      value    = "arm64"
+    }
+  ]
+}
+
 resource "helm_release" "postgres_operator" {
   for_each         = toset([for n in toset(["v1"]) : n if var.enable_postgres_operator])
   name             = "postgres-operator"
@@ -16,45 +45,19 @@ resource "helm_release" "postgres_operator" {
           memory = "256Mi"
         }
       }
-
-      tolerations = [
-        {
-          key      = "demeter.run/compute-profile"
-          operator = "Equal"
-          value    = "general-purpose"
-          effect   = "NoSchedule"
-        },
-        {
-          key      = "demeter.run/compute-arch"
-          operator = "Equal"
-          value    = "arm64"
-          effect   = "NoSchedule"
-        },
-        {
-          key      = "demeter.run/availability-sla"
-          operator = "Equal"
-          value    = "consistent"
-          effect   = "NoSchedule"
-        },
-        {
-          key      = "kubernetes.io/arch"
-          operator = "Equal"
-          value    = "arm64"
-          effect   = "NoSchedule"
-        }
-      ]
+      tolerations = local.postgres_tolerations
     })
   ]
 }
 
-resource "kubernetes_namespace" "postgres" {
+resource "kubernetes_namespace" "cardano_data" {
   metadata {
-    name = "postgres"
+    name = var.namespace_cardano_data
   }
 }
 
 resource "null_resource" "ensure_namespace_postgres" {
-  depends_on = [kubernetes_namespace.postgres]
+  depends_on = [kubernetes_namespace.cardano_data]
 }
 
 resource "kubernetes_manifest" "postgres_cluster_dbsync" {
@@ -66,7 +69,7 @@ resource "kubernetes_manifest" "postgres_cluster_dbsync" {
     "kind"       = "postgresql"
     "metadata" = {
       "name"      = "dbsync-cluster"
-      "namespace" = "postgres"
+      "namespace" = kubernetes_namespace.cardano_data.metadata[0].name
     }
     "spec" = {
       "teamId" = "dbsync"
@@ -88,42 +91,41 @@ resource "kubernetes_manifest" "postgres_cluster_dbsync" {
       "users" = {
         "dbsync_owner" = ["superuser", "createdb"]
         "dbsync_app"   = []
+        "pooler"       = []
       }
       "databases" = {
         "dbsync_preview" = "dbsync_owner"
         "dbsync_preprod" = "dbsync_owner"
         "dbsync_mainnet" = "dbsync_owner"
       }
-      "tolerations" = [
-        {
-          effect   = "NoSchedule"
-          key      = "demeter.run/compute-profile"
-          operator = "Equal"
-          value    = "general-purpose"
-        },
-        {
-          effect   = "NoSchedule"
-          key      = "demeter.run/compute-arch"
-          operator = "Equal"
-          value    = "arm64"
-        },
-        {
-          effect   = "NoSchedule"
-          key      = "demeter.run/availability-sla"
-          operator = "Equal"
-          value    = "consistent"
-        },
-        {
-          effect   = "NoSchedule"
-          key      = "kubernetes.io/arch"
-          operator = "Equal"
-          value    = "arm64"
-        }
-      ]
+      "tolerations" = local.postgres_tolerations
       "volume" = {
         "size"         = "55Gi"
         "storageClass" = "hyperdisk-balanced"
       }
+      # TODO Disable connection pooler for now until we build an arm64 compatible image
+      "enableConnectionPooler" = false
+      # "connectionPooler" = {
+      #   # Only x86 images are available for now
+      #   # Bitnami image is not compatible with Zalando Postgres Operator
+      #   # We can't inject our own environment variables into the connection pooler
+      #   # Tolerations are not sperately configurable for the connection pooler from postgres instances
+      #   # registry.opensource.zalan.do/acid/pgbouncer:master-32
+      #   "numberOfInstances" = 1
+      #   "mode"              = "transaction"
+      #   "schema"            = "pooler"
+      #   "user"              = "pooler"
+      #   "resources" = {
+      #     "requests" = {
+      #       "cpu"    = "500m"
+      #       "memory" = "100Mi"
+      #     }
+      #     "limits" = {
+      #       "cpu"    = "1"
+      #       "memory" = "100Mi"
+      #     }
+      #   }
+      # }
     }
   }
 }

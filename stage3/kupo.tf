@@ -99,6 +99,35 @@ module "ext_cardano_kupo" {
             }
           }
         }
+        # "instance2" = {
+        #   suffix        = "instance2"
+        #   image_tag     = "3004904029a647a8c2b92e6eba1737e18b2ed2a4"
+        #   network       = "preview"
+        #   pruned        = true
+        #   defer_indexes = true
+        #   # Node connection to socket over n2c
+        #   n2n_endpoint = "node-preview-stable.ext-nodes-m1.svc.cluster.local:3307"
+        #   resources = {
+        #     limits = {
+        #       cpu    = "1"
+        #       memory = "4Gi"
+        #     }
+        #     requests = {
+        #       cpu    = "250m"
+        #       memory = "4Gi"
+        #     }
+        #   }
+        #   tolerations = var.kupo_v1_tolerations
+        #   node_affinity = {
+        #     required_during_scheduling_ignored_during_execution = {
+        #       node_selector_term = [
+        #         {
+        #           match_expressions = var.kupo_v1_cell1_preview_node_affinity
+        #         }
+        #       ]
+        #     }
+        #   }
+        # }
       }
     }
     "cell2" = {
