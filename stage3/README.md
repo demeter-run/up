@@ -64,3 +64,8 @@ The execution of the command might take a while depending on the specific cluste
 ## Next Steps
 
 You're done with cluster provisioning! You can start using your Demeter instance.
+
+### ext-dbsync
+
+The `ext-dbsync` module currently needs manual hand holding to get it up and running.
+We need to manualy create database for each network we want to sync.
