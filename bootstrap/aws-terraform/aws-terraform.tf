@@ -3,6 +3,8 @@ provider "aws" {
   region = local.region
 }
 
+data "aws_caller_identity" "current" {}
+
 # Create a dynamodb table for storing terraform state locks
 resource "aws_dynamodb_table" "this" {
   for_each = toset([for t in toset(["terraform-state-lock"]) : t if local.cloud_provider == "aws"])
@@ -132,4 +134,121 @@ resource "aws_s3_bucket_versioning" "this" {
   versioning_configuration {
     status = "Enabled"
   }
+}
+
+resource "aws_iam_policy" "cluster_admin_policy" {
+  for_each = toset([for b in toset(["iam-cluster-admin"]) : b if local.cloud_provider == "aws"])
+
+  depends_on = [
+    aws_s3_bucket.this,
+    aws_dynamodb_table.this
+  ]
+
+  name        = "ClusterAdminPolicy"
+  path        = "/"
+  description = "Allows full access to EKS cluster resources"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
+          "s3:ListBucketVersions",
+        ],
+        Resource = [
+          aws_s3_bucket.this["terraform-state"].arn,
+        ],
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+        ],
+        Resource = [
+          "${aws_s3_bucket.this["terraform-state"].arn}/*",
+        ],
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "dynamodb:DescribeTable",
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:UpdateItem",
+        ],
+        Resource = [
+          aws_dynamodb_table.this["terraform-state-lock"].arn,
+        ],
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "autoscaling:Describe*",
+
+          "kms:DescribeKey",
+          "kms:Decrypt",
+          "kms:ListAliases",
+          "kms:GenerateDataKey",
+
+          "eks:Describe*",
+          "eks:UpdateNodegroupConfig",
+
+          "iam:GetPolicy",
+          "iam:GetRole",
+          "iam:GetPolicyVersion",
+          "iam:GetRolePolicy",
+          "iam:GetOpenIDConnectProvider",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
+
+          "ec2:Describe*",
+
+          "logs:DescribeLogGroups",
+          "logs:ListTagsForResource",
+          "logs:ListTagsLogGroup",
+        ],
+        Resource = [
+          "*"
+        ],
+      },
+    ],
+  })
+}
+
+
+resource "aws_iam_role" "cluster_admin_role" {
+  for_each = toset([for b in toset(["iam-cluster-admin"]) : b if local.cloud_provider == "aws"])
+
+  depends_on = [
+    aws_iam_policy.cluster_admin_policy
+  ]
+
+  name = "ClusterAdminRole"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "Statement1"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action = [
+          "sts:AssumeRole",
+          "sts:TagSession"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "cluster_admin" {
+  name       = "ClusterAdmin"
+  roles      = [aws_iam_role.cluster_admin_role["iam-cluster-admin"].name]
+  policy_arn = aws_iam_policy.cluster_admin_policy["iam-cluster-admin"].arn
 }
