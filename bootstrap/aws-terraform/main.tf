@@ -1,6 +1,6 @@
 locals {
-  default_vars = yamldecode(file("../common/defaults.yaml"))
-  config_vars  = try(yamldecode(file("../config.yaml")), {})
+  default_vars = yamldecode(file("../../common/defaults.yaml"))
+  config_vars  = try(yamldecode(file("../../config.yaml")), {})
 
   cloud_provider = try(
     local.config_vars.cloud_provider,

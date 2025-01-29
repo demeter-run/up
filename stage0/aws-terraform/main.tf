@@ -152,7 +152,7 @@ module "aws_cluster_vpc_cni_irsa" {
 
 module "aws_cluster_eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 19.0"
+  version = "~> 20.33.1"
 
   cluster_name    = local.name
   cluster_version = local.cluster_version
@@ -340,19 +340,29 @@ module "aws_cluster_eks" {
     }
   }
 
-  manage_aws_auth_configmap = true
+  kms_key_administrators = try(local.config_vars.kms_key_administrators, null)
 
-  aws_auth_roles = [
-    {
-      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AdministratorAccess"
-      username = "admin"
-      groups   = ["system:masters"]
-    },
-  ]
+  authentication_mode = "API_AND_CONFIG_MAP"
+  access_entries = {
+    cluster_admin = {
+      principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ClusterAdminRole"
 
-  aws_auth_accounts = [
-    data.aws_caller_identity.current.account_id,
-  ]
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+        cluster_admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
 
   tags = local.tags
 }
@@ -420,7 +430,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.31.0"
+      version = "~> 5.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
