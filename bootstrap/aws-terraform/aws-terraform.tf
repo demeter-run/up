@@ -153,8 +153,8 @@ resource "aws_iam_policy" "cluster_admin_policy" {
       {
         Effect = "Allow",
         Action = [
+          "s3:Get*",
           "s3:ListBucket",
-          "s3:GetBucketLocation",
           "s3:ListBucketVersions",
         ],
         Resource = [
@@ -164,9 +164,9 @@ resource "aws_iam_policy" "cluster_admin_policy" {
       {
         Effect = "Allow",
         Action = [
+          "s3:DeleteObject",
           "s3:GetObject",
           "s3:PutObject",
-          "s3:DeleteObject",
         ],
         Resource = [
           "${aws_s3_bucket.this["terraform-state"].arn}/*",
@@ -175,10 +175,13 @@ resource "aws_iam_policy" "cluster_admin_policy" {
       {
         Effect = "Allow",
         Action = [
-          "dynamodb:DescribeTable",
-          "dynamodb:GetItem",
-          "dynamodb:PutItem",
           "dynamodb:DeleteItem",
+          "dynamodb:DescribeContinuousBackups",
+          "dynamodb:DescribeTable",
+          "dynamodb:DescribeTimeToLive",
+          "dynamodb:GetItem",
+          "dynamodb:ListTagsOfResource",
+          "dynamodb:PutItem",
           "dynamodb:UpdateItem",
         ],
         Resource = [
@@ -189,25 +192,31 @@ resource "aws_iam_policy" "cluster_admin_policy" {
         Effect = "Allow",
         Action = [
           "autoscaling:Describe*",
-
-          "kms:DescribeKey",
-          "kms:Decrypt",
-          "kms:ListAliases",
-          "kms:GenerateDataKey",
-
+          "ec2:Describe*",
           "eks:Describe*",
           "eks:UpdateNodegroupConfig",
-
-          "iam:GetPolicy",
-          "iam:GetRole",
-          "iam:GetPolicyVersion",
-          "iam:GetRolePolicy",
+          "iam:CreatePolicy",
+          "iam:CreatePolicyVersion",
+          "iam:DeletePolicyVersion",
           "iam:GetOpenIDConnectProvider",
-          "iam:ListRolePolicies",
+          "iam:GetPolicy",
+          "iam:GetPolicyVersion",
+          "iam:GetRole",
+          "iam:GetRolePolicy",
+          "iam:GetUser",
           "iam:ListAttachedRolePolicies",
-
-          "ec2:Describe*",
-
+          "iam:ListAttachedUserPolicies",
+          "iam:ListEntitiesForPolicy",
+          "iam:ListPolicyVersions",
+          "iam:ListRolePolicies",
+          "kms:Decrypt",
+          "kms:DescribeKey",
+          "kms:GenerateDataKey",
+          "kms:GetKeyPolicy",
+          "kms:GetKeyRotationStatus",
+          "kms:GetKeyRotationStatus",
+          "kms:ListAliases",
+          "kms:ListResourceTags",
           "logs:DescribeLogGroups",
           "logs:ListTagsForResource",
           "logs:ListTagsLogGroup",
