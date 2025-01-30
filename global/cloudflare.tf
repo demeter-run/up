@@ -67,6 +67,8 @@ resource "cloudflare_zone_settings_override" "this" {
   }
 }
 
+# Tunnels
+
 resource "cloudflare_tunnel" "this" {
   for_each = { for k in var.cloudflare_tunnels : k.name => k }
 
@@ -111,11 +113,13 @@ resource "cloudflare_record" "tunnels" {
   proxied = true
 }
 
-resource "cloudflare_load_balancer_pool" "tunnels" {
+# Workloads
+
+resource "cloudflare_load_balancer_pool" "workloads" {
   name = "Workloads"
 
   account_id = var.cloudflare_account_id
-  monitor    = cloudflare_load_balancer_monitor.tunnels_monitor.id
+  monitor    = cloudflare_load_balancer_monitor.workloads_monitor.id
 
   dynamic "origins" {
     for_each = { for k in var.cloudflare_tunnels : k.name => k }
@@ -126,18 +130,18 @@ resource "cloudflare_load_balancer_pool" "tunnels" {
   }
 }
 
-resource "cloudflare_load_balancer" "tunnels" {
+resource "cloudflare_load_balancer" "workloads" {
   zone_id          = var.cloudflare_zone_id
   name             = "*.${var.cloudflare_zone_name}"
-  default_pool_ids = [cloudflare_load_balancer_pool.tunnels.id]
-  fallback_pool_id = cloudflare_load_balancer_pool.tunnels.id
+  default_pool_ids = [cloudflare_load_balancer_pool.workloads.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.workloads.id
   proxied          = true
 }
 
-resource "cloudflare_load_balancer_monitor" "tunnels_monitor" {
+resource "cloudflare_load_balancer_monitor" "workloads_monitor" {
   account_id     = var.cloudflare_account_id
   type           = "https"
-  description    = "Health check for tunnels"
+  description    = "Health check for workloads"
   path           = "/ping_provider_healthcheck"
   interval       = 60
   timeout        = 5
@@ -150,6 +154,8 @@ resource "cloudflare_load_balancer_monitor" "tunnels_monitor" {
     values = ["health.dmtr.host"]
   }
 }
+
+# Preview Kupo
 
 resource "cloudflare_load_balancer_pool" "preview_v2_kupo_m1" {
   name = "PreviewV2KupoM1"
