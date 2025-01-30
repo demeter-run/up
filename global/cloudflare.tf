@@ -16,7 +16,7 @@ variable "cloudflare_cardano_node_origins" {
     address = optional(string, "")
   }))
 }
-variable "cloudflare_kupo_preview_origins" {
+variable "cloudflare_kupo_origins" {
   type = list(object({
     name    = string
     address = optional(string, "")
@@ -161,16 +161,16 @@ resource "cloudflare_load_balancer_monitor" "workloads_monitor" {
   }
 }
 
-# Preview Kupo
+# Kupo
 
-resource "cloudflare_load_balancer_pool" "preview_v2_kupo_m1" {
-  name = "PreviewV2KupoM1"
+resource "cloudflare_load_balancer_pool" "kupo_m1" {
+  name = "KupoM1"
 
   account_id = var.cloudflare_account_id
-  monitor    = cloudflare_load_balancer_monitor.preview_v2_kupo_m1_monitor.id
+  monitor    = cloudflare_load_balancer_monitor.kupo_m1_monitor.id
 
   dynamic "origins" {
-    for_each = { for k in var.cloudflare_kupo_preview_origins : k.name => k }
+    for_each = { for k in var.cloudflare_kupo_origins : k.name => k }
     content {
       name    = origins.value.name
       address = origins.value.address != "" ? origins.value.address : "${origins.value.name}.${var.cloudflare_zone_name}"
@@ -178,26 +178,18 @@ resource "cloudflare_load_balancer_pool" "preview_v2_kupo_m1" {
   }
 }
 
-resource "cloudflare_load_balancer" "preview_v2_kupo_m1" {
+resource "cloudflare_load_balancer" "kupo_m1" {
   zone_id          = var.cloudflare_zone_id
-  name             = "preview-v2.kupo-m1.${var.cloudflare_zone_name}"
-  default_pool_ids = [cloudflare_load_balancer_pool.preview_v2_kupo_m1.id]
-  fallback_pool_id = cloudflare_load_balancer_pool.preview_v2_kupo_m1.id
+  name             = "*.kupo-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.kupo_m1.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.kupo_m1.id
   proxied          = false
 }
 
-resource "cloudflare_load_balancer" "splat_preview_v2_kupo_m1" {
-  zone_id          = var.cloudflare_zone_id
-  name             = "*.preview-v2.kupo-m1.${var.cloudflare_zone_name}"
-  default_pool_ids = [cloudflare_load_balancer_pool.preview_v2_kupo_m1.id]
-  fallback_pool_id = cloudflare_load_balancer_pool.preview_v2_kupo_m1.id
-  proxied          = false
-}
-
-resource "cloudflare_load_balancer_monitor" "preview_v2_kupo_m1_monitor" {
+resource "cloudflare_load_balancer_monitor" "kupo_m1_monitor" {
   account_id     = var.cloudflare_account_id
   type           = "http"
-  description    = "Health check for preview_v2_kupo_m1"
+  description    = "Health check for kupo_m1"
   path           = "/healthcheck"
   interval       = 60
   timeout        = 5
@@ -229,14 +221,6 @@ resource "cloudflare_load_balancer_pool" "cardano_node_m1" {
 }
 
 resource "cloudflare_load_balancer" "cardano_node_m1" {
-  zone_id          = var.cloudflare_zone_id
-  name             = "cnode-m1.${var.cloudflare_zone_name}"
-  default_pool_ids = [cloudflare_load_balancer_pool.cardano_node_m1.id]
-  fallback_pool_id = cloudflare_load_balancer_pool.cardano_node_m1.id
-  proxied          = false
-}
-
-resource "cloudflare_load_balancer" "splat_cardano_node_m1" {
   zone_id          = var.cloudflare_zone_id
   name             = "*.cnode-m1.${var.cloudflare_zone_name}"
   default_pool_ids = [cloudflare_load_balancer_pool.cardano_node_m1.id]
