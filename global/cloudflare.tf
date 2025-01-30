@@ -22,6 +22,12 @@ variable "cloudflare_kupo_origins" {
     address = optional(string, "")
   }))
 }
+variable "cloudflare_ogmios_origins" {
+  type = list(object({
+    name    = string
+    address = optional(string, "")
+  }))
+}
 
 locals {
   cloudflare_zone_names = [
@@ -119,36 +125,36 @@ resource "cloudflare_record" "tunnels" {
   proxied = true
 }
 
-# Workloads
+# Cardano Node
 
-resource "cloudflare_load_balancer_pool" "workloads" {
-  name = "Workloads"
+resource "cloudflare_load_balancer_pool" "cardano_node_m1" {
+  name = "CardanoNodeM1"
 
   account_id = var.cloudflare_account_id
-  monitor    = cloudflare_load_balancer_monitor.workloads_monitor.id
+  monitor    = cloudflare_load_balancer_monitor.cardano_node_m1_monitor.id
 
   dynamic "origins" {
-    for_each = { for k in var.cloudflare_tunnels : k.name => k }
+    for_each = { for k in var.cloudflare_cardano_node_origins : k.name => k }
     content {
       name    = origins.value.name
-      address = cloudflare_tunnel.this[origins.value.name].cname
+      address = origins.value.address != "" ? origins.value.address : "${origins.value.name}.${var.cloudflare_zone_name}"
     }
   }
 }
 
-resource "cloudflare_load_balancer" "workloads" {
+resource "cloudflare_load_balancer" "cardano_node_m1" {
   zone_id          = var.cloudflare_zone_id
-  name             = "*.${var.cloudflare_zone_name}"
-  default_pool_ids = [cloudflare_load_balancer_pool.workloads.id]
-  fallback_pool_id = cloudflare_load_balancer_pool.workloads.id
-  proxied          = true
+  name             = "*.cnode-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.cardano_node_m1.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.cardano_node_m1.id
+  proxied          = false
 }
 
-resource "cloudflare_load_balancer_monitor" "workloads_monitor" {
+resource "cloudflare_load_balancer_monitor" "cardano_node_m1_monitor" {
   account_id     = var.cloudflare_account_id
-  type           = "https"
-  description    = "Health check for workloads"
-  path           = "/ping_provider_healthcheck"
+  type           = "http"
+  description    = "Health check for cardano_node_m1"
+  path           = "/healthcheck"
   interval       = 60
   timeout        = 5
   retries        = 2
@@ -157,7 +163,7 @@ resource "cloudflare_load_balancer_monitor" "workloads_monitor" {
 
   header {
     header = "Host"
-    values = ["health.dmtr.host"]
+    values = ["cnode-m1.dmtr.host"]
   }
 }
 
@@ -203,16 +209,16 @@ resource "cloudflare_load_balancer_monitor" "kupo_m1_monitor" {
   }
 }
 
-# Cardano Node
+# Ogmios
 
-resource "cloudflare_load_balancer_pool" "cardano_node_m1" {
-  name = "CardanoNodeM1"
+resource "cloudflare_load_balancer_pool" "ogmios_m1" {
+  name = "OgmiosM1"
 
   account_id = var.cloudflare_account_id
-  monitor    = cloudflare_load_balancer_monitor.cardano_node_m1_monitor.id
+  monitor    = cloudflare_load_balancer_monitor.ogmios_m1_monitor.id
 
   dynamic "origins" {
-    for_each = { for k in var.cloudflare_cardano_node_origins : k.name => k }
+    for_each = { for k in var.cloudflare_ogmios_origins : k.name => k }
     content {
       name    = origins.value.name
       address = origins.value.address != "" ? origins.value.address : "${origins.value.name}.${var.cloudflare_zone_name}"
@@ -220,18 +226,18 @@ resource "cloudflare_load_balancer_pool" "cardano_node_m1" {
   }
 }
 
-resource "cloudflare_load_balancer" "cardano_node_m1" {
+resource "cloudflare_load_balancer" "ogmios_m1" {
   zone_id          = var.cloudflare_zone_id
-  name             = "*.cnode-m1.${var.cloudflare_zone_name}"
-  default_pool_ids = [cloudflare_load_balancer_pool.cardano_node_m1.id]
-  fallback_pool_id = cloudflare_load_balancer_pool.cardano_node_m1.id
+  name             = "*.ogmios-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.ogmios_m1.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.ogmios_m1.id
   proxied          = false
 }
 
-resource "cloudflare_load_balancer_monitor" "cardano_node_m1_monitor" {
+resource "cloudflare_load_balancer_monitor" "ogmios_m1_monitor" {
   account_id     = var.cloudflare_account_id
   type           = "http"
-  description    = "Health check for cardano_node_m1"
+  description    = "Health check for ogmios_m1"
   path           = "/healthcheck"
   interval       = 60
   timeout        = 5
@@ -241,6 +247,48 @@ resource "cloudflare_load_balancer_monitor" "cardano_node_m1_monitor" {
 
   header {
     header = "Host"
-    values = ["cnode-m1.dmtr.host"]
+    values = ["health.ogmios-m1.dmtr.host"]
+  }
+}
+
+# Workloads
+
+resource "cloudflare_load_balancer_pool" "workloads" {
+  name = "Workloads"
+
+  account_id = var.cloudflare_account_id
+  monitor    = cloudflare_load_balancer_monitor.workloads_monitor.id
+
+  dynamic "origins" {
+    for_each = { for k in var.cloudflare_tunnels : k.name => k }
+    content {
+      name    = origins.value.name
+      address = cloudflare_tunnel.this[origins.value.name].cname
+    }
+  }
+}
+
+resource "cloudflare_load_balancer" "workloads" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "*.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.workloads.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.workloads.id
+  proxied          = true
+}
+
+resource "cloudflare_load_balancer_monitor" "workloads_monitor" {
+  account_id     = var.cloudflare_account_id
+  type           = "https"
+  description    = "Health check for workloads"
+  path           = "/ping_provider_healthcheck"
+  interval       = 60
+  timeout        = 5
+  retries        = 2
+  method         = "GET"
+  expected_codes = "200"
+
+  header {
+    header = "Host"
+    values = ["health.dmtr.host"]
   }
 }
