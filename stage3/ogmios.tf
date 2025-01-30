@@ -1,6 +1,6 @@
 locals {
   ogmios_v1_namespace             = "ext-ogmios-m1"
-  ogmios_v1_networks              = ["preview"]
+  ogmios_v1_networks              = ["preview", "preprod", "mainnet"]
   ogmios_v1_operator_image_tag    = "a70daa92134c911a4c94fb4e7f02bc98949b7c0f"
   ogmios_v1_metrics_delay         = 60
   ogmios_v1_api_key_salt          = coalesce(var.ogmios_v1_api_key_salt, "this is a random generated key and must be shared...")
@@ -51,6 +51,96 @@ module "ext_cardano_ogmios" {
       # Image_tag for version 6
       ogmios_image     = "ghcr.io/demeter-run/ext-cardano-ogmios-instance-6:071af3f87d4edfce28335e936856ce2cbb7c4fc5"
       node_private_dns = "node-preview-stable.ext-nodes-m1.svc.cluster.local:3307"
+      ogmios_version   = "6"
+      replicas         = 1
+      compute_arch     = "arm64"
+      resources = {
+        limits = {
+          cpu    = "500m"
+          memory = "512Mi"
+        }
+        requests = {
+          cpu    = "250m"
+          memory = "256Mi"
+        }
+      }
+      tolerations = [
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/compute-profile"
+          operator = "Exists"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/compute-arch"
+          operator = "Equal"
+          value    = "arm64"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/availability-sla"
+          operator = "Equal"
+          value    = "consistent"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "kubernetes.io/arch"
+          operator = "Equal"
+          value    = "arm64"
+        }
+      ]
+    }
+    "instance2" = {
+      salt    = "samplesalt"
+      network = "preprod"
+      # Image_tag for version 6
+      ogmios_image     = "ghcr.io/demeter-run/ext-cardano-ogmios-instance-6:071af3f87d4edfce28335e936856ce2cbb7c4fc5"
+      node_private_dns = "node-preprod-stable.ext-nodes-m1.svc.cluster.local:3307"
+      ogmios_version   = "6"
+      replicas         = 1
+      compute_arch     = "arm64"
+      resources = {
+        limits = {
+          cpu    = "500m"
+          memory = "512Mi"
+        }
+        requests = {
+          cpu    = "250m"
+          memory = "256Mi"
+        }
+      }
+      tolerations = [
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/compute-profile"
+          operator = "Exists"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/compute-arch"
+          operator = "Equal"
+          value    = "arm64"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "demeter.run/availability-sla"
+          operator = "Equal"
+          value    = "consistent"
+        },
+        {
+          effect   = "NoSchedule"
+          key      = "kubernetes.io/arch"
+          operator = "Equal"
+          value    = "arm64"
+        }
+      ]
+    }
+    "instance3" = {
+      salt    = "samplesalt"
+      network = "mainnet"
+      # Image_tag for version 6
+      ogmios_image     = "ghcr.io/demeter-run/ext-cardano-ogmios-instance-6:071af3f87d4edfce28335e936856ce2cbb7c4fc5"
+      node_private_dns = "node-mainnet-stable.ext-nodes-m1.svc.cluster.local:3307"
       ogmios_version   = "6"
       replicas         = 1
       compute_arch     = "arm64"
