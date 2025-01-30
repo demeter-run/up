@@ -96,7 +96,17 @@ variable "kupo_v1_api_key_salt" {
   default     = ""
 }
 
-variable "kupo_v1_storage_size" {
+variable "kupo_v1_storage_size_preview" {
+  description = "size of the storage for the kupo extension"
+  default     = "50Gi"
+}
+
+variable "kupo_v1_storage_size_preprod" {
+  description = "size of the storage for the kupo extension"
+  default     = "50Gi"
+}
+
+variable "kupo_v1_storage_size_mainnet" {
   description = "size of the storage for the kupo extension"
   default     = "50Gi"
 }

@@ -1,9 +1,8 @@
 locals {
   kupo_v1_namespace = "ext-kupo-m1"
   // Specify networks for services and configurations
-  # kupo_v1_networks           = ["mainnet", "preprod", "preview"]
   kupo_v1_cluster_issuer     = "letsencrypt-dns01"
-  kupo_v1_networks           = ["preview"]
+  kupo_v1_networks           = ["preview", "preprod", "mainnet"]
   kupo_v1_operator_image_tag = "aab07d8cd8fe0fa80281550ce3845108a37f5a0b"
   kupo_v1_metrics_delay      = 60
   kupo_v1_per_min_dcus = {
@@ -65,7 +64,7 @@ module "ext_cardano_kupo" {
   cells = {
     "cell1" = {
       pvc = {
-        storage_size       = var.kupo_v1_storage_size
+        storage_size       = var.kupo_v1_storage_size_preview
         storage_class_name = var.kupo_v1_storage_class_name
         access_mode        = "ReadWriteOnce"
       }
@@ -76,6 +75,110 @@ module "ext_cardano_kupo" {
           pruned    = true
           # Node connection to socket over n2c
           n2n_endpoint = "node-preview-stable.ext-nodes-m1.svc.cluster.local:3307"
+          resources = {
+            limits = {
+              cpu    = "1"
+              memory = "4Gi"
+            }
+            requests = {
+              cpu    = "250m"
+              memory = "4Gi"
+            }
+          }
+          tolerations = [
+            {
+              effect   = "NoSchedule"
+              key      = "demeter.run/compute-profile"
+              operator = "Equal"
+              value    = "mem-intensive"
+            },
+            {
+              effect   = "NoSchedule"
+              key      = "demeter.run/compute-arch"
+              operator = "Equal"
+              value    = "arm64"
+            },
+            {
+              effect   = "NoSchedule"
+              key      = "demeter.run/availability-sla"
+              operator = "Equal"
+              value    = "consistent"
+            },
+            {
+              effect   = "NoSchedule"
+              key      = "kubernetes.io/arch"
+              operator = "Equal"
+              value    = "arm64"
+            }
+          ]
+        }
+      }
+    }
+    "cell2" = {
+      pvc = {
+        storage_size       = var.kupo_v1_storage_size_preprod
+        storage_class_name = var.kupo_v1_storage_class_name
+        access_mode        = "ReadWriteOnce"
+      }
+      instances = {
+        "instance1" = {
+          image_tag = "b035b32b4f190eb74b7e5a8a83aee6f7afa43495"
+          network   = "preprod"
+          pruned    = true
+          # Node connection to socket over n2c
+          n2n_endpoint = "node-preprod-stable.ext-nodes-m1.svc.cluster.local:3307"
+          resources = {
+            limits = {
+              cpu    = "1"
+              memory = "4Gi"
+            }
+            requests = {
+              cpu    = "250m"
+              memory = "4Gi"
+            }
+          }
+          tolerations = [
+            {
+              effect   = "NoSchedule"
+              key      = "demeter.run/compute-profile"
+              operator = "Equal"
+              value    = "mem-intensive"
+            },
+            {
+              effect   = "NoSchedule"
+              key      = "demeter.run/compute-arch"
+              operator = "Equal"
+              value    = "arm64"
+            },
+            {
+              effect   = "NoSchedule"
+              key      = "demeter.run/availability-sla"
+              operator = "Equal"
+              value    = "consistent"
+            },
+            {
+              effect   = "NoSchedule"
+              key      = "kubernetes.io/arch"
+              operator = "Equal"
+              value    = "arm64"
+            }
+          ]
+        }
+      }
+    }
+    "cell3" = {
+      pvc = {
+        storage_size       = var.kupo_v1_storage_size_mainnet
+        storage_class_name = var.kupo_v1_storage_class_name
+        access_mode        = "ReadWriteOnce"
+      }
+      instances = {
+        "instance1" = {
+          image_tag = "b035b32b4f190eb74b7e5a8a83aee6f7afa43495"
+          network   = "mainnet"
+          pruned    = true
+          # Node connection to socket over n2c
+          n2n_endpoint = "node-mainnet-stable.ext-nodes-m1.svc.cluster.local:3307"
           resources = {
             limits = {
               cpu    = "1"
