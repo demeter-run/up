@@ -23,7 +23,7 @@ locals {
     local.default_vars.managed_node_groups,
   )
 
-  cluster_version = "1.30"
+  cluster_version = "1.32"
 
   tags = {
     Name = local.name
