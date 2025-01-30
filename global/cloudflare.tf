@@ -236,9 +236,9 @@ resource "cloudflare_load_balancer" "ogmios_m1" {
 
 resource "cloudflare_load_balancer_monitor" "ogmios_m1_monitor" {
   account_id     = var.cloudflare_account_id
-  type           = "http"
+  type           = "https"
   description    = "Health check for ogmios_m1"
-  path           = "/healthcheck"
+  path           = "/healthz"
   interval       = 60
   timeout        = 5
   retries        = 2
