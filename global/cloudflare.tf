@@ -3,30 +3,27 @@ provider "cloudflare" {}
 variable "cloudflare_account_id" {}
 variable "cloudflare_zone_id" {}
 variable "cloudflare_zone_name" {}
-variable "cloudflare_tunnels" {
+variable "demeter_providers" {
   type = list(object({
-    name   = string
-    secret = string
+    name = string
+    tunnel = object({
+      enabled = optional(bool, true)
+      secret  = string
+    })
+    cardano_node = object({
+      enabled = optional(bool, true)
+      address = optional(string, "")
+    })
+    kupo = object({
+      enabled = optional(bool, true)
+      address = optional(string, "")
+    })
+    ogmios = object({
+      enabled = optional(bool, true)
+      address = optional(string, "")
+    })
   }))
   #sensitive = true
-}
-variable "cloudflare_cardano_node_origins" {
-  type = list(object({
-    name    = string
-    address = optional(string, "")
-  }))
-}
-variable "cloudflare_kupo_origins" {
-  type = list(object({
-    name    = string
-    address = optional(string, "")
-  }))
-}
-variable "cloudflare_ogmios_origins" {
-  type = list(object({
-    name    = string
-    address = optional(string, "")
-  }))
 }
 
 locals {
@@ -82,16 +79,16 @@ resource "cloudflare_zone_settings_override" "this" {
 # Tunnels
 
 resource "cloudflare_tunnel" "this" {
-  for_each = { for k in var.cloudflare_tunnels : k.name => k }
+  for_each = { for p in var.demeter_providers : p.name => p if p.tunnel.enabled }
 
   account_id = var.cloudflare_account_id
   name       = each.value.name
-  secret     = each.value.secret
+  secret     = each.value.tunnel.secret
   config_src = "cloudflare"
 }
 
 resource "cloudflare_tunnel_config" "this" {
-  for_each = { for k in var.cloudflare_tunnels : k.name => k }
+  for_each = { for p in var.demeter_providers : p.name => p if p.tunnel.enabled }
 
   account_id = var.cloudflare_account_id
   tunnel_id  = cloudflare_tunnel.this[each.value.name].id
@@ -114,7 +111,7 @@ resource "cloudflare_tunnel_config" "this" {
 }
 
 resource "cloudflare_record" "tunnels" {
-  for_each = { for k in var.cloudflare_tunnels : k.name => k }
+  for_each = { for p in var.demeter_providers : p.name => p if p.tunnel.enabled }
 
   depends_on = [cloudflare_zone.this]
 
@@ -134,10 +131,10 @@ resource "cloudflare_load_balancer_pool" "cardano_node_m1" {
   monitor    = cloudflare_load_balancer_monitor.cardano_node_m1_monitor.id
 
   dynamic "origins" {
-    for_each = { for k in var.cloudflare_cardano_node_origins : k.name => k }
+    for_each = { for p in var.demeter_providers : p.name => p if p.cardano_node.enabled }
     content {
       name    = origins.value.name
-      address = origins.value.address != "" ? origins.value.address : "${origins.value.name}.${var.cloudflare_zone_name}"
+      address = origins.value.cardano_node.address != "" ? origins.value.cardano_node.address : "${origins.value.name}.${var.cloudflare_zone_name}"
     }
   }
 }
@@ -176,10 +173,10 @@ resource "cloudflare_load_balancer_pool" "kupo_m1" {
   monitor    = cloudflare_load_balancer_monitor.kupo_m1_monitor.id
 
   dynamic "origins" {
-    for_each = { for k in var.cloudflare_kupo_origins : k.name => k }
+    for_each = { for p in var.demeter_providers : p.name => p if p.kupo.enabled }
     content {
       name    = origins.value.name
-      address = origins.value.address != "" ? origins.value.address : "${origins.value.name}.${var.cloudflare_zone_name}"
+      address = origins.value.kupo.address != "" ? origins.value.kupo.address : "${origins.value.name}.${var.cloudflare_zone_name}"
     }
   }
 }
@@ -218,10 +215,10 @@ resource "cloudflare_load_balancer_pool" "ogmios_m1" {
   monitor    = cloudflare_load_balancer_monitor.ogmios_m1_monitor.id
 
   dynamic "origins" {
-    for_each = { for k in var.cloudflare_ogmios_origins : k.name => k }
+    for_each = { for p in var.demeter_providers : p.name => p if p.ogmios.enabled }
     content {
       name    = origins.value.name
-      address = origins.value.address != "" ? origins.value.address : "${origins.value.name}.${var.cloudflare_zone_name}"
+      address = origins.value.ogmios.address != "" ? origins.value.ogmios.address : "${origins.value.name}.${var.cloudflare_zone_name}"
     }
   }
 }
@@ -260,7 +257,7 @@ resource "cloudflare_load_balancer_pool" "workloads" {
   monitor    = cloudflare_load_balancer_monitor.workloads_monitor.id
 
   dynamic "origins" {
-    for_each = { for k in var.cloudflare_tunnels : k.name => k }
+    for_each = { for p in var.demeter_providers : p.name => p if p.tunnel.enabled }
     content {
       name    = origins.value.name
       address = cloudflare_tunnel.this[origins.value.name].cname
