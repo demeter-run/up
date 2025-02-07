@@ -256,12 +256,12 @@ managed_node_groups:
       demeter.run/compute-arch: arm64
       demeter.run/availability-zone: az1
   # Google supports one instance type per node group
-    instance_type: t2a-standard-4
+    instance_type: c4a-standard-4-lssd
     min_size: 0
     max_size: 1
     desired_capacity: 1
-    disk_size_gb: 100
-    disk_type: pd-ssd
+    disk_size_gb: 375
+    disk_type: local-ssd
     spot: true
     taints:
       - key: demeter.run/availability-sla
