@@ -70,9 +70,10 @@ module "ext_cardano_kupo" {
       }
       instances = {
         "instance1" = {
-          image_tag = "b035b32b4f190eb74b7e5a8a83aee6f7afa43495"
-          network   = "preview"
-          pruned    = true
+          image_tag     = "b035b32b4f190eb74b7e5a8a83aee6f7afa43495"
+          network       = "preview"
+          pruned        = true
+          defer_indexes = true
           # Node connection to socket over n2c
           n2n_endpoint = "node-preview-stable.ext-nodes-m1.svc.cluster.local:3307"
           resources = {
@@ -122,9 +123,10 @@ module "ext_cardano_kupo" {
       }
       instances = {
         "instance1" = {
-          image_tag = "b035b32b4f190eb74b7e5a8a83aee6f7afa43495"
-          network   = "preprod"
-          pruned    = true
+          image_tag     = "b035b32b4f190eb74b7e5a8a83aee6f7afa43495"
+          network       = "preprod"
+          pruned        = true
+          defer_indexes = true
           # Node connection to socket over n2c
           n2n_endpoint = "node-preprod-stable.ext-nodes-m1.svc.cluster.local:3307"
           resources = {
@@ -174,9 +176,10 @@ module "ext_cardano_kupo" {
       }
       instances = {
         "instance1" = {
-          image_tag = "b035b32b4f190eb74b7e5a8a83aee6f7afa43495"
-          network   = "mainnet"
-          pruned    = true
+          image_tag     = "b035b32b4f190eb74b7e5a8a83aee6f7afa43495"
+          network       = "mainnet"
+          pruned        = true
+          defer_indexes = true
           # Node connection to socket over n2c
           n2n_endpoint = "node-mainnet-stable.ext-nodes-m1.svc.cluster.local:3307"
           resources = {
