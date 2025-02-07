@@ -261,7 +261,6 @@ managed_node_groups:
     max_size: 1
     desired_capacity: 1
     disk_size_gb: 375
-    disk_type: local-ssd
     spot: true
     taints:
       - key: demeter.run/availability-sla
