@@ -111,9 +111,19 @@ variable "kupo_v1_storage_size_mainnet" {
   default     = "50Gi"
 }
 
-variable "kupo_v1_storage_class_name" {
+variable "kupo_v1_storage_class_name_preview" {
   description = "name of the storage class for the kupo extension"
   default     = "hyperdisk-balanced-immediate"
+}
+
+variable "kupo_v1_storage_class_name_preprod" {
+  description = "name of the storage class for the kupo extension"
+  default     = "hyperdisk-balanced-immediate"
+}
+
+variable "kupo_v1_storage_class_name_mainnet" {
+  description = "name of the storage class for the kupo extension"
+  default     = "premium-rwo"
 }
 
 # Ogmios extension
