@@ -91,7 +91,7 @@ module "ext_cardano_kupo" {
               effect   = "NoSchedule"
               key      = "demeter.run/compute-profile"
               operator = "Equal"
-              value    = "mem-intensive"
+              value    = "disk-intensive"
             },
             {
               effect   = "NoSchedule"
@@ -144,7 +144,7 @@ module "ext_cardano_kupo" {
               effect   = "NoSchedule"
               key      = "demeter.run/compute-profile"
               operator = "Equal"
-              value    = "mem-intensive"
+              value    = "disk-intensive"
             },
             {
               effect   = "NoSchedule"

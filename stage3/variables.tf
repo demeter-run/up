@@ -113,12 +113,12 @@ variable "kupo_v1_storage_size_mainnet" {
 
 variable "kupo_v1_storage_class_name_preview" {
   description = "name of the storage class for the kupo extension"
-  default     = "hyperdisk-balanced-immediate"
+  default     = "premium-rwo"
 }
 
 variable "kupo_v1_storage_class_name_preprod" {
   description = "name of the storage class for the kupo extension"
-  default     = "hyperdisk-balanced-immediate"
+  default     = "premium-rwo"
 }
 
 variable "kupo_v1_storage_class_name_mainnet" {
