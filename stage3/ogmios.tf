@@ -4,7 +4,7 @@ locals {
   ogmios_v1_operator_image_tag    = "a70daa92134c911a4c94fb4e7f02bc98949b7c0f"
   ogmios_v1_metrics_delay         = 60
   ogmios_v1_api_key_salt          = coalesce(var.ogmios_v1_api_key_salt, "this is a random generated key and must be shared...")
-  ogmios_v1_dns_zone              = "dmtr.host"
+  ogmios_v1_dns_zone              = var.ogmios_dns_zone
   ogmios_v1_cluster_issuer        = "letsencrypt-dns01"
   ogmios_v1_proxy_green_image_tag = "40ca4f0e8addc0c64c679e25a6f95d31a9e443c8"
   ogmios_v1_proxy_green_replicas  = "1"

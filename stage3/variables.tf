@@ -34,6 +34,20 @@ variable "cnode_v1_api_key_salt" {
   default     = ""
 }
 
+# External DNS
+variable "enable_external_dns" {
+  description = "enable external-dns support"
+  default     = false
+}
+
+variable "cloudflare_token" {
+  type        = string
+  sensitive   = true
+  description = <<EOF
+    Cloudflare API token with permissions to manage DNS records.
+EOF
+}
+
 # Cardano Node extension
 variable "enable_cardano_node" {
   description = "enable ext-cardano-node support"
@@ -125,6 +139,16 @@ variable "ogmios_v1_api_key_salt" {
 variable "enable_cardano_ogmios" {
   description = "enable ext-cardano-ogmios support"
   default     = false
+}
+
+variable "ogmios_dns_zone" {
+  description = "the DNS zone for the ogmios extension"
+  default     = "dmtr.host"
+}
+
+variable "ogmios_cname_targets" {
+  description = "list of DNS targets for the ogmios extension"
+  default     = ["proxy-green.ogmios.dmtr.host", "proxy-blue.ogmios.dmtr.host"]
 }
 
 # UtxoRPC extension
