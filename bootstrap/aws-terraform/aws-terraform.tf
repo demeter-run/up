@@ -227,6 +227,8 @@ resource "aws_iam_policy" "cluster_admin_policy" {
           "logs:DescribeLogGroups",
           "logs:ListTagsForResource",
           "logs:ListTagsLogGroup",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:GetSecretValue",
         ],
         Resource = [
           "*"
