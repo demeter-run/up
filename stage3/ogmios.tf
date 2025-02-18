@@ -28,21 +28,23 @@ module "ext_cardano_ogmios_crds" {
 }
 
 module "ext_cardano_ogmios" {
-  source                = "git::https://github.com/demeter-run/ext-cardano-ogmios.git//bootstrap?ref=e1b84b9"
-  for_each              = toset([for n in toset(["v1"]) : n if var.enable_cardano_ogmios])
-  namespace             = local.ogmios_v1_namespace
-  networks              = local.ogmios_v1_networks
-  operator_image_tag    = local.ogmios_v1_operator_image_tag
-  metrics_delay         = local.ogmios_v1_metrics_delay
-  api_key_salt          = local.ogmios_v1_api_key_salt
-  dns_zone              = local.ogmios_v1_dns_zone
-  cluster_issuer        = local.ogmios_v1_cluster_issuer
-  proxy_green_image_tag = local.ogmios_v1_proxy_green_image_tag
-  proxy_green_replicas  = local.ogmios_v1_proxy_green_replicas
-  proxy_blue_image_tag  = local.ogmios_v1_proxy_blue_image_tag
-  proxy_blue_replicas   = local.ogmios_v1_proxy_blue_replicas
-  proxy_resources       = local.ogmios_v1_proxy_resources
-  cloud_provider        = var.cloud_provider
+  source                        = "git::https://github.com/demeter-run/ext-cardano-ogmios.git//bootstrap?ref=68a1887"
+  for_each                      = toset([for n in toset(["v1"]) : n if var.enable_cardano_ogmios])
+  namespace                     = local.ogmios_v1_namespace
+  networks                      = local.ogmios_v1_networks
+  operator_image_tag            = local.ogmios_v1_operator_image_tag
+  metrics_delay                 = local.ogmios_v1_metrics_delay
+  api_key_salt                  = local.ogmios_v1_api_key_salt
+  dns_zone                      = local.ogmios_v1_dns_zone
+  cluster_issuer                = local.ogmios_v1_cluster_issuer
+  proxy_green_extra_annotations = var.ogmios_proxy_green_extra_annotations
+  proxy_green_image_tag         = local.ogmios_v1_proxy_green_image_tag
+  proxy_green_replicas          = local.ogmios_v1_proxy_green_replicas
+  proxy_blue_extra_annotations  = var.ogmios_proxy_blue_extra_annotations
+  proxy_blue_image_tag          = local.ogmios_v1_proxy_blue_image_tag
+  proxy_blue_replicas           = local.ogmios_v1_proxy_blue_replicas
+  proxy_resources               = local.ogmios_v1_proxy_resources
+  cloud_provider                = var.cloud_provider
 
   instances = {
     "instance1" = {

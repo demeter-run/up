@@ -151,6 +151,18 @@ variable "ogmios_cname_targets" {
   default     = ["proxy-green.ogmios.dmtr.host", "proxy-blue.ogmios.dmtr.host"]
 }
 
+variable "ogmios_proxy_blue_extra_annotations" {
+  description = "Extra annotations for the proxy blue service"
+  type        = map(string)
+  default     = {}
+}
+
+variable "ogmios_proxy_green_extra_annotations" {
+  description = "Extra annotations for the proxy green service"
+  type        = map(string)
+  default     = {}
+}
+
 # UtxoRPC extension
 variable "enable_cardano_utxorpc" {
   description = "enable ext-cardano-utxorpc support"
