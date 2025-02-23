@@ -105,6 +105,18 @@ variable "enable_cardano_kupo" {
   default     = false
 }
 
+variable "kupo_proxy_blue_extra_annotations" {
+  description = "Extra annotations for the proxy blue service"
+  type        = map(string)
+  default     = {}
+}
+
+variable "kupo_proxy_green_extra_annotations" {
+  description = "Extra annotations for the proxy green service"
+  type        = map(string)
+  default     = {}
+}
+
 variable "kupo_v1_api_key_salt" {
   description = "shared salt used for generating API keys"
   default     = ""
