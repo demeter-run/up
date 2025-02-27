@@ -3,27 +3,8 @@ provider "cloudflare" {}
 variable "cloudflare_account_id" {}
 variable "cloudflare_zone_id" {}
 variable "cloudflare_zone_name" {}
-variable "demeter_providers" {
-  type = list(object({
-    name = string
-    tunnel = object({
-      enabled = optional(bool, true)
-      secret  = string
-    })
-    cardano_node = object({
-      enabled = optional(bool, true)
-      address = optional(string, "")
-    })
-    kupo = object({
-      enabled = optional(bool, true)
-      address = optional(string, "")
-    })
-    ogmios = object({
-      enabled = optional(bool, true)
-      address = optional(string, "")
-    })
-  }))
-  #sensitive = true
+variable "cloudflare_tunnel_secrets" {
+  sensitive = true
 }
 
 locals {
@@ -31,6 +12,48 @@ locals {
     var.cloudflare_zone_name,
   ]
 }
+
+locals {
+  demeter_providers = [
+    {
+      name   = "blinklabs-us"
+      cardano_node = {
+        enabled = true
+        address = "blinklabs-us-cardano-node.blinklabs.io"
+      }
+      kupo = {
+        enabled = true
+        address = "blinklabs-us-kupo.blinklabs.io"
+      }
+      ogmios = {
+        enabled = true
+        address = "blinklabs-us-ogmios.blinklabs.io"
+      }
+      tunnel = {
+        enabled = true
+      }
+    },
+    {
+      name   = "txpipe-eu"
+      cardano_node = {
+        enabled = true
+        address = "eu-cardano-node.txpipe.cloud"
+      }
+      kupo = {
+        enabled = true
+        address = "eu-kupo.txpipe.cloud"
+      }
+      ogmios = {
+        enabled = true
+        address = "eu-ogmios.txpipe.cloud"
+      }
+      tunnel = {
+        enabled = true
+      }
+    },
+  ]
+}
+
 
 # We use for_each on this to expose the domain names in the resource names
 resource "cloudflare_zone" "this" {
@@ -79,16 +102,16 @@ resource "cloudflare_zone_settings_override" "this" {
 # Tunnels
 
 resource "cloudflare_tunnel" "this" {
-  for_each = { for p in var.demeter_providers : p.name => p if p.tunnel.enabled }
+  for_each = { for p in local.demeter_providers: p.name => p if p.tunnel.enabled }
 
   account_id = var.cloudflare_account_id
   name       = each.value.name
-  secret     = each.value.tunnel.secret
+  secret     = var.cloudflare_tunnel_secrets[each.value.name]
   config_src = "cloudflare"
 }
 
 resource "cloudflare_tunnel_config" "this" {
-  for_each = { for p in var.demeter_providers : p.name => p if p.tunnel.enabled }
+  for_each = { for p in local.demeter_providers: p.name => p if p.tunnel.enabled }
 
   account_id = var.cloudflare_account_id
   tunnel_id  = cloudflare_tunnel.this[each.value.name].id
@@ -111,7 +134,7 @@ resource "cloudflare_tunnel_config" "this" {
 }
 
 resource "cloudflare_record" "tunnels" {
-  for_each = { for p in var.demeter_providers : p.name => p if p.tunnel.enabled }
+  for_each = { for p in local.demeter_providers: p.name => p if p.tunnel.enabled }
 
   depends_on = [cloudflare_zone.this]
 
@@ -131,7 +154,7 @@ resource "cloudflare_load_balancer_pool" "cardano_node_m1" {
   monitor    = cloudflare_load_balancer_monitor.cardano_node_m1_monitor.id
 
   dynamic "origins" {
-    for_each = { for p in var.demeter_providers : p.name => p if p.cardano_node.enabled }
+    for_each = { for p in local.demeter_providers : p.name => p if p.cardano_node.enabled }
     content {
       name    = origins.value.name
       address = origins.value.cardano_node.address != "" ? origins.value.cardano_node.address : "${origins.value.name}.${var.cloudflare_zone_name}"
@@ -173,7 +196,7 @@ resource "cloudflare_load_balancer_pool" "kupo_m1" {
   monitor    = cloudflare_load_balancer_monitor.kupo_m1_monitor.id
 
   dynamic "origins" {
-    for_each = { for p in var.demeter_providers : p.name => p if p.kupo.enabled }
+    for_each = { for p in local.demeter_providers : p.name => p if p.kupo.enabled }
     content {
       name    = origins.value.name
       address = origins.value.kupo.address != "" ? origins.value.kupo.address : "${origins.value.name}.${var.cloudflare_zone_name}"
@@ -215,7 +238,7 @@ resource "cloudflare_load_balancer_pool" "ogmios_m1" {
   monitor    = cloudflare_load_balancer_monitor.ogmios_m1_monitor.id
 
   dynamic "origins" {
-    for_each = { for p in var.demeter_providers : p.name => p if p.ogmios.enabled }
+    for_each = { for p in local.demeter_providers : p.name => p if p.ogmios.enabled }
     content {
       name    = origins.value.name
       address = origins.value.ogmios.address != "" ? origins.value.ogmios.address : "${origins.value.name}.${var.cloudflare_zone_name}"
@@ -257,7 +280,7 @@ resource "cloudflare_load_balancer_pool" "workloads" {
   monitor    = cloudflare_load_balancer_monitor.workloads_monitor.id
 
   dynamic "origins" {
-    for_each = { for p in var.demeter_providers : p.name => p if p.tunnel.enabled }
+    for_each = { for p in local.demeter_providers : p.name => p if p.tunnel.enabled }
     content {
       name    = origins.value.name
       address = cloudflare_tunnel.this[origins.value.name].cname
