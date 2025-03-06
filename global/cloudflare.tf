@@ -23,7 +23,11 @@ locals {
       }
       kupo = {
         enabled = true
-        address = "blinklabs-us-kupo.blinklabs.io"
+        networks = {
+          preview = "blinklabs-us-kupo.blinklabs.io"
+          preprod = "blinklabs-us-kupo.blinklabs.io"
+          mainnet = "blinklabs-us-kupo.blinklabs.io"
+        }
       }
       ogmios = {
         enabled = true
@@ -33,24 +37,28 @@ locals {
         enabled = true
       }
     },
-    {
-      name   = "txpipe-eu"
-      cardano_node = {
-        enabled = true
-        address = "eu-cardano-node.txpipe.cloud"
-      }
-      kupo = {
-        enabled = true
-        address = "eu-kupo.txpipe.cloud"
-      }
-      ogmios = {
-        enabled = true
-        address = "eu-ogmios.txpipe.cloud"
-      }
-      tunnel = {
-        enabled = true
-      }
-    },
+    # {
+    #   name   = "txpipe-eu"
+    #   cardano_node = {
+    #     enabled = true
+    #     address = "eu-cardano-node.txpipe.cloud"
+    #   }
+    #   kupo = {
+    #     enabled = true
+    #     networks = {
+    #       preview = "eu-kupo.txpipe.cloud"
+    #       preprod = "eu-kupo.txpipe.cloud"
+    #       mainnet = "eu-kupo.txpipe.cloud"
+    #     }
+    #   }
+    #   ogmios = {
+    #     enabled = true
+    #     address = "eu-ogmios.txpipe.cloud"
+    #   }
+    #   tunnel = {
+    #     enabled = true
+    #   }
+    # },
   ]
 }
 
@@ -189,33 +197,137 @@ resource "cloudflare_load_balancer_monitor" "cardano_node_m1_monitor" {
 
 # Kupo
 
-resource "cloudflare_load_balancer_pool" "kupo_m1" {
-  name = "KupoM1"
+resource "cloudflare_load_balancer_pool" "kupo_preview" {
+  name = "KupoPreview"
 
   account_id = var.cloudflare_account_id
-  monitor    = cloudflare_load_balancer_monitor.kupo_m1_monitor.id
+  monitor    = cloudflare_load_balancer_monitor.kupo_preview_monitor.id
 
   dynamic "origins" {
     for_each = { for p in local.demeter_providers : p.name => p if p.kupo.enabled }
     content {
       name    = origins.value.name
-      address = origins.value.kupo.address != "" ? origins.value.kupo.address : "${origins.value.name}.${var.cloudflare_zone_name}"
+      address = origins.value.kupo.networks.preview != "" ? origins.value.kupo.networks.preview : "${origins.value.name}.${var.cloudflare_zone_name}"
     }
   }
 }
 
-resource "cloudflare_load_balancer" "kupo_m1" {
+resource "cloudflare_load_balancer" "kupo_preview" {
   zone_id          = var.cloudflare_zone_id
-  name             = "*.kupo-m1.${var.cloudflare_zone_name}"
-  default_pool_ids = [cloudflare_load_balancer_pool.kupo_m1.id]
-  fallback_pool_id = cloudflare_load_balancer_pool.kupo_m1.id
+  name             = "preview-v2.kupo-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.kupo_preview.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.kupo_preview.id
   proxied          = false
 }
 
-resource "cloudflare_load_balancer_monitor" "kupo_m1_monitor" {
+resource "cloudflare_load_balancer" "kupo_preview_splat" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "*.preview-v2.kupo-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.kupo_preview.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.kupo_preview.id
+  proxied          = false
+}
+
+resource "cloudflare_load_balancer_monitor" "kupo_preview_monitor" {
   account_id     = var.cloudflare_account_id
   type           = "http"
-  description    = "Health check for kupo_m1"
+  description    = "Health check for KupoPreview"
+  path           = "/healthcheck"
+  interval       = 60
+  timeout        = 5
+  retries        = 2
+  method         = "GET"
+  expected_codes = "200"
+
+  header {
+    header = "Host"
+    values = ["health.kupo-m1.dmtr.host"]
+  }
+}
+
+resource "cloudflare_load_balancer_pool" "kupo_preprod" {
+  name = "KupoPreprod"
+
+  account_id = var.cloudflare_account_id
+  monitor    = cloudflare_load_balancer_monitor.kupo_preprod_monitor.id
+
+  dynamic "origins" {
+    for_each = { for p in local.demeter_providers : p.name => p if p.kupo.enabled }
+    content {
+      name    = origins.value.name
+      address = origins.value.kupo.networks.preprod != "" ? origins.value.kupo.networks.preprod : "${origins.value.name}.${var.cloudflare_zone_name}"
+    }
+  }
+}
+
+resource "cloudflare_load_balancer" "kupo_preprod" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "preprod-v2.kupo-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.kupo_preprod.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.kupo_preprod.id
+  proxied          = false
+}
+
+resource "cloudflare_load_balancer" "kupo_preprod_splat" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "*.preprod-v2.kupo-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.kupo_preprod.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.kupo_preprod.id
+  proxied          = false
+}
+
+resource "cloudflare_load_balancer_monitor" "kupo_preprod_monitor" {
+  account_id     = var.cloudflare_account_id
+  type           = "http"
+  description    = "Health check for KupoPreprod"
+  path           = "/healthcheck"
+  interval       = 60
+  timeout        = 5
+  retries        = 2
+  method         = "GET"
+  expected_codes = "200"
+
+  header {
+    header = "Host"
+    values = ["health.kupo-m1.dmtr.host"]
+  }
+}
+
+resource "cloudflare_load_balancer_pool" "kupo_mainnet" {
+  name = "KupoMainnet"
+
+  account_id = var.cloudflare_account_id
+  monitor    = cloudflare_load_balancer_monitor.kupo_mainnet_monitor.id
+
+  dynamic "origins" {
+    for_each = { for p in local.demeter_providers : p.name => p if p.kupo.enabled }
+    content {
+      name    = origins.value.name
+      address = origins.value.kupo.networks.mainnet != "" ? origins.value.kupo.networks.mainnet : "${origins.value.name}.${var.cloudflare_zone_name}"
+    }
+  }
+}
+
+resource "cloudflare_load_balancer" "kupo_mainnet" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "mainnet-v2.kupo-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.kupo_mainnet.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.kupo_mainnet.id
+  proxied          = false
+}
+
+resource "cloudflare_load_balancer" "kupo_mainnet_splat" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "*.mainnet-v2.kupo-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.kupo_mainnet.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.kupo_mainnet.id
+  proxied          = false
+}
+
+resource "cloudflare_load_balancer_monitor" "kupo_mainnet_monitor" {
+  account_id     = var.cloudflare_account_id
+  type           = "http"
+  description    = "Health check for KupoMainnet"
   path           = "/healthcheck"
   interval       = 60
   timeout        = 5
