@@ -8,28 +8,24 @@ locals {
 }
 
 module "ext_cardano_node_crds" {
-  source   = "git::https://github.com/blinklabs-io/demeter-ext-cardano-node.git//bootstrap/crds?ref=feat/gcp-cloud-provider"
+  source   = "git::https://github.com/demeter-run/ext-cardano-node.git//bootstrap/crds"
   for_each = toset([for n in toset(["global"]) : n if var.enable_cardano_node])
 }
 
-# module "ext_cardano_node_configs" {
-#   source    = "git::https://github.com/blinklabs-io/demeter-ext-cardano-node.git//bootstrap/configs?ref=feat/gcp-cloud-provider"
-#   for_each  = toset([for n in toset(["m1"]) : n if var.enable_cardano_node])
-#   namespace = local.cnode_v1_namespace
-# }
-
 module "ext_cardano_node" {
-  source                          = "git::https://github.com/blinklabs-io/demeter-ext-cardano-node.git//bootstrap"
+  source                          = "git::https://github.com/demeter-run/ext-cardano-node.git//bootstrap?ref=d9fceba"
   for_each                        = toset([for n in toset(["m1"]) : n if var.enable_cardano_node])
   namespace                       = local.cnode_v1_namespace
   cloud_provider                  = var.cloud_provider
   dns_zone                        = "dmtr.host"
   extension_name                  = "cnode-${each.key}"
   operator_image_tag              = "9f24ebfe1ca56351fa44ab47e5a3fdb815d0f213"
+  proxy_blue_extra_annotations    = var.node_proxy_blue_extra_annotations
   proxy_blue_image_tag            = "9f24ebfe1ca56351fa44ab47e5a3fdb815d0f213"
   proxy_blue_replicas             = 1
   proxy_blue_instances_namespace  = local.cnode_v1_namespace
   proxy_blue_healthcheck_port     = 31789
+  proxy_green_extra_annotations   = var.node_proxy_green_extra_annotations
   proxy_green_image_tag           = "9f24ebfe1ca56351fa44ab47e5a3fdb815d0f213"
   proxy_green_replicas            = 1
   proxy_green_instances_namespace = local.cnode_v1_namespace

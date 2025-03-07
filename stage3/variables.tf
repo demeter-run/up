@@ -54,6 +54,18 @@ variable "enable_cardano_node" {
   default     = false
 }
 
+variable "node_proxy_blue_extra_annotations" {
+  description = "Extra annotations for the proxy blue service"
+  type        = map(string)
+  default     = {}
+}
+
+variable "node_proxy_green_extra_annotations" {
+  description = "Extra annotations for the proxy blue service"
+  type        = map(string)
+  default     = {}
+}
+
 variable "storage_size_mainnet" {
   description = "size of the storage for the mainnet"
   default     = "500Gi"
