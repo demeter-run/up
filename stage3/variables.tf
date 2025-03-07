@@ -134,6 +134,54 @@ variable "kupo_v1_api_key_salt" {
   default     = ""
 }
 
+variable "kupo_v1_cell1_preview_node_affinity" {
+  description = "node affinity match_expressions for kupo cell1 preview instance"
+  type = list(object({
+    key      = string
+    operator = string
+    values   = list(string)
+  }))
+  default = [
+    {
+      key      = "cloud.google.com/gke-nodepool"
+      operator = "In"
+      values   = ["co-di-arm64-az1"]
+    }
+  ]
+}
+
+variable "kupo_v1_cell2_preprod_node_affinity" {
+  description = "node affinity match_expressions for kupo cell2 preprod instance"
+  type = list(object({
+    key      = string
+    operator = string
+    values   = list(string)
+  }))
+  default = [
+    {
+      key      = "cloud.google.com/gke-nodepool"
+      operator = "In"
+      values   = ["co-di-arm64-az1"]
+    }
+  ]
+}
+
+variable "kupo_v1_cell3_mainnet_node_affinity" {
+  description = "node affinity match_expressions for kupo cell3 mainnet instance"
+  type = list(object({
+    key      = string
+    operator = string
+    values   = list(string)
+  }))
+  default = [
+    {
+      key      = "cloud.google.com/gke-nodepool"
+      operator = "In"
+      values   = ["co-di-arm64-az1"]
+    }
+  ]
+}
+
 variable "kupo_v1_storage_size_preview" {
   description = "size of the storage for the kupo extension"
   default     = "50Gi"

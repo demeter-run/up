@@ -40,7 +40,7 @@ module "ext_cardano_kupo_crds" {
 }
 
 module "ext_cardano_kupo" {
-  source             = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap?ref=61017ea"
+  source             = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap?ref=c196b08"
   for_each           = toset([for n in toset(["v1"]) : n if var.enable_cardano_kupo])
   namespace          = "ftr-kupo-${each.key}"
   cloud_provider     = var.cloud_provider
@@ -114,6 +114,15 @@ module "ext_cardano_kupo" {
               value    = "arm64"
             }
           ]
+          node_affinity = {
+            required_during_scheduling_ignored_during_execution = {
+              node_selector_term = [
+                {
+                  match_expressions = var.kupo_v1_cell1_preview_node_affinity
+                }
+              ]
+            }
+          }
         }
       }
     }
@@ -167,6 +176,15 @@ module "ext_cardano_kupo" {
               value    = "arm64"
             }
           ]
+          node_affinity = {
+            required_during_scheduling_ignored_during_execution = {
+              node_selector_term = [
+                {
+                  match_expressions = var.kupo_v1_cell2_preprod_node_affinity
+                }
+              ]
+            }
+          }
         }
       }
     }
@@ -220,9 +238,17 @@ module "ext_cardano_kupo" {
               value    = "arm64"
             }
           ]
+          node_affinity = {
+            required_during_scheduling_ignored_during_execution = {
+              node_selector_term = [
+                {
+                  match_expressions = var.kupo_v1_cell3_mainnet_node_affinity
+                }
+              ]
+            }
+          }
         }
       }
     }
   }
 }
-
