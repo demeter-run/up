@@ -37,28 +37,26 @@ locals {
         enabled = true
       }
     },
-    # {
-    #   name   = "txpipe-eu"
-    #   cardano_node = {
-    #     enabled = true
-    #     address = "eu-cardano-node.txpipe.cloud"
-    #   }
-    #   kupo = {
-    #     enabled = true
-    #     networks = {
-    #       preview = "eu-kupo.txpipe.cloud"
-    #       preprod = "eu-kupo.txpipe.cloud"
-    #       mainnet = "eu-kupo.txpipe.cloud"
-    #     }
-    #   }
-    #   ogmios = {
-    #     enabled = true
-    #     address = "eu-ogmios.txpipe.cloud"
-    #   }
-    #   tunnel = {
-    #     enabled = true
-    #   }
-    # },
+    {
+      name   = "txpipe-m2"
+      cardano_node = {
+        enabled = false
+      }
+      kupo = {
+        enabled = true
+        networks = {
+          preview = "udawaqurxu.txpipe.cloud"
+          preprod = "mqlozdbuau.txpipe.cloud"
+          mainnet = "nswcfrjdfu.txpipe.cloud"
+        }
+      }
+      ogmios = {
+        enabled = false
+      }
+      tunnel = {
+        enabled = false
+      }
+    },
   ]
 }
 
