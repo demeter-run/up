@@ -113,7 +113,7 @@ managed_node_groups:
       demeter.run/availability-sla: consistent
       demeter.run/compute-profile: general-purpose
       demeter.run/compute-arch: x86
-      demeter.run/availability-zone: az1
+      demeter.run/availability-zone: az2
     instance_type: n4-standard-8
     min_size: 0
     max_size: 1
