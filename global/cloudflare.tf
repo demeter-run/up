@@ -24,9 +24,9 @@ locals {
       kupo = {
         enabled = true
         networks = {
-          preview = "blinklabs-us-kupo.blinklabs.io"
-          preprod = "blinklabs-us-kupo.blinklabs.io"
-          mainnet = "blinklabs-us-kupo.blinklabs.io"
+          preview = "proxy-green.kupo.blinklabs.cloud"
+          preprod = "proxy-green.kupo.blinklabs.cloud"
+          mainnet = "proxy-green.kupo.blinklabs.cloud"
         }
       }
       ogmios = {
