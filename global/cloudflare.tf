@@ -228,9 +228,9 @@ resource "cloudflare_load_balancer" "kupo_preview_splat" {
 
 resource "cloudflare_load_balancer_monitor" "kupo_preview_monitor" {
   account_id     = var.cloudflare_account_id
-  type           = "http"
+  type           = "https"
   description    = "Health check for KupoPreview"
-  path           = "/healthcheck"
+  path           = "/dmtr_health"
   interval       = 60
   timeout        = 5
   retries        = 2
@@ -276,9 +276,9 @@ resource "cloudflare_load_balancer" "kupo_preprod_splat" {
 
 resource "cloudflare_load_balancer_monitor" "kupo_preprod_monitor" {
   account_id     = var.cloudflare_account_id
-  type           = "http"
+  type           = "https"
   description    = "Health check for KupoPreprod"
-  path           = "/healthcheck"
+  path           = "/dmtr_health"
   interval       = 60
   timeout        = 5
   retries        = 2
@@ -324,9 +324,9 @@ resource "cloudflare_load_balancer" "kupo_mainnet_splat" {
 
 resource "cloudflare_load_balancer_monitor" "kupo_mainnet_monitor" {
   account_id     = var.cloudflare_account_id
-  type           = "http"
+  type           = "https"
   description    = "Health check for KupoMainnet"
-  path           = "/healthcheck"
+  path           = "/dmtr_health"
   interval       = 60
   timeout        = 5
   retries        = 2
