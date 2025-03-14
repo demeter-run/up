@@ -48,6 +48,47 @@ variable "cloudflare_token" {
 EOF
 }
 
+variable "dns_endpoint_zone" {
+  description = "The DNS zone for the external-dns"
+  type        = string
+  default     = "dmtr.host"
+}
+
+variable "enable_kupo_dns_endpoint" {
+  description = "Toggle DNS configuration for Kupo endpoint"
+  type        = bool
+  default     = false
+}
+
+# Hint CNAME allows only one target
+variable "kupo_cname_targets" {
+  description = "List of CNAME record targets for the ogmios extension"
+  default     = ["example.dmtr.host"] // replace with actual target
+}
+
+variable "enable_node_dns_endpoint" {
+  description = "Toggle DNS configuration for Node endpoint"
+  type        = bool
+  default     = false
+}
+
+variable "node_cname_targets" {
+  description = "List of CNAME record targets for the Node endpoint"
+  type        = list(string)
+  default     = ["example.dmtr.com"] // replace with actual target
+}
+
+variable "enable_ogmios_dns_endpoint" {
+  description = "Toggle DNS configuration for Ogmios endpoint"
+  type        = bool
+  default     = false
+}
+
+variable "ogmios_cname_targets" {
+  description = "List of CNAME record targets for the ogmios extension"
+  default     = ["example.dmtr.host"] // replace with actual target
+}
+
 # Cardano Node extension
 variable "enable_cardano_node" {
   description = "enable ext-cardano-node support"
@@ -216,11 +257,6 @@ variable "enable_cardano_ogmios" {
 variable "ogmios_dns_zone" {
   description = "the DNS zone for the ogmios extension"
   default     = "dmtr.host"
-}
-
-variable "ogmios_cname_targets" {
-  description = "list of DNS targets for the ogmios extension"
-  default     = ["proxy-green.ogmios.dmtr.host", "proxy-blue.ogmios.dmtr.host"]
 }
 
 variable "ogmios_proxy_blue_extra_annotations" {

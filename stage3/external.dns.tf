@@ -50,8 +50,35 @@ EOF
   ]
 }
 
+resource "kubernetes_manifest" "kupo_dns_endpoint" {
+  for_each = toset([for n in toset(["v1"]) : n if var.enable_kupo_dns_endpoint])
+  manifest = {
+    apiVersion = "externaldns.k8s.io/v1alpha1"
+    kind       = "DNSEndpoint"
+    metadata = {
+      name      = "kupo-cname"
+      namespace = "kube-system"
+    }
+    spec = {
+      endpoints = [
+        {
+          dnsName    = "kupo.${var.dns_endpoint_zone}"
+          recordType = "CNAME"
+          targets    = var.kupo_cname_targets
+          providerSpecific = [
+            {
+              name  = "external-dns.alpha.kubernetes.io/cloudflare-proxied"
+              value = "true"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+
 resource "kubernetes_manifest" "ogmios_dns_endpoint" {
-  for_each = toset([for n in toset(["v1"]) : n if var.enable_external_dns])
+  for_each = toset([for n in toset(["v1"]) : n if var.enable_ogmios_dns_endpoint])
   manifest = {
     apiVersion = "externaldns.k8s.io/v1alpha1"
     kind       = "DNSEndpoint"
@@ -62,9 +89,36 @@ resource "kubernetes_manifest" "ogmios_dns_endpoint" {
     spec = {
       endpoints = [
         {
-          dnsName    = "ogmios.${var.ogmios_dns_zone}"
+          dnsName    = "ogmios.${var.dns_endpoint_zone}"
           recordType = "CNAME"
           targets    = var.ogmios_cname_targets
+          providerSpecific = [
+            {
+              name  = "external-dns.alpha.kubernetes.io/cloudflare-proxied"
+              value = "true"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+
+resource "kubernetes_manifest" "node_dns_endpoint" {
+  for_each = toset([for n in toset(["v1"]) : n if var.enable_node_dns_endpoint])
+  manifest = {
+    apiVersion = "externaldns.k8s.io/v1alpha1"
+    kind       = "DNSEndpoint"
+    metadata = {
+      name      = "node-dns"
+      namespace = "kube-system"
+    }
+    spec = {
+      endpoints = [
+        {
+          dnsName    = "node.${var.dns_endpoint_zone}"
+          recordType = "CNAME"
+          targets    = var.node_cname_targets
           providerSpecific = [
             {
               name  = "external-dns.alpha.kubernetes.io/cloudflare-proxied"
