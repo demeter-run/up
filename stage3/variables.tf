@@ -89,6 +89,22 @@ variable "ogmios_cname_targets" {
   default     = ["example.dmtr.host"] // replace with actual target
 }
 
+variable "ogmos_topology_az1" {
+  description = "node affinity match_expressions for node topology zone 1 instance"
+  type = list(object({
+    key      = string
+    operator = string
+    values   = list(string)
+  }))
+  default = [
+    {
+      key      = "topology.kubernetes.io/zone"
+      operator = "In"
+      values   = ["us-central1-a"]
+    }
+  ]
+}
+
 # Cardano Node extension
 variable "enable_cardano_node" {
   description = "enable ext-cardano-node support"
