@@ -40,7 +40,7 @@ module "ext_cardano_kupo_crds" {
 }
 
 module "ext_cardano_kupo" {
-  source             = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap?ref=c196b08"
+  source             = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap?ref=d00dd29"
   for_each           = toset([for n in toset(["v1"]) : n if var.enable_cardano_kupo])
   namespace          = "ftr-kupo-${each.key}"
   cloud_provider     = var.cloud_provider
