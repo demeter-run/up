@@ -3,7 +3,7 @@ locals {
   // Specify networks for services and configurations
   kupo_v1_cluster_issuer     = "letsencrypt-dns01"
   kupo_v1_networks           = ["preview", "preprod", "mainnet"]
-  kupo_v1_operator_image_tag = "aab07d8cd8fe0fa80281550ce3845108a37f5a0b"
+  kupo_v1_operator_image_tag = "ea4dbf64cc099c6dc5acbc3d24f38143d63e4a38"
   kupo_v1_metrics_delay      = 60
   kupo_v1_per_min_dcus = {
     mainnet = "36"
@@ -18,9 +18,9 @@ locals {
   kupo_v1_ingress_class         = "kong"
   kupo_v1_extension_subdomain   = "kupo-m1"
   kupo_v1_dns_zone              = "dmtr.host"
-  kupo_v1_proxy_green_image_tag = "9c0d2ed7d7758c85106d65a171f306bba7d5c64a"
+  kupo_v1_proxy_green_image_tag = "5f824a2f2c0ae5f56294a50288c0458baae3f5af"
   kupo_v1_proxy_green_replicas  = "1"
-  kupo_v1_proxy_blue_image_tag  = "9c0d2ed7d7758c85106d65a171f306bba7d5c64a"
+  kupo_v1_proxy_blue_image_tag  = "5f824a2f2c0ae5f56294a50288c0458baae3f5af"
   kupo_v1_proxy_blue_replicas   = "1"
   kupo_v1_proxy_resources = {
     limits = {
@@ -40,7 +40,7 @@ module "ext_cardano_kupo_crds" {
 }
 
 module "ext_cardano_kupo" {
-  source             = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap?ref=c196b08"
+  source             = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap?ref=5f824a2"
   for_each           = toset([for n in toset(["v1"]) : n if var.enable_cardano_kupo])
   namespace          = "ftr-kupo-${each.key}"
   cloud_provider     = var.cloud_provider
@@ -72,7 +72,7 @@ module "ext_cardano_kupo" {
       }
       instances = {
         "instance1" = {
-          image_tag     = "b035b32b4f190eb74b7e5a8a83aee6f7afa43495"
+          image_tag     = "3004904029a647a8c2b92e6eba1737e18b2ed2a4"
           network       = "preview"
           pruned        = true
           defer_indexes = true
