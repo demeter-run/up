@@ -4,7 +4,7 @@ resource "helm_release" "cert-manager" {
   chart            = "cert-manager"
   create_namespace = true
   namespace        = "cert-manager"
-  version          = "v1.12.0"
+  version          = "v1.17.1"
 
   set {
     name  = "serviceAccount.create"
