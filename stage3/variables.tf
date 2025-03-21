@@ -107,6 +107,22 @@ variable "node_proxy_green_extra_annotations" {
   default     = {}
 }
 
+variable "node_topology_az1" {
+  description = "node affinity match_expressions for node topology zone 1 instance"
+  type = list(object({
+    key      = string
+    operator = string
+    values   = list(string)
+  }))
+  default = [
+    {
+      key      = "topology.kubernetes.io/zone"
+      operator = "In"
+      values   = ["us-central1-a"]
+    }
+  ]
+}
+
 variable "storage_size_mainnet" {
   description = "size of the storage for the mainnet"
   default     = "500Gi"

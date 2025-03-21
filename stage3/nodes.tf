@@ -13,6 +13,7 @@ module "ext_cardano_node_crds" {
 }
 
 module "ext_cardano_node" {
+  # TODO set proper ref
   source                          = "git::https://github.com/demeter-run/ext-cardano-node.git//bootstrap?ref=d9fceba"
   for_each                        = toset([for n in toset(["m1"]) : n if var.enable_cardano_node])
   namespace                       = local.cnode_v1_namespace
@@ -72,16 +73,24 @@ module "ext_cardano_node" {
           value    = var.toleration_k8s_arch_mainnet
         }
       ]
+      node_affinity = {
+        required_during_scheduling_ignored_during_execution = {
+          node_selector_term = [
+            {
+              match_expressions = var.node_topology_az1
+            }
+          ]
+        }
+      }
     }
 
     "preprod-stable-v6g" = {
-      node_image    = local.cnode_v1_default_base_image
-      image_tag     = local.cnode_v1_default_image_tag
-      network       = "preprod"
-      salt          = "v6g"
-      release       = "stable"
-      magic         = 1
-      topology_zone = "us-central1-a"
+      node_image = local.cnode_v1_default_base_image
+      image_tag  = local.cnode_v1_default_image_tag
+      network    = "preprod"
+      salt       = "v6g"
+      release    = "stable"
+      magic      = 1
       node_resources = {
         limits = {
           "memory" = "8Gi"
@@ -105,16 +114,24 @@ module "ext_cardano_node" {
           value    = var.toleration_k8s_arch_preprod
         }
       ]
+      node_affinity = {
+        required_during_scheduling_ignored_during_execution = {
+          node_selector_term = [
+            {
+              match_expressions = var.node_topology_az1
+            }
+          ]
+        }
+      }
     }
 
     "preview-stable-v6g" = {
-      node_image    = local.cnode_v1_default_base_image
-      image_tag     = local.cnode_v1_default_image_tag
-      network       = "preview"
-      salt          = "v6g"
-      release       = "stable"
-      magic         = 2
-      topology_zone = "us-central1-a"
+      node_image = local.cnode_v1_default_base_image
+      image_tag  = local.cnode_v1_default_image_tag
+      network    = "preview"
+      salt       = "v6g"
+      release    = "stable"
+      magic      = 2
       node_resources = {
         limits = {
           "memory" = "3Gi"
@@ -138,6 +155,15 @@ module "ext_cardano_node" {
           value    = var.toleration_k8s_arch_preview
         }
       ]
+      node_affinity = {
+        required_during_scheduling_ignored_during_execution = {
+          node_selector_term = [
+            {
+              match_expressions = var.node_topology_az1
+            }
+          ]
+        }
+      }
     }
   }
 
