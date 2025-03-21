@@ -28,7 +28,9 @@ module "ext_cardano_ogmios_crds" {
 }
 
 module "ext_cardano_ogmios" {
-  source                        = "git::https://github.com/demeter-run/ext-cardano-ogmios.git//bootstrap?ref=68a1887"
+  # TODO fix the ref when the PR with node affinity is merged
+  # source                        = "git::https://github.com/demeter-run/ext-cardano-ogmios.git//bootstrap?ref=68a1887"
+  source                        = "git::https://github.com/blinklabs-io/demeter-ext-cardano-ogmios.git//bootstrap?ref=feat/node-affinity"
   for_each                      = toset([for n in toset(["v1"]) : n if var.enable_cardano_ogmios])
   namespace                     = local.ogmios_v1_namespace
   networks                      = local.ogmios_v1_networks
@@ -91,6 +93,15 @@ module "ext_cardano_ogmios" {
           value    = "arm64"
         }
       ]
+      node_affinity = {
+        required_during_scheduling_ignored_during_execution = {
+          node_selector_term = [
+            {
+              match_expressions = var.ogmos_topology_az1
+            }
+          ]
+        }
+      }
     }
     "instance2" = {
       salt    = "samplesalt"
@@ -136,6 +147,15 @@ module "ext_cardano_ogmios" {
           value    = "arm64"
         }
       ]
+      node_affinity = {
+        required_during_scheduling_ignored_during_execution = {
+          node_selector_term = [
+            {
+              match_expressions = var.ogmos_topology_az1
+            }
+          ]
+        }
+      }
     }
     "instance3" = {
       salt    = "samplesalt"
@@ -181,6 +201,15 @@ module "ext_cardano_ogmios" {
           value    = "arm64"
         }
       ]
+      node_affinity = {
+        required_during_scheduling_ignored_during_execution = {
+          node_selector_term = [
+            {
+              match_expressions = var.ogmos_topology_az1
+            }
+          ]
+        }
+      }
     }
   }
 }
