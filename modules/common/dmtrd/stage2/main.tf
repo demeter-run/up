@@ -66,7 +66,8 @@ module "dmtr_daemon" {
   consumer_cache_name   = var.consumer_cache_name
   kafka_username        = var.kafka_username
   kafka_password        = var.kafka_password
-  kafka_topic           = var.kafka_topic
+  kafka_topic_events    = var.kafka_topic_events
+  kafka_topic_usage     = var.kafka_topic_usage
   replicas              = var.replicas
   cluster_id            = var.cluster_id
   prometheus_url        = "http://prometheus-operated.${var.namespace}.svc.cluster.local:9090/api/v1"
