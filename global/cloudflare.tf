@@ -16,7 +16,7 @@ locals {
 locals {
   demeter_providers = [
     {
-      name   = "blinklabs-us"
+      name = "blinklabs-us"
       cardano_node = {
         enabled = true
         address = "blinklabs-us-cardano-node.blinklabs.io"
@@ -24,9 +24,9 @@ locals {
       kupo = {
         enabled = true
         networks = {
-          preview = "proxy-green.kupo.blinklabs.cloud"
-          preprod = "proxy-green.kupo.blinklabs.cloud"
-          mainnet = "proxy-green.kupo.blinklabs.cloud"
+          preview = "preview.kupo.blinklabs.cloud"
+          preprod = "preprod.kupo.blinklabs.cloud"
+          mainnet = "kupo.blinklabs.cloud"
         }
       }
       ogmios = {
@@ -38,7 +38,7 @@ locals {
       }
     },
     {
-      name   = "txpipe-m2"
+      name = "txpipe-m2"
       cardano_node = {
         enabled = false
       }
@@ -91,11 +91,11 @@ resource "cloudflare_zone_settings_override" "this" {
     #mirage                   = "on"
     opportunistic_encryption = "on"
     #polish                   = "lossless"
-    rocket_loader            = "on"
-    ssl                      = "strict"
-    tls_1_3                  = "on"
-    webp                     = "on"
-    websockets               = "on"
+    rocket_loader = "on"
+    ssl           = "strict"
+    tls_1_3       = "on"
+    webp          = "on"
+    websockets    = "on"
     security_header {
       enabled            = true
       preload            = true
@@ -108,7 +108,7 @@ resource "cloudflare_zone_settings_override" "this" {
 # Tunnels
 
 resource "cloudflare_tunnel" "this" {
-  for_each = { for p in local.demeter_providers: p.name => p if p.tunnel.enabled }
+  for_each = { for p in local.demeter_providers : p.name => p if p.tunnel.enabled }
 
   account_id = var.cloudflare_account_id
   name       = each.value.name
@@ -117,7 +117,7 @@ resource "cloudflare_tunnel" "this" {
 }
 
 resource "cloudflare_tunnel_config" "this" {
-  for_each = { for p in local.demeter_providers: p.name => p if p.tunnel.enabled }
+  for_each = { for p in local.demeter_providers : p.name => p if p.tunnel.enabled }
 
   account_id = var.cloudflare_account_id
   tunnel_id  = cloudflare_tunnel.this[each.value.name].id
@@ -140,7 +140,7 @@ resource "cloudflare_tunnel_config" "this" {
 }
 
 resource "cloudflare_record" "tunnels" {
-  for_each = { for p in local.demeter_providers: p.name => p if p.tunnel.enabled }
+  for_each = { for p in local.demeter_providers : p.name => p if p.tunnel.enabled }
 
   depends_on = [cloudflare_zone.this]
 
@@ -239,7 +239,7 @@ resource "cloudflare_load_balancer_monitor" "kupo_preview_monitor" {
 
   header {
     header = "Host"
-    values = ["health.kupo-m1.dmtr.host"]
+    values = ["health.preview-v2.kupo-m1.dmtr.host"]
   }
 }
 
@@ -287,7 +287,7 @@ resource "cloudflare_load_balancer_monitor" "kupo_preprod_monitor" {
 
   header {
     header = "Host"
-    values = ["health.kupo-m1.dmtr.host"]
+    values = ["health.preprod-v2.kupo-m1.dmtr.host"]
   }
 }
 
@@ -335,7 +335,7 @@ resource "cloudflare_load_balancer_monitor" "kupo_mainnet_monitor" {
 
   header {
     header = "Host"
-    values = ["health.kupo-m1.dmtr.host"]
+    values = ["health.mainnet-v2.kupo-m1.dmtr.host"]
   }
 }
 
