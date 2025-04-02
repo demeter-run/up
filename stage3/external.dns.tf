@@ -68,7 +68,7 @@ resource "kubernetes_manifest" "kupo_dns_endpoint" {
           providerSpecific = [
             {
               name  = "external-dns.alpha.kubernetes.io/cloudflare-proxied"
-              value = "true"
+              value = "false"
             }
           ]
         }
@@ -95,7 +95,7 @@ resource "kubernetes_manifest" "ogmios_dns_endpoint" {
           providerSpecific = [
             {
               name  = "external-dns.alpha.kubernetes.io/cloudflare-proxied"
-              value = "true"
+              value = "false"
             }
           ]
         }
@@ -122,7 +122,7 @@ resource "kubernetes_manifest" "node_dns_endpoint" {
           providerSpecific = [
             {
               name  = "external-dns.alpha.kubernetes.io/cloudflare-proxied"
-              value = "true"
+              value = "false"
             }
           ]
         }
