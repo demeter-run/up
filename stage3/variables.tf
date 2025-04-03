@@ -60,10 +60,26 @@ variable "enable_kupo_dns_endpoint" {
   default     = false
 }
 
-# Hint CNAME allows only one target
-variable "kupo_cname_targets" {
-  description = "List of CNAME record targets for the ogmios extension"
-  default     = ["example.dmtr.host"] // replace with actual target
+variable "kupo_dns_endpoint_per_network" {
+  description = "Map of network names to DNS and CNAME configurations for Kupo endpoint"
+  type = map(object({
+    dns   = string
+    cname = string
+  }))
+  default = {
+    mainnet = {
+      dns   = "mainnet.kupo.dmtr.host",
+      cname = "proxy-green.mainnet.kupo.dmtr.host"
+    }
+    preprod = {
+      dns   = "preprod.kupo.dmtr.host",
+      cname = "proxy-green.preprod.kupo.dmtr.host"
+    }
+    preview = {
+      dns   = "preview.kupo.dmtr.host",
+      cname = "proxy-green.preview.kupo.dmtr.host"
+    }
+  }
 }
 
 variable "enable_node_dns_endpoint" {
