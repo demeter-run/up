@@ -40,7 +40,7 @@ module "ext_cardano_kupo_crds" {
 }
 
 module "ext_cardano_kupo" {
-  source             = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap?ref=5f824a2"
+  source             = "git::https://github.com/demeter-run/ext-cardano-kupo.git//bootstrap?ref=b829cd9"
   for_each           = toset([for n in toset(["v1"]) : n if var.enable_cardano_kupo])
   namespace          = "ftr-kupo-${each.key}"
   cloud_provider     = var.cloud_provider
@@ -52,17 +52,17 @@ module "ext_cardano_kupo" {
   # per_min_dcus          = local.kupo_v1_per_min_dcus
   # per_request_dcus      = local.kupo_v1_per_request_dcus
   # track_dcu_usage       = local.kupo_v1_track_dcu_usage
-  api_key_salt                  = local.kupo_v1_api_key_salt
-  ingress_class                 = local.kupo_v1_ingress_class
-  extension_subdomain           = local.kupo_v1_extension_subdomain
-  dns_zone                      = local.kupo_v1_dns_zone
-  proxy_green_extra_annotations = var.kupo_proxy_green_extra_annotations
-  proxy_green_image_tag         = local.kupo_v1_proxy_green_image_tag
-  proxy_green_replicas          = local.kupo_v1_proxy_green_replicas
-  proxy_blue_extra_annotations  = var.kupo_proxy_blue_extra_annotations
-  proxy_blue_image_tag          = local.kupo_v1_proxy_blue_image_tag
-  proxy_blue_replicas           = local.kupo_v1_proxy_blue_replicas
-  proxy_resources               = local.kupo_v1_proxy_resources
+  api_key_salt                             = local.kupo_v1_api_key_salt
+  ingress_class                            = local.kupo_v1_ingress_class
+  extension_subdomain                      = local.kupo_v1_extension_subdomain
+  dns_zone                                 = local.kupo_v1_dns_zone
+  proxy_green_extra_annotations_by_network = var.proxy_green_extra_annotations_by_network
+  proxy_green_image_tag                    = local.kupo_v1_proxy_green_image_tag
+  proxy_green_replicas                     = local.kupo_v1_proxy_green_replicas
+  proxy_blue_extra_annotations_by_network  = var.proxy_blue_extra_annotations_by_network
+  proxy_blue_image_tag                     = local.kupo_v1_proxy_blue_image_tag
+  proxy_blue_replicas                      = local.kupo_v1_proxy_blue_replicas
+  proxy_resources                          = local.kupo_v1_proxy_resources
   cells = {
     "cell1" = {
       pvc = {

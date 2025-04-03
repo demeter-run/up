@@ -158,15 +158,23 @@ variable "enable_cardano_kupo" {
   default     = false
 }
 
-variable "kupo_proxy_blue_extra_annotations" {
-  description = "Extra annotations for the proxy blue service"
-  type        = map(string)
+variable "proxy_blue_extra_annotations_by_network" {
+  description = <<EOT
+A map where keys are network names (only those defined in the "networks" variable)
+and values are maps of extra annotations for the blue proxy service specific
+to that network.
+EOT
+  type        = map(map(string))
   default     = {}
 }
 
-variable "kupo_proxy_green_extra_annotations" {
-  description = "Extra annotations for the proxy green service"
-  type        = map(string)
+variable "proxy_green_extra_annotations_by_network" {
+  description = <<EOT
+A map where keys are network names (only those defined in the "networks" variable)
+and values are maps of extra annotations for the green proxy service specific
+to that network.
+EOT
+  type        = map(map(string))
   default     = {}
 }
 
