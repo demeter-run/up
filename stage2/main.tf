@@ -43,10 +43,10 @@ module "cert_manager" {
 # }
 
 module "o11y" {
-  source        = "../modules/common/o11y/stage2"
-  namespace     = var.dmtr_namespace
-  storage_class = var.cloud_provider == "gcp" ? "hyperdisk-balanced" : "gp"
-  enable_grafana = var.enable_grafana
+  source              = "../modules/common/o11y/stage2"
+  namespace           = var.dmtr_namespace
+  storage_class       = var.cloud_provider == "gcp" ? "hyperdisk-balanced" : "gp"
+  enable_grafana      = var.enable_grafana
   enable_alertmanager = var.enable_alertmanager
 }
 
@@ -61,6 +61,7 @@ module "dmtrd" {
   kafka_password        = var.dmtrd_kafka_password
   consumer_monitor_name = var.dmtrd_consumer_monitor_name
   consumer_cache_name   = var.dmtrd_consumer_cache_name
-  kafka_topic           = var.dmtrd_kafka_topic
+  kafka_topic_events    = var.dmtrd_kafka_topic_events
+  kafka_topic_usage     = var.dmtrd_kafka_topic_usage
   replicas              = var.dmtrd_replicas
 }

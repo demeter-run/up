@@ -67,9 +67,15 @@ variable "dmtrd_consumer_cache_name" {
   description = "Name of queue consumer for cache process, should be unique per cluster. Contact Demeter team for this information."
 }
 
-variable "dmtrd_kafka_topic" {
+variable "dmtrd_kafka_topic_events" {
   type        = string
   default     = "events"
+  description = "Name of topic to consume from. Contact Demeter team for this information."
+}
+
+variable "dmtrd_kafka_topic_usage" {
+  type        = string
+  default     = "usage"
   description = "Name of topic to consume from. Contact Demeter team for this information."
 }
 
