@@ -51,20 +51,21 @@ EOF
 }
 
 resource "kubernetes_manifest" "kupo_dns_endpoint" {
-  for_each = toset([for n in toset(["v1"]) : n if var.enable_kupo_dns_endpoint])
+  for_each = var.kupo_dns_endpoint_per_network
+
   manifest = {
     apiVersion = "externaldns.k8s.io/v1alpha1"
     kind       = "DNSEndpoint"
     metadata = {
-      name      = "kupo-cname"
+      name      = "kupo-cname-${each.key}"
       namespace = "kube-system"
     }
     spec = {
       endpoints = [
         {
-          dnsName    = "kupo.${var.dns_endpoint_zone}"
+          dnsName    = each.value.dns
           recordType = "CNAME"
-          targets    = var.kupo_cname_targets
+          targets    = [each.value.cname]
           providerSpecific = [
             {
               name  = "external-dns.alpha.kubernetes.io/cloudflare-proxied"
