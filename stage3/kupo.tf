@@ -67,7 +67,7 @@ module "ext_cardano_kupo" {
     "cell1" = {
       pvc = {
         storage_size       = var.kupo_v1_storage_size_preview
-        storage_class_name = var.kupo_v1_storage_class_name
+        storage_class_name = var.kupo_v1_storage_class_name_preview
         access_mode        = "ReadWriteOnce"
       }
       instances = {
@@ -129,7 +129,7 @@ module "ext_cardano_kupo" {
     "cell2" = {
       pvc = {
         storage_size       = var.kupo_v1_storage_size_preprod
-        storage_class_name = var.kupo_v1_storage_class_name
+        storage_class_name = var.kupo_v1_storage_class_name_preprod
         access_mode        = "ReadWriteOnce"
       }
       instances = {
@@ -191,7 +191,7 @@ module "ext_cardano_kupo" {
     "cell3" = {
       pvc = {
         storage_size       = var.kupo_v1_storage_size_mainnet
-        storage_class_name = var.kupo_v1_storage_class_name
+        storage_class_name = var.kupo_v1_storage_class_name_mainnet
         access_mode        = "ReadWriteOnce"
       }
       instances = {
