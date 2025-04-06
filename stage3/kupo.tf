@@ -88,32 +88,7 @@ module "ext_cardano_kupo" {
               memory = "4Gi"
             }
           }
-          tolerations = [
-            {
-              effect   = "NoSchedule"
-              key      = "demeter.run/compute-profile"
-              operator = "Equal"
-              value    = "disk-intensive"
-            },
-            {
-              effect   = "NoSchedule"
-              key      = "demeter.run/compute-arch"
-              operator = "Equal"
-              value    = "arm64"
-            },
-            {
-              effect   = "NoSchedule"
-              key      = "demeter.run/availability-sla"
-              operator = "Equal"
-              value    = "consistent"
-            },
-            {
-              effect   = "NoSchedule"
-              key      = "kubernetes.io/arch"
-              operator = "Equal"
-              value    = "arm64"
-            }
-          ]
+          tolerations = var.kupo_v1_tolerations
           node_affinity = {
             required_during_scheduling_ignored_during_execution = {
               node_selector_term = [
@@ -150,32 +125,7 @@ module "ext_cardano_kupo" {
               memory = "4Gi"
             }
           }
-          tolerations = [
-            {
-              effect   = "NoSchedule"
-              key      = "demeter.run/compute-profile"
-              operator = "Equal"
-              value    = "disk-intensive"
-            },
-            {
-              effect   = "NoSchedule"
-              key      = "demeter.run/compute-arch"
-              operator = "Equal"
-              value    = "arm64"
-            },
-            {
-              effect   = "NoSchedule"
-              key      = "demeter.run/availability-sla"
-              operator = "Equal"
-              value    = "consistent"
-            },
-            {
-              effect   = "NoSchedule"
-              key      = "kubernetes.io/arch"
-              operator = "Equal"
-              value    = "arm64"
-            }
-          ]
+          tolerations = var.kupo_v1_tolerations
           node_affinity = {
             required_during_scheduling_ignored_during_execution = {
               node_selector_term = [
@@ -212,32 +162,7 @@ module "ext_cardano_kupo" {
               memory = "4Gi"
             }
           }
-          tolerations = [
-            {
-              effect   = "NoSchedule"
-              key      = "demeter.run/compute-profile"
-              operator = "Equal"
-              value    = "disk-intensive"
-            },
-            {
-              effect   = "NoSchedule"
-              key      = "demeter.run/compute-arch"
-              operator = "Equal"
-              value    = "arm64"
-            },
-            {
-              effect   = "NoSchedule"
-              key      = "demeter.run/availability-sla"
-              operator = "Equal"
-              value    = "consistent"
-            },
-            {
-              effect   = "NoSchedule"
-              key      = "kubernetes.io/arch"
-              operator = "Equal"
-              value    = "arm64"
-            }
-          ]
+          tolerations = var.kupo_v1_tolerations
           node_affinity = {
             required_during_scheduling_ignored_during_execution = {
               node_selector_term = [

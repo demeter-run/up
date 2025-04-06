@@ -242,7 +242,7 @@ variable "kupo_v1_cell1_preview_node_affinity" {
     {
       key      = "cloud.google.com/gke-nodepool"
       operator = "In"
-      values   = ["co-di-arm64-az1"]
+      values   = ["co-gp-arm64-az1"]
     }
   ]
 }
@@ -258,7 +258,7 @@ variable "kupo_v1_cell2_preprod_node_affinity" {
     {
       key      = "cloud.google.com/gke-nodepool"
       operator = "In"
-      values   = ["co-di-arm64-az1"]
+      values   = ["co-gp-arm64-az1"]
     }
   ]
 }
@@ -274,7 +274,7 @@ variable "kupo_v1_cell3_mainnet_node_affinity" {
     {
       key      = "cloud.google.com/gke-nodepool"
       operator = "In"
-      values   = ["co-di-arm64-az1"]
+      values   = ["co-gp-arm64-az1"]
     }
   ]
 }
@@ -297,6 +297,42 @@ variable "kupo_v1_storage_size_mainnet" {
 variable "kupo_v1_storage_class_name" {
   description = "name of the storage class for the kupo extension"
   default     = "hyperdisk-balanced-immediate"
+}
+
+variable "kupo_v1_tolerations" {
+  description = "Tolerations for Kupo instances"
+  type = list(object({
+    effect   = string
+    key      = string
+    operator = string
+    value    = string
+  }))
+  default = [
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-profile"
+      operator = "Equal"
+      value    = "general-purpose"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-arch"
+      operator = "Equal"
+      value    = "arm64"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/availability-sla"
+      operator = "Equal"
+      value    = "consistent"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "kubernetes.io/arch"
+      operator = "Equal"
+      value    = "arm64"
+    }
+  ]
 }
 
 # Ogmios extension
