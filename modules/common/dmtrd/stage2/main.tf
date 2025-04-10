@@ -57,7 +57,7 @@ variable "replicas" {
 }
 
 module "dmtr_daemon" {
-  source = "git::https://github.com/demeter-run/fabric.git//bootstrap/daemon"
+  source = "git::https://github.com/demeter-run/fabric.git//bootstrap/daemon?ref=8d6d43aed226cb542465e834bfed61bf5cb2c750"
 
   namespace             = var.namespace
   image                 = "ghcr.io/demeter-run/fabric-daemon:${var.image_tag}"
