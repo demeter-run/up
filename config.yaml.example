@@ -28,7 +28,8 @@ region: eu-central-1
 
 dmtrd_cluster_id: <cluster_id>
 dmtrd_broker_urls: <broker_url>
-dmtrd_kafka_topic: <topic>
+dmtrd_kafka_topic_events: <topic_events>
+dmtrd_kafka_topic_usage: <topic_usage>
 dmtrd_kafka_username: <kafka_username>
 dmtrd_kafka_password: <kafka_password>
 
