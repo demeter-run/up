@@ -363,6 +363,19 @@ variable "ogmios_proxy_green_extra_annotations" {
   default     = {}
 }
 
+# Postgres cluster
+variable "enable_postgres_operator" {
+  description = "enable postgres operator"
+  default     = false
+}
+
+# Ensure the postgres operator is enabled to provide the necessary CRDs
+# before creating the postgres cluster
+variable "enable_postgres_cluster" {
+  description = "enable postgres cluster"
+  default     = false
+}
+
 # UtxoRPC extension
 variable "enable_cardano_utxorpc" {
   description = "enable ext-cardano-utxorpc support"
