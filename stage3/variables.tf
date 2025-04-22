@@ -279,6 +279,22 @@ variable "kupo_v1_cell3_mainnet_node_affinity" {
   ]
 }
 
+variable "kupo_v1_cell4_mainnet_node_affinity" {
+  description = "node affinity match_expressions for kupo cell4 mainnet instance"
+  type = list(object({
+    key      = string
+    operator = string
+    values   = list(string)
+  }))
+  default = [
+    {
+      key      = "cloud.google.com/gke-nodepool"
+      operator = "In"
+      values   = ["co-gp-arm64-az2"]
+    }
+  ]
+}
+
 variable "kupo_v1_storage_size_preview" {
   description = "size of the storage for the kupo extension"
   default     = "50Gi"
@@ -297,6 +313,11 @@ variable "kupo_v1_storage_size_mainnet" {
 variable "kupo_v1_storage_class_name" {
   description = "name of the storage class for the kupo extension"
   default     = "hyperdisk-balanced-immediate"
+}
+
+variable "kupo_v1_cell4_storage_class_name" {
+  description = "name of the storage class for the kupo cell4 mainnet instance"
+  default     = "hyperdisk-balanced"
 }
 
 variable "kupo_v1_tolerations" {
