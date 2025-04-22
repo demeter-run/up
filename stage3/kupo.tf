@@ -175,5 +175,43 @@ module "ext_cardano_kupo" {
         }
       }
     }
+    // Mainnet different AZ
+    "cell4" = {
+      pvc = {
+        storage_size       = var.kupo_v1_storage_size_mainnet
+        storage_class_name = var.kupo_v1_cell4_storage_class_name
+        access_mode        = "ReadWriteOnce"
+      }
+      instances = {
+        "instance1" = {
+          image_tag     = "b035b32b4f190eb74b7e5a8a83aee6f7afa43495"
+          network       = "mainnet"
+          pruned        = true
+          defer_indexes = true
+          # Node connection to socket over n2c
+          n2n_endpoint = "node-mainnet-stable.ext-nodes-m1.svc.cluster.local:3307"
+          resources = {
+            limits = {
+              cpu    = "1"
+              memory = "4Gi"
+            }
+            requests = {
+              cpu    = "250m"
+              memory = "4Gi"
+            }
+          }
+          tolerations = var.kupo_v1_tolerations
+          node_affinity = {
+            required_during_scheduling_ignored_during_execution = {
+              node_selector_term = [
+                {
+                  match_expressions = var.kupo_v1_cell4_mainnet_node_affinity
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
   }
 }
