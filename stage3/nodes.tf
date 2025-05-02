@@ -124,46 +124,46 @@ module "ext_cardano_node" {
       }
     }
 
-    "preview-stable-v6g" = {
-      node_image = local.cnode_v1_default_base_image
-      image_tag  = local.cnode_v1_default_image_tag
-      network    = "preview"
-      salt       = "v6g"
-      release    = "stable"
-      magic      = 2
-      node_resources = {
-        limits = {
-          "memory" = "3Gi"
-          "cpu"    = "8"
-        }
-        requests = {
-          "memory" = "3Gi"
-          "cpu"    = "100m"
-        }
-      }
-      storage_size       = var.storage_size_preview
-      storage_class_name = var.storage_class_name_preview
-      node_version       = local.cnode_v1_default_image_tag
-      replicas           = 1
-      restore            = true
-      tolerations = [
-        {
-          effect   = "NoSchedule"
-          key      = "kubernetes.io/arch"
-          operator = "Equal"
-          value    = var.toleration_k8s_arch_preview
-        }
-      ]
-      node_affinity = {
-        required_during_scheduling_ignored_during_execution = {
-          node_selector_term = [
-            {
-              match_expressions = var.node_topology_az1
-            }
-          ]
-        }
-      }
-    }
+    # "preview-stable-v6g" = {
+    #   node_image = local.cnode_v1_default_base_image
+    #   image_tag  = local.cnode_v1_default_image_tag
+    #   network    = "preview"
+    #   salt       = "v6g"
+    #   release    = "stable"
+    #   magic      = 2
+    #   node_resources = {
+    #     limits = {
+    #       "memory" = "3Gi"
+    #       "cpu"    = "8"
+    #     }
+    #     requests = {
+    #       "memory" = "3Gi"
+    #       "cpu"    = "100m"
+    #     }
+    #   }
+    #   storage_size       = var.storage_size_preview
+    #   storage_class_name = var.storage_class_name_preview
+    #   node_version       = local.cnode_v1_default_image_tag
+    #   replicas           = 1
+    #   restore            = true
+    #   tolerations = [
+    #     {
+    #       effect   = "NoSchedule"
+    #       key      = "kubernetes.io/arch"
+    #       operator = "Equal"
+    #       value    = var.toleration_k8s_arch_preview
+    #     }
+    #   ]
+    #   node_affinity = {
+    #     required_during_scheduling_ignored_during_execution = {
+    #       node_selector_term = [
+    #         {
+    #           match_expressions = var.node_topology_az1
+    #         }
+    #       ]
+    #     }
+    #   }
+    # }
   }
 
   services = {

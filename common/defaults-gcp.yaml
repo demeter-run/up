@@ -225,8 +225,8 @@ managed_node_groups:
 
   - name: co-mem-arm64-az2
     labels:
-      demeter.run/availability-sla: best-effort
-      demeter.run/compute-profile: general-purpose
+      demeter.run/availability-sla: consistent
+      demeter.run/compute-profile: mem-intensive
       demeter.run/compute-arch: arm64
       demeter.run/availability-zone: az2
     instance_type: c4a-highmem-8
@@ -236,10 +236,10 @@ managed_node_groups:
     disk_size_gb: 100
     taints:
       - key: demeter.run/availability-sla
-        value: "best-effort"
+        value: "consistent"
         effect: NO_SCHEDULE
       - key: demeter.run/compute-profile
-        value: "general-purpose"
+        value: "mem-intensive"
         effect: NO_SCHEDULE
       - key: demeter.run/compute-arch
         value: "arm64"
