@@ -206,7 +206,7 @@ variable "enable_cardano_kupo" {
   default     = false
 }
 
-variable "proxy_blue_extra_annotations_by_network" {
+variable "kupo_proxy_blue_extra_annotations_by_network" {
   description = <<EOT
 A map where keys are network names (only those defined in the "networks" variable)
 and values are maps of extra annotations for the blue proxy service specific
@@ -216,7 +216,7 @@ EOT
   default     = {}
 }
 
-variable "proxy_green_extra_annotations_by_network" {
+variable "kupo_proxy_green_extra_annotations_by_network" {
   description = <<EOT
 A map where keys are network names (only those defined in the "networks" variable)
 and values are maps of extra annotations for the green proxy service specific
@@ -372,16 +372,46 @@ variable "ogmios_dns_zone" {
   default     = "dmtr.host"
 }
 
-variable "ogmios_proxy_blue_extra_annotations" {
-  description = "Extra annotations for the proxy blue service"
-  type        = map(string)
+variable "ogmios_proxy_blue_extra_annotations_by_network" {
+  description = <<EOT
+A map where keys are network names (only those defined in the "networks" variable)
+and values are maps of extra annotations for the blue proxy service specific
+to that network.
+EOT
+  type        = map(map(string))
   default     = {}
 }
 
-variable "ogmios_proxy_green_extra_annotations" {
-  description = "Extra annotations for the proxy green service"
-  type        = map(string)
+variable "ogmios_proxy_green_extra_annotations_by_network" {
+  description = <<EOT
+A map where keys are network names (only those defined in the "networks" variable)
+and values are maps of extra annotations for the green proxy service specific
+to that network.
+EOT
+  type        = map(map(string))
   default     = {}
+}
+
+variable "ogmios_dns_endpoint_per_network" {
+  description = "Map of network names to DNS and CNAME configurations for Ogmios endpoint"
+  type = map(object({
+    dns   = string
+    cname = string
+  }))
+  default = {
+    mainnet = {
+      dns   = "mainnet.ogmios.dmtr.host",
+      cname = "proxy-green.mainnet.ogmios.dmtr.host"
+    }
+    preprod = {
+      dns   = "preprod.ogmios.dmtr.host",
+      cname = "proxy-green.preprod.ogmios.dmtr.host"
+    }
+    preview = {
+      dns   = "preview.ogmios.dmtr.host",
+      cname = "proxy-green.preview.ogmios.dmtr.host"
+    }
+  }
 }
 
 # Postgres cluster

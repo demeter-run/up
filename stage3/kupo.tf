@@ -56,10 +56,10 @@ module "ext_cardano_kupo" {
   ingress_class                            = local.kupo_v1_ingress_class
   extension_subdomain                      = local.kupo_v1_extension_subdomain
   dns_zone                                 = local.kupo_v1_dns_zone
-  proxy_green_extra_annotations_by_network = var.proxy_green_extra_annotations_by_network
+  proxy_green_extra_annotations_by_network = var.kupo_proxy_green_extra_annotations_by_network
   proxy_green_image_tag                    = local.kupo_v1_proxy_green_image_tag
   proxy_green_replicas                     = local.kupo_v1_proxy_green_replicas
-  proxy_blue_extra_annotations_by_network  = var.proxy_blue_extra_annotations_by_network
+  proxy_blue_extra_annotations_by_network  = var.kupo_proxy_blue_extra_annotations_by_network
   proxy_blue_image_tag                     = local.kupo_v1_proxy_blue_image_tag
   proxy_blue_replicas                      = local.kupo_v1_proxy_blue_replicas
   proxy_resources                          = local.kupo_v1_proxy_resources
