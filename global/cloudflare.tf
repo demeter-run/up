@@ -31,7 +31,11 @@ locals {
       }
       ogmios = {
         enabled = true
-        address = "blinklabs-us-ogmios.blinklabs.io"
+        networks = {
+          preview = "preview.ogmios.blinklabs.cloud"
+          preprod = "preprod.ogmios.blinklabs.cloud"
+          mainnet = "ogmios.blinklabs.cloud"
+        }
       }
       tunnel = {
         enabled = true
@@ -66,7 +70,7 @@ resource "cloudflare_zone" "this" {
   for_each   = toset(local.cloudflare_zone_names)
   account_id = var.cloudflare_account_id
   zone       = each.key
-  plan       = "free"
+  plan       = "pro"
   jump_start = false
 }
 
@@ -341,33 +345,40 @@ resource "cloudflare_load_balancer_monitor" "kupo_mainnet_monitor" {
 
 # Ogmios
 
-resource "cloudflare_load_balancer_pool" "ogmios_m1" {
-  name = "OgmiosM1"
-
+resource "cloudflare_load_balancer_pool" "ogmios_preview" {
+  name       = "OgmiosPreview"
   account_id = var.cloudflare_account_id
-  monitor    = cloudflare_load_balancer_monitor.ogmios_m1_monitor.id
+  monitor    = cloudflare_load_balancer_monitor.ogmios_preview_monitor.id
 
   dynamic "origins" {
     for_each = { for p in local.demeter_providers : p.name => p if p.ogmios.enabled }
     content {
       name    = origins.value.name
-      address = origins.value.ogmios.address != "" ? origins.value.ogmios.address : "${origins.value.name}.${var.cloudflare_zone_name}"
+      address = origins.value.ogmios.networks.preview
     }
   }
 }
 
-resource "cloudflare_load_balancer" "ogmios_m1" {
+resource "cloudflare_load_balancer" "ogmios_preview" {
   zone_id          = var.cloudflare_zone_id
-  name             = "*.ogmios-m1.${var.cloudflare_zone_name}"
-  default_pool_ids = [cloudflare_load_balancer_pool.ogmios_m1.id]
-  fallback_pool_id = cloudflare_load_balancer_pool.ogmios_m1.id
+  name             = "preview-v6.ogmios-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.ogmios_preview.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.ogmios_preview.id
   proxied          = false
 }
 
-resource "cloudflare_load_balancer_monitor" "ogmios_m1_monitor" {
+resource "cloudflare_load_balancer" "ogmios_preview_splat" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "*.preview-v6.ogmios-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.ogmios_preview.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.ogmios_preview.id
+  proxied          = false
+}
+
+resource "cloudflare_load_balancer_monitor" "ogmios_preview_monitor" {
   account_id     = var.cloudflare_account_id
   type           = "https"
-  description    = "Health check for ogmios_m1"
+  description    = "Health check for OgmiosPreview"
   path           = "/healthz"
   interval       = 60
   timeout        = 5
@@ -377,7 +388,101 @@ resource "cloudflare_load_balancer_monitor" "ogmios_m1_monitor" {
 
   header {
     header = "Host"
-    values = ["health.ogmios-m1.dmtr.host"]
+    values = ["health.preview-v6.ogmios-m1.dmtr.host"]
+  }
+}
+
+resource "cloudflare_load_balancer_pool" "ogmios_preprod" {
+  name       = "OgmiosPreprod"
+  account_id = var.cloudflare_account_id
+  monitor    = cloudflare_load_balancer_monitor.ogmios_preprod_monitor.id
+
+  dynamic "origins" {
+    for_each = { for p in local.demeter_providers : p.name => p if p.ogmios.enabled }
+    content {
+      name    = origins.value.name
+      address = origins.value.ogmios.networks.preprod
+    }
+  }
+}
+
+resource "cloudflare_load_balancer" "ogmios_preprod" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "preprod-v6.ogmios-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.ogmios_preprod.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.ogmios_preprod.id
+  proxied          = false
+}
+
+resource "cloudflare_load_balancer" "ogmios_preprod_splat" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "*.preprod-v6.ogmios-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.ogmios_preprod.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.ogmios_preprod.id
+  proxied          = false
+}
+
+resource "cloudflare_load_balancer_monitor" "ogmios_preprod_monitor" {
+  account_id     = var.cloudflare_account_id
+  type           = "https"
+  description    = "Health check for OgmiosPreprod"
+  path           = "/healthz"
+  interval       = 60
+  timeout        = 5
+  retries        = 2
+  method         = "GET"
+  expected_codes = "200"
+
+  header {
+    header = "Host"
+    values = ["health.preprod-v6.ogmios-m1.dmtr.host"]
+  }
+}
+
+resource "cloudflare_load_balancer_pool" "ogmios_mainnet" {
+  name       = "OgmiosMainnet"
+  account_id = var.cloudflare_account_id
+  monitor    = cloudflare_load_balancer_monitor.ogmios_mainnet_monitor.id
+
+  dynamic "origins" {
+    for_each = { for p in local.demeter_providers : p.name => p if p.ogmios.enabled }
+    content {
+      name    = origins.value.name
+      address = origins.value.ogmios.networks.mainnet
+    }
+  }
+}
+
+resource "cloudflare_load_balancer" "ogmios_mainnet" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "mainnet-v6.ogmios-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.ogmios_mainnet.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.ogmios_mainnet.id
+  proxied          = false
+}
+
+resource "cloudflare_load_balancer" "ogmios_mainnet_splat" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "*.mainnet-v6.ogmios-m1.${var.cloudflare_zone_name}"
+  default_pool_ids = [cloudflare_load_balancer_pool.ogmios_mainnet.id]
+  fallback_pool_id = cloudflare_load_balancer_pool.ogmios_mainnet.id
+  proxied          = false
+}
+
+resource "cloudflare_load_balancer_monitor" "ogmios_mainnet_monitor" {
+  account_id     = var.cloudflare_account_id
+  type           = "https"
+  description    = "Health check for OgmiosMainnet"
+  path           = "/healthz"
+  interval       = 60
+  timeout        = 5
+  retries        = 2
+  method         = "GET"
+  expected_codes = "200"
+
+  header {
+    header = "Host"
+    values = ["health.mainnet-v6.ogmios-m1.dmtr.host"]
   }
 }
 
