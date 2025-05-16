@@ -79,20 +79,21 @@ resource "kubernetes_manifest" "kupo_dns_endpoint" {
 }
 
 resource "kubernetes_manifest" "ogmios_dns_endpoint" {
-  for_each = toset([for n in toset(["v1"]) : n if var.enable_ogmios_dns_endpoint])
+  for_each = var.ogmios_dns_endpoint_per_network
+
   manifest = {
     apiVersion = "externaldns.k8s.io/v1alpha1"
     kind       = "DNSEndpoint"
     metadata = {
-      name      = "ogmios-cname"
+      name      = "ogmios-cname-${each.key}"
       namespace = "kube-system"
     }
     spec = {
       endpoints = [
         {
-          dnsName    = "ogmios.${var.dns_endpoint_zone}"
+          dnsName    = each.value.dns
           recordType = "CNAME"
-          targets    = var.ogmios_cname_targets
+          targets    = [each.value.cname]
           providerSpecific = [
             {
               name  = "external-dns.alpha.kubernetes.io/cloudflare-proxied"
