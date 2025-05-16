@@ -55,7 +55,12 @@ locals {
         }
       }
       ogmios = {
-        enabled = false
+        enabled = true
+        networks = {
+          preview = "wydstabtnn.txpipe.cloud"
+          preprod = "opwcgfbffs.txpipe.cloud"
+          mainnet = "gywofhowvc.txpipe.cloud"
+        }
       }
       tunnel = {
         enabled = false
