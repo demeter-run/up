@@ -18,3 +18,9 @@ variable "enable_alertmanager" {
   type        = bool
   default     = false
 }
+
+variable "cluster_id" {
+  description = "Name of the cluster to add as a label to all metrics"
+  type        = string
+  default     = ""
+}

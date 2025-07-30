@@ -48,6 +48,7 @@ module "o11y" {
   storage_class       = var.cloud_provider == "gcp" ? "hyperdisk-balanced" : "gp"
   enable_grafana      = var.enable_grafana
   enable_alertmanager = var.enable_alertmanager
+  cluster_id          = var.dmtrd_cluster_id
 }
 
 module "dmtrd" {
