@@ -17,6 +17,9 @@ resource "kubernetes_manifest" "prometheus" {
           },
         ]
       }
+      "externalLabels" = var.cluster_id != "" ? {
+        "cluster" = var.cluster_id
+      } : {}
       "enableAdminAPI"              = false
       "podMonitorNamespaceSelector" = {}
       "podMonitorSelector" = {
