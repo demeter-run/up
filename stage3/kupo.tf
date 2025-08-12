@@ -15,7 +15,7 @@ locals {
   }
   kupo_v1_track_dcu_usage       = "true"
   kupo_v1_api_key_salt          = coalesce(var.kupo_v1_api_key_salt, "this is a random generated key and must be shared...")
-  kupo_v1_ingress_class         = "kong"
+  kupo_v1_ingress_class         = "alb"
   kupo_v1_extension_subdomain   = "kupo-m1"
   kupo_v1_dns_zone              = "dmtr.host"
   kupo_v1_proxy_green_image_tag = "5f824a2f2c0ae5f56294a50288c0458baae3f5af"
