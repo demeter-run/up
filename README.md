@@ -38,13 +38,7 @@ config.yaml:
 
 ```yaml
 cloud_provider: aws
-cloudflared_token: eyJhI...
 ```
-
-You can get the `cloudflared_token` by registering a tunnel with either Blink Labs
-or TxPipe.
-
-**Important**: Do not check in your `cloudflared_token` to an unsecured location.
 
 The `bin/bootstrap-cloud` command will:
 
@@ -69,7 +63,6 @@ config.yaml:
 
 ```yaml
 cloud_provider: aws
-cloudflared_token: eyJhI...
 terraform_state_bucket: abcd1234deadbeef-terraform-state
 terraform_state_region: us-west-2
 ```

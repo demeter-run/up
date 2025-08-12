@@ -5,10 +5,8 @@
 # Supported cloud providers are: aws, gcp, k3d(default)
 cloud_provider: aws
 
+# Cloudflare API token
 cloudflare_token: <token>
-
-# The cloudflared_token is stored in the global Terraform state and is required for stage3 deployment. It is a base64 token.
-cloudflared_token: eyJ...
 
 # Define project id for GCP. This is required for bootstrapping and storing Terraform state.
 terraform_project_id: <project_id>
