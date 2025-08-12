@@ -68,7 +68,6 @@ if test -e ${__root}/config.yaml; then
       __name=dmtr-cluster
     fi
   fi
-  __cloudflared_token=$(grep ^cloudflared_token: ${__root}/config.yaml | awk '{print $2}')
   __cloudflare_token=$(grep ^cloudflare_token: ${__root}/config.yaml | awk '{print $2}')
   __cluster_name=$(grep ^cluster_name: ${__root}/config.yaml | awk '{print $2}')
   __region=$(grep ^terraform_state_region: ${__root}/config.yaml | awk '{print $2}')
@@ -90,10 +89,6 @@ else
 fi
 if [[ -z ${__cluster_name} ]]; then
   __cluster_name=dmtr-cluster
-fi
-if [[ -z ${__cloudflared_token} ]]; then
-  echo you must configure cloudflared_token in config.yaml
-  exit 1
 fi
 
 echo configuring terraform for ${__cloud}
@@ -195,7 +190,6 @@ if [[ ${__cloud} == aws ]]; then
   if ! test -e env.auto.tfvars; then
     echo configuring stage3 terraform variables
     sed -e 's:^# ::' \
-        -e "s:eyJ...:${__cloudflared_token}:" \
 	-e "s:dmtr-cluster:${__cluster_name}:" \
 	-e "s#some-context#aws-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
@@ -302,10 +296,9 @@ elif [[ ${__cloud} == gcp ]]; then
     echo configuring stage3 terraform variables
     sed -e 's:^# ::' \
         -e "s#aws#${__cloud}#" \
-        -e "s:eyJ...:${__cloudflared_token}:" \
-	      -e "s:dmtr-cluster:${__dmtrd_cluster_id}:" \
-	      -e "s#some-context#gcp-${__cluster_name}#" \
-	      -e "s#some-provider#${__provider_name}#" \
+        -e "s:dmtr-cluster:${__dmtrd_cluster_id}:" \
+        -e "s#some-context#gcp-${__cluster_name}#" \
+        -e "s#some-provider#${__provider_name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init
@@ -341,7 +334,6 @@ else # k3d
   if ! test -e env.auto.tfvars; then
     echo configuring stage3 terraform variables
     sed -e 's:^# ::' \
-        -e "s:eyJ...:${__cloudflared_token}:" \
 	-e "s:dmtr-cluster:${__cluster_name}:" \
 	-e "s#some-context#k3d-${__cluster_name}#" \
         env.auto.tfvars.example > env.auto.tfvars

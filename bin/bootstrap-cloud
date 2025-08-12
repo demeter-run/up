@@ -209,9 +209,8 @@ case ${__cloud} in
   if ! test -e env.auto.tfvars; then
     echo configuring stage3 terraform variables
     sed -e 's:^# ::' \
-        -e "s:eyJ...:${__cloudflared_token}:" \
-	-e "s:dmtr-cluster:${__name}:" \
-	-e "s#some-context#aws-${__name}#" \
+        -e "s:dmtr-cluster:${__name}:" \
+        -e "s#some-context#aws-${__name}#" \
         env.auto.tfvars.example > env.auto.tfvars
   fi
   terraform init

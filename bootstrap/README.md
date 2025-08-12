@@ -26,7 +26,6 @@ The `config.yaml` for sharing a cluster must contain at least the following data
 
 ```yaml
 cloud_provider: <provider>
-cloudflared_token: <token>
 terraform_state_bucket: <bucket>
 terraform_state_region: <region>
 ```
