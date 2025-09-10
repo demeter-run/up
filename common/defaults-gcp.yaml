@@ -23,7 +23,7 @@ managed_node_groups:
         effect: NO_SCHEDULE
     availability_zones: us-central1-a
 
-  # Enamble for HA
+  # Enable for HA
   - name: gke-system-az2
     labels:
       gke-managed-components: "true"
@@ -206,7 +206,7 @@ managed_node_groups:
       demeter.run/compute-profile: mem-intensive
       demeter.run/compute-arch: arm64
       demeter.run/availability-zone: az1
-    instance_type: c4a-highmem-8
+    instance_type: c4a-highmem-16
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -229,7 +229,7 @@ managed_node_groups:
       demeter.run/compute-profile: mem-intensive
       demeter.run/compute-arch: arm64
       demeter.run/availability-zone: az2
-    instance_type: c4a-highmem-8
+    instance_type: c4a-highmem-16
     min_size: 0
     max_size: 1
     desired_capacity: 0
@@ -245,55 +245,3 @@ managed_node_groups:
         value: "arm64"
         effect: NO_SCHEDULE
     availability_zones: us-central1-b
-
-  # Disk Intensive
-  - name: co-di-x86-az2
-    labels:
-      demeter.run/availability-sla: consistent
-      demeter.run/compute-profile: disk-intensive
-      demeter.run/compute-arch: x86
-      demeter.run/availability-zone: az1
-    instance_type: n2-standard-4
-    min_size: 0
-    max_size: 1
-    desired_capacity: 0
-    disk_size_gb: 100
-    disk_type: pd-ssd
-    spot: true
-    taints:
-      - key: demeter.run/availability-sla
-        value: "consistent"
-        effect: NO_SCHEDULE
-      - key: demeter.run/compute-profile
-        value: "disk-intensive"
-        effect: NO_SCHEDULE
-      - key: demeter.run/compute-arch
-        value: "x86"
-        effect: NO_SCHEDULE
-    availability_zones: us-central1-a
-
-  - name: co-di-arm64-az1
-    labels:
-      demeter.run/availability-sla: consistent
-      demeter.run/compute-profile: disk-intensive
-      demeter.run/compute-arch: arm64
-      demeter.run/availability-zone: az1
-  # Google supports one instance type per node group
-    instance_type: t2a-standard-4
-    min_size: 0
-    max_size: 1
-    desired_capacity: 1
-    disk_size_gb: 100
-    disk_type: pd-ssd
-    spot: true
-    taints:
-      - key: demeter.run/availability-sla
-        value: "consistent"
-        effect: NO_SCHEDULE
-      - key: demeter.run/compute-profile
-        value: "disk-intensive"
-        effect: NO_SCHEDULE
-      - key: demeter.run/compute-arch
-        value: "arm64"
-        effect: NO_SCHEDULE
-    availability_zones: us-central1-a
