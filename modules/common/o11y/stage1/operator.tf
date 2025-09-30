@@ -179,6 +179,13 @@ resource "kubernetes_deployment" "prometheus_operator" {
           operator = "Equal"
           value    = "consistent"
         }
+
+        toleration {
+          effect   = "NoSchedule"
+          key      = "kubernetes.op/arch"
+          operator = "Equal"
+          value    = "arm64"
+        }
       }
     }
   }
