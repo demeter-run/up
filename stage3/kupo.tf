@@ -3,7 +3,7 @@ locals {
   // Specify networks for services and configurations
   kupo_v1_cluster_issuer     = "letsencrypt-dns01"
   kupo_v1_networks           = ["preview", "preprod", "mainnet"]
-  kupo_v1_operator_image_tag = "ea4dbf64cc099c6dc5acbc3d24f38143d63e4a38"
+  kupo_v1_operator_image_tag = "4d6a77d8028b3d4ba1ad9aeeabca207d7a576479"
   kupo_v1_metrics_delay      = 60
   kupo_v1_per_min_dcus = {
     mainnet = "36"
@@ -18,9 +18,9 @@ locals {
   kupo_v1_ingress_class         = "alb"
   kupo_v1_extension_subdomain   = "kupo-m1"
   kupo_v1_dns_zone              = "dmtr.host"
-  kupo_v1_proxy_green_image_tag = "5f824a2f2c0ae5f56294a50288c0458baae3f5af"
+  kupo_v1_proxy_green_image_tag = "4d6a77d8028b3d4ba1ad9aeeabca207d7a576479"
   kupo_v1_proxy_green_replicas  = "1"
-  kupo_v1_proxy_blue_image_tag  = "5f824a2f2c0ae5f56294a50288c0458baae3f5af"
+  kupo_v1_proxy_blue_image_tag  = "4d6a77d8028b3d4ba1ad9aeeabca207d7a576479"
   kupo_v1_proxy_blue_replicas   = "1"
   kupo_v1_proxy_resources = {
     limits = {
@@ -32,6 +32,32 @@ locals {
       memory = "500Mi"
     }
   }
+  kupo_v1_proxy_green_tolerations = [
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-profile"
+      operator = "Equal"
+      value    = "mem-intensive"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/compute-arch"
+      operator = "Equal"
+      value    = "arm64"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "demeter.run/availability-sla"
+      operator = "Exists"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "kubernetes.io/arch"
+      operator = "Equal"
+      value    = "arm64"
+    }
+  ]
+  kupo_v1_proxy_blue_tolerations = local.kupo_v1_proxy_green_tolerations
 }
 
 module "ext_cardano_kupo_crds" {
@@ -59,9 +85,11 @@ module "ext_cardano_kupo" {
   proxy_green_extra_annotations_by_network = var.kupo_proxy_green_extra_annotations_by_network
   proxy_green_image_tag                    = local.kupo_v1_proxy_green_image_tag
   proxy_green_replicas                     = local.kupo_v1_proxy_green_replicas
+  proxy_green_tolerations                  = local.kupo_v1_proxy_green_tolerations
   proxy_blue_extra_annotations_by_network  = var.kupo_proxy_blue_extra_annotations_by_network
   proxy_blue_image_tag                     = local.kupo_v1_proxy_blue_image_tag
   proxy_blue_replicas                      = local.kupo_v1_proxy_blue_replicas
+  proxy_blue_tolerations                   = local.kupo_v1_proxy_blue_tolerations
   proxy_resources                          = local.kupo_v1_proxy_resources
   cells = {
     "cell1" = {
