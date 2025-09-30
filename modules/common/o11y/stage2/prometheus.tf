@@ -75,6 +75,12 @@ resource "kubernetes_manifest" "prometheus" {
           "key"      = "demeter.run/availability-sla"
           "operator" = "Equal"
           "value"    = "consistent"
+        },
+        {
+          "effect"   = "NoSchedule"
+          "key"      = "kubernetes.io/arch"
+          "operator" = "Equal",
+          "value"    = "arm64"
         }
       ]
     }
