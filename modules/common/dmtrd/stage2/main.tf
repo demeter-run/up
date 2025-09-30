@@ -57,7 +57,7 @@ variable "replicas" {
 }
 
 module "dmtr_daemon" {
-  source = "git::https://github.com/demeter-run/fabric.git//bootstrap/daemon?ref=8d6d43aed226cb542465e834bfed61bf5cb2c750"
+  source = "git::https://github.com/demeter-run/fabric.git//bootstrap/daemon?ref=6ab0895f03c0b32fbdfc76cf0ca58b8511c28c68"
 
   namespace             = var.namespace
   image                 = "ghcr.io/demeter-run/fabric-daemon:${var.image_tag}"
@@ -76,20 +76,25 @@ module "dmtr_daemon" {
       effect   = "NoSchedule"
       key      = "demeter.run/compute-profile"
       operator = "Equal"
-      value    = "general-purpose"
+      value    = "mem-intensive"
     },
     {
       effect   = "NoSchedule"
       key      = "demeter.run/compute-arch"
       operator = "Equal"
-      value    = "x86"
+      value    = "arm64"
     },
     {
       effect   = "NoSchedule"
       key      = "demeter.run/availability-sla"
       operator = "Equal"
       value    = "consistent"
+    },
+    {
+      effect   = "NoSchedule"
+      key      = "kubernetes.io/arch"
+      operator = "Equal"
+      value    = "arm64"
     }
-
   ]
 }
