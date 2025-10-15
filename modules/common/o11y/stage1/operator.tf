@@ -170,7 +170,8 @@ resource "kubernetes_deployment" "prometheus_operator" {
         toleration {
           effect   = "NoSchedule"
           key      = "demeter.run/compute-arch"
-          operator = "Exists"
+          operator = "Equal"
+          value    = "arm64"
         }
 
         toleration {
@@ -182,7 +183,7 @@ resource "kubernetes_deployment" "prometheus_operator" {
 
         toleration {
           effect   = "NoSchedule"
-          key      = "kubernetes.op/arch"
+          key      = "kubernetes.io/arch"
           operator = "Equal"
           value    = "arm64"
         }
@@ -231,4 +232,3 @@ resource "kubernetes_service" "prometheus_operator" {
     cluster_ip = "None"
   }
 }
-
