@@ -53,7 +53,7 @@ resource "kubernetes_manifest" "prometheus" {
             "storageClassName" = var.storage_class
             "resources" = {
               "requests" = {
-                "storage" = "40Gi"
+                "storage" = "80Gi"
               }
             }
           }
